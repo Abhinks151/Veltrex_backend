@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  email      String   @unique
+  password   String
+  role       UserRole @default(ADMIN)
+  isVerified Boolean  @default(false) @map("is_verified")
+  isBlocked  Boolean  @default(false) @map("is_blocked")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  tenant     Tenant?  @relation("TenantOwner")
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  profileImage String?  @map("profile_image")
+  profileImageKey String? @map("profile_image_key")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+
+
+model PasswordResetToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("password_reset_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("email_verification_tokens")
+}
+
+
+model Tenant {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  ownerId   String   @unique @db.Uuid
+  owner     User     @relation("TenantOwner", fields: [ownerId], references: [id])
+  isBlocked Boolean  @default(false) @map("is_blocked")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  subscription Subscription?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tenants")
+}
+
+
+model Subscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @db.Uuid @unique
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  plan      PlanType
+  status    SubscriptionStatus
+  startDate DateTime
+  endDate   DateTime
+  trialUsed Boolean  @default(false)
+  razorpaySubscriptionId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PlanType {
+  FREE
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PAST_DUE
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MACHINIST
+  MAINTENANCE
+}

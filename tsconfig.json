@@ -1,0 +1,68 @@
+// {
+//   "compilerOptions": {
+//     "module": "commonjs",
+//     "moduleResolution": "node",
+//     "resolvePackageJsonExports": false,
+//     "esModuleInterop": true,
+//     "isolatedModules": true,
+//     "declaration": true,
+//     "removeComments": true,
+//     "emitDecoratorMetadata": true,
+//     "experimentalDecorators": true,
+//     "allowSyntheticDefaultImports": true,
+//     "target": "ES2023",
+//     "sourceMap": true,
+//     "outDir": "./dist",
+//     "baseUrl": "./",
+//     "incremental": true,
+//     "skipLibCheck": true,
+//     "strictNullChecks": true,
+//     "forceConsistentCasingInFileNames": true,
+//     "noImplicitAny": false,
+//     "strictBindCallApply": false,
+//     "noFallthroughCasesInSwitch": false
+//   },
+//   "exclude": [
+//     "node_modules",
+//     "dist",
+//     "generated"
+//   ]
+// }
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2023",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "declaration": true,
+    "removeComments": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "incremental": true,
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolvePackageJsonExports": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "generated"
+  ]
+}
