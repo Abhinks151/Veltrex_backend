@@ -10,6 +10,7 @@ import {
   UploadFileResult,
 } from '../interfaces/file-storage.interface';
 import { ConfigService } from '@nestjs/config';
+import { S3BucketFolderConstants } from '@/shared/enums/s3-bucket-folder.constants';
 
 @Injectable()
 export class S3StorageService implements IFileStorageService {
@@ -33,7 +34,7 @@ export class S3StorageService implements IFileStorageService {
 
   async upload(
     file: Express.Multer.File,
-    folder = 'uploads',
+    folder = S3BucketFolderConstants.UPLOADS,
   ): Promise<UploadFileResult> {
     const fileExtension = file.originalname.split('.').pop();
 

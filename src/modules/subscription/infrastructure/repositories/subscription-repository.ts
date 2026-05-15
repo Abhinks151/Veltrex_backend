@@ -5,17 +5,16 @@ import { toSubscriptionMapper } from '../../application/mapper/subscription.mapp
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 
-// import { PrismaSubscriptionRaw } from "./types/prisma-subscription-raw.type";
 import { CreateSubscriptionDto } from '../../application/dto/create-subscription.dto';
 import { PlanType } from '@/shared/enums/plan-type.enum';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class SubscriptionRepository implements ISubscriptionRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   async create(subscription: CreateSubscriptionDto): Promise<Subscription> {
-    const created = await this.prisma.subscription.create({
+    const created = await this._prisma.subscription.create({
       data: {
         tenantId: subscription.tenantId,
         plan: subscription.plan as PlanType,
@@ -30,7 +29,7 @@ export class SubscriptionRepository implements ISubscriptionRepository {
   }
 
   async findByTenantId(tenantId: string): Promise<Subscription> {
-    const subscription = await this.prisma.subscription.findUnique({
+    const subscription = await this._prisma.subscription.findUnique({
       where: { tenantId },
     });
     if (!subscription) {
@@ -42,7 +41,7 @@ export class SubscriptionRepository implements ISubscriptionRepository {
   }
 
   async updateStatus(subscriptionId: string): Promise<Subscription> {
-    const existing = await this.prisma.subscription.findUnique({
+    const existing = await this._prisma.subscription.findUnique({
       where: { id: subscriptionId },
     });
     if (!existing) {
@@ -50,7 +49,7 @@ export class SubscriptionRepository implements ISubscriptionRepository {
         MESSAGE_CONSTANTS.ERROR.SUBSCRIPTION_NOT_FOUND,
       );
     }
-    const updated = await this.prisma.subscription.update({
+    const updated = await this._prisma.subscription.update({
       where: { id: subscriptionId },
       data: {
         status:

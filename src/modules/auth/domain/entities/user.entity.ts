@@ -1,19 +1,5 @@
 import { Role } from '@/shared/enums/roles.enum';
 
-// export interface User {
-//   id: number;
-//   uuid: string;
-//   name: string;
-//   email: string;
-//   password: string;
-//   createdAt: Date;
-//   updatedAt: Date;
-//   role: Role;
-//   isVerified: boolean;
-//   isBlocked: boolean;
-//   isDeleted: boolean;
-// }
-
 export class User {
   constructor(
     public id: string,

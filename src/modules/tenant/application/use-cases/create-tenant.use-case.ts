@@ -15,13 +15,13 @@ import { NotFoundError } from '../../../../shared/common/errors/domain-errors';
 export class CreateTenantUseCase implements ICreateTenantUseCase {
   constructor(
     @Inject('ITenantRepository')
-    private readonly tenantRepository: ITenantRepository,
+    private readonly _tenantRepository: ITenantRepository,
 
     @Inject('IAuthQueryService')
-    private readonly authQueryService: IAuthQueryService,
+    private readonly _authQueryService: IAuthQueryService,
 
     @Inject('ISubscriptionQueryService')
-    private readonly subscriptionQueryService: ISubscriptionQueryService,
+    private readonly _subscriptionQueryService: ISubscriptionQueryService,
   ) {}
 
   async execute(
@@ -29,19 +29,17 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
     ownerId: string,
   ): Promise<Tenant> {
     const user =
-      await this.authQueryService.validateUserForTenantCreation(ownerId);
+      await this._authQueryService.validateUserForTenantCreation(ownerId);
     if (!user) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
-    // console.log(ownerId, "ownerId")
     const data = {
       name: reqDto.name,
-      // password: reqDto.password,
       ownerId,
     };
 
-    const response = await this.tenantRepository.create(data);
+    const response = await this._tenantRepository.create(data);
     try {
       const subscriptionData: CreateSubscriptionDto = {
         tenantId: response.id,
@@ -52,7 +50,7 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
         trialUsed: false,
         razorpaySubscriptionId: '',
       };
-      await this.subscriptionQueryService.create(subscriptionData);
+      await this._subscriptionQueryService.create(subscriptionData);
     } catch (error) {
       console.log(error);
     }

@@ -6,10 +6,10 @@ import { Inject } from '@nestjs/common';
 export class UpdateTenantUseCase implements IUpdateTenantUseCase {
   constructor(
     @Inject('ITenantQueryService')
-    private readonly tenantQueryService: ITenantQueryService,
+    private readonly _tenantQueryService: ITenantQueryService,
   ) {}
 
   async execute(tenantId: string, name: string): Promise<Tenant> {
-    return this.tenantQueryService.updateName(tenantId, name);
+    return this._tenantQueryService.updateName(tenantId, name);
   }
 }

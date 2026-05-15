@@ -17,7 +17,6 @@ import { TenantCreationRequestDto } from './dto/tenant-creation.request.dto';
 import { ICreateTenantUseCase } from '../application/ports/use-cases/create-tenant.use-cases.interface';
 import { Roles } from '@/modules/auth/presentation/decorators/roles.decorator';
 import { Role } from '@/shared/enums/roles.enum';
-// import { IsVerifiedGuard } from "@/modules/auth/presentation/guards/is-verified.guard";
 import { RolesGuard } from '@/modules/auth/presentation/guards/roles.guard';
 import { Auth } from '@/modules/auth/presentation/decorators/auth.decorator';
 import { IUpdateTenantUseCase } from '../application/ports/use-cases/update-tenant.use-case.interface';
@@ -32,21 +31,21 @@ import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 export class TenantController {
   constructor(
     @Inject('ICreateTenantUseCase')
-    private readonly createTenantUseCase: ICreateTenantUseCase,
+    private readonly _createTenantUseCase: ICreateTenantUseCase,
     @Inject('IUpdateTenantUseCase')
-    private readonly updateTenantUseCase: IUpdateTenantUseCase,
+    private readonly _updateTenantUseCase: IUpdateTenantUseCase,
     @Inject('IGetTenantUseCase')
-    private readonly getTenantUseCase: IGetTenantUseCase,
+    private readonly _getTenantUseCase: IGetTenantUseCase,
     @Inject('IGetAllTenantUseCase')
-    private readonly getAllTenantUseCase: IGetAllTenantUseCase,
+    private readonly _getAllTenantUseCase: IGetAllTenantUseCase,
     @Inject('ICheckTenantNameUseCase')
-    private readonly checkTenantNameUseCase: ICheckTenantNameUseCase,
+    private readonly _checkTenantNameUseCase: ICheckTenantNameUseCase,
   ) {}
 
   @Auth()
   @Get('check-name/:name')
   async checkName(@Param('name') name: string) {
-    const isTaken = await this.checkTenantNameUseCase.execute(name);
+    const isTaken = await this._checkTenantNameUseCase.execute(name);
     return new ApiResponse(true, { isTaken }, 'Availability checked');
   }
 
@@ -59,7 +58,7 @@ export class TenantController {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
-    const reposnse = await this.getTenantUseCase.execute(req.user.userId);
+    const reposnse = await this._getTenantUseCase.execute(req.user.userId);
     return new ApiResponse(
       true,
       reposnse,
@@ -76,7 +75,7 @@ export class TenantController {
     //   throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND)
     // }
 
-    const result = await this.getAllTenantUseCase.execute(query);
+    const result = await this._getAllTenantUseCase.execute(query);
     return new ApiResponse(
       true,
       result,
@@ -96,7 +95,7 @@ export class TenantController {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
-    const reposnse = await this.createTenantUseCase.execute(
+    const reposnse = await this._createTenantUseCase.execute(
       {
         name: reqDto.name,
         plan: reqDto.plan,
@@ -124,7 +123,7 @@ export class TenantController {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
-    const reposnse = await this.updateTenantUseCase.execute(
+    const reposnse = await this._updateTenantUseCase.execute(
       {
         name: reqDto.name,
         ownerId: req.user.userId,

@@ -27,15 +27,15 @@ import { Query } from '@nestjs/common';
 export class SuperAdminController {
   constructor(
     @Inject('IListAllTenantsUseCase')
-    private readonly listAllTenantsUseCase: IListAllTenantsUseCase,
+    private readonly _listAllTenantsUseCase: IListAllTenantsUseCase,
     @Inject('IToggleTenantBlockUseCase')
-    private readonly toggleTenantBlockUseCase: IToggleTenantBlockUseCase,
+    private readonly _toggleTenantBlockUseCase: IToggleTenantBlockUseCase,
     @Inject('IUpdateTenantUseCase')
-    private readonly updateTenantUseCase: IUpdateTenantUseCase,
+    private readonly _updateTenantUseCase: IUpdateTenantUseCase,
     @Inject('IListAllAdminUsersUseCase')
-    private readonly listAllAdminUsersUseCase: IListAllAdminUsersUseCase,
+    private readonly _listAllAdminUsersUseCase: IListAllAdminUsersUseCase,
     @Inject('IToggleUserBlockUseCase')
-    private readonly toggleUserBlockUseCase: IToggleUserBlockUseCase,
+    private readonly _toggleUserBlockUseCase: IToggleUserBlockUseCase,
   ) {}
 
   @Roles(Role.SUPER_ADMIN)
@@ -43,7 +43,7 @@ export class SuperAdminController {
   @Auth()
   @Get('tenants')
   async listAllTenants(@Query() query: PaginationQueryDto) {
-    const { tenants, total } = await this.listAllTenantsUseCase.execute(query);
+    const { tenants, total } = await this._listAllTenantsUseCase.execute(query);
     return new ApiResponse(
       true,
       { tenants, total },
@@ -56,7 +56,8 @@ export class SuperAdminController {
   @Auth()
   @Get('users')
   async listAllAdminUsers(@Query() query: PaginationQueryDto) {
-    const { users, total } = await this.listAllAdminUsersUseCase.execute(query);
+    const { users, total } =
+      await this._listAllAdminUsersUseCase.execute(query);
     return new ApiResponse(
       true,
       { users, total },
@@ -69,7 +70,7 @@ export class SuperAdminController {
   @Auth()
   @Patch('users/:id/toggle-block')
   async toggleUserBlock(@Param('id') id: string) {
-    const user = await this.toggleUserBlockUseCase.execute(id);
+    const user = await this._toggleUserBlockUseCase.execute(id);
     const status = user.isBlocked ? 'blocked' : 'unblocked';
 
     return new ApiResponse(true, user, `User ${status} successfully`);
@@ -80,7 +81,7 @@ export class SuperAdminController {
   @Auth()
   @Patch('tenants/:id/toggle-block')
   async toggleTenantBlock(@Param('id') id: string) {
-    const tenant = await this.toggleTenantBlockUseCase.execute(id);
+    const tenant = await this._toggleTenantBlockUseCase.execute(id);
     const hai = tenant.isBlocked ? 'blocked' : 'unblocked';
 
     return new ApiResponse(true, tenant, `Tenant ${hai} successfully`);
@@ -95,7 +96,7 @@ export class SuperAdminController {
     @Body() body: UpdateTenantNameRequestDto,
   ) {
     // console.log(body.name, "name", id, "id");
-    const tenant = await this.updateTenantUseCase.execute(id, body.name);
+    const tenant = await this._updateTenantUseCase.execute(id, body.name);
     return new ApiResponse(
       true,
       tenant,

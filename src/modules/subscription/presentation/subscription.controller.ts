@@ -27,12 +27,12 @@ import { CreateSubscriptionDto } from '../presentation/dto/create-subscription.d
 export class SubscriptionController {
   constructor(
     @Inject('ICreateSubscriptionUseCase')
-    private readonly createSubscriptionUseCase: ICreateSubscriptionUseCase,
+    private readonly _createSubscriptionUseCase: ICreateSubscriptionUseCase,
     @Inject('IGetSubscriptionUseCase')
-    private readonly getSubscriptionUseCase: IGetSubscriptionUseCase,
+    private readonly _getSubscriptionUseCase: IGetSubscriptionUseCase,
 
     @Inject('IToggleStatusUseCase')
-    private readonly toggleStatusUseCase: IToggleStatusUseCase,
+    private readonly _toggleStatusUseCase: IToggleStatusUseCase,
   ) {}
 
   @Roles(Role.ADMIN)
@@ -58,7 +58,7 @@ export class SubscriptionController {
       razorpaySubscriptionId: data.razorpaySubscriptionId || '',
     };
 
-    const reposnse = await this.createSubscriptionUseCase.execute(
+    const reposnse = await this._createSubscriptionUseCase.execute(
       req.user.userId,
       mappedData,
     );
@@ -79,7 +79,9 @@ export class SubscriptionController {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
-    const reposnse = await this.getSubscriptionUseCase.execute(req.user.userId);
+    const reposnse = await this._getSubscriptionUseCase.execute(
+      req.user.userId,
+    );
     return new ApiResponse(
       true,
       reposnse,
@@ -93,7 +95,7 @@ export class SubscriptionController {
   @Patch('toggle-status/:id')
   async toggleStatus(@Req() req: Request, @Param('id') id: string) {
     // console.log(id);
-    const reposnse = await this.toggleStatusUseCase.execute(id);
+    const reposnse = await this._toggleStatusUseCase.execute(id);
     return new ApiResponse(
       true,
       reposnse,

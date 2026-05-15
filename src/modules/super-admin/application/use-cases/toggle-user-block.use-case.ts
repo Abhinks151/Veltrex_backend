@@ -8,8 +8,6 @@ import { IAuthQueryService } from '@/modules/auth/application/ports/services/aut
 @Injectable()
 export class ToggleUserBlockUseCase implements IToggleUserBlockUseCase {
   constructor(
-    // @Inject('IUserRepository')
-    // private readonly userRepository: IUserRepository,
     @Inject('IAuthQueryService')
     private readonly _authQueryService: IAuthQueryService,
   ) {}

@@ -7,11 +7,11 @@ import { ITenantRepository } from '../ports/repositories/tenant-repository.inter
 export class GetTenantUseCase implements IGetTenantUseCase {
   constructor(
     @Inject('ITenantRepository')
-    private readonly tenantRepository: ITenantRepository,
+    private readonly _tenantRepository: ITenantRepository,
   ) {}
 
   async execute(ownerId: string): Promise<Tenant> {
-    const tenant = await this.tenantRepository.findByOwnerId(ownerId);
+    const tenant = await this._tenantRepository.findByOwnerId(ownerId);
     return tenant;
   }
 }

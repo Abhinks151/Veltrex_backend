@@ -6,11 +6,11 @@ import { ITenantRepository } from '../ports/repositories/tenant-repository.inter
 export class CheckTenantNameUseCase implements ICheckTenantNameUseCase {
   constructor(
     @Inject('ITenantRepository')
-    private readonly tenantRepository: ITenantRepository,
+    private readonly _tenantRepository: ITenantRepository,
   ) {}
 
   async execute(name: string): Promise<boolean> {
-    const tenant = await this.tenantRepository.findByName(name);
+    const tenant = await this._tenantRepository.findByName(name);
     return !!tenant;
   }
 }

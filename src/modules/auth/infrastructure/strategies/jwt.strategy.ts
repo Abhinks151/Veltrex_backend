@@ -11,7 +11,8 @@ import { ConfigService } from '@nestjs/config';
 // export class JwtStrategy extends PassportStrategy(Strategy) {
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
-    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @Inject('IUserRepository')
+    private readonly _userRepository: IUserRepository,
 
     private readonly _configService: ConfigService,
   ) {
@@ -25,8 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtPayload): Promise<ValidatedUserDto> {
-    console.log('this is working');
-    const user = await this.userRepository.findByEmail(payload.email);
+    const user = await this._userRepository.findByEmail(payload.email);
     if (!user) {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }

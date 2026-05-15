@@ -7,7 +7,7 @@ import { ITenantRepository } from '../ports/repositories/tenant-repository.inter
 export class GetAllTenantUseCase implements IGetAllTenantUseCase {
   constructor(
     @Inject('ITenantRepository')
-    private readonly tenantRepository: ITenantRepository,
+    private readonly _tenantRepository: ITenantRepository,
   ) {}
 
   async execute(query?: {
@@ -16,6 +16,6 @@ export class GetAllTenantUseCase implements IGetAllTenantUseCase {
     search?: string;
     status?: string;
   }): Promise<{ tenants: Tenant[]; total: number }> {
-    return this.tenantRepository.findAll(query || {});
+    return this._tenantRepository.findAll(query || {});
   }
 }

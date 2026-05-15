@@ -7,13 +7,13 @@ import { ITenantQueryService } from '@/modules/tenant/application/ports/services
 export class ToggleTenantBlockUseCase implements IToggleTenantBlockUseCase {
   constructor(
     @Inject('ITenantQueryService')
-    private readonly tenantQueryService: ITenantQueryService,
+    private readonly _tenantQueryService: ITenantQueryService,
   ) {}
 
   async execute(tenantId: string): Promise<Tenant> {
-    const tenant = await this.tenantQueryService.getById(tenantId);
+    const tenant = await this._tenantQueryService.getById(tenantId);
 
-    return this.tenantQueryService.updateBlockStatus(
+    return this._tenantQueryService.updateBlockStatus(
       tenantId,
       !tenant.isBlocked,
     );

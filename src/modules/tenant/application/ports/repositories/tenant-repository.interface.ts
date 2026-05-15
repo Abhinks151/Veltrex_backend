@@ -6,8 +6,6 @@ export interface ITenantRepository extends IBaseRepository<
   Tenant,
   TenantInputDto
 > {
-  // create(tenant: TenantInputDto): Promise<Tenant>;
-  // update(tenantId: string, tenant: TenantInputDto): Promise<Tenant>;
   findByOwnerId(ownerId: string): Promise<Tenant>;
   findById(id: string): Promise<Tenant>;
   updateBlockStatus(id: string, isBlocked: boolean): Promise<Tenant>;

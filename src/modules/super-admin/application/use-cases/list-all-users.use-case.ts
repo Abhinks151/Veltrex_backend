@@ -6,7 +6,7 @@ import { IAuthQueryService } from '@/modules/auth/application/ports/services/aut
 export class ListAllAdminUsersUseCase implements IListAllAdminUsersUseCase {
   constructor(
     @Inject('IAuthQueryService')
-    private readonly authQueryService: IAuthQueryService,
+    private readonly _authQueryService: IAuthQueryService,
   ) {}
 
   async execute(query: {
@@ -15,6 +15,6 @@ export class ListAllAdminUsersUseCase implements IListAllAdminUsersUseCase {
     search?: string;
     status?: string;
   }): Promise<{ users: User[]; total: number }> {
-    return await this.authQueryService.findAllAdminUsers(query);
+    return await this._authQueryService.findAllAdminUsers(query);
   }
 }

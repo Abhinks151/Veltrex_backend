@@ -8,14 +8,14 @@ import { Tenant } from '../../domain/tenant.entity';
 export class UpdateTenantUseCase implements IUpdateTenantUseCase {
   constructor(
     @Inject('ITenantRepository')
-    private readonly tenantRepository: ITenantRepository,
+    private readonly _tenantRepository: ITenantRepository,
   ) {}
 
   async execute(
     reqDto: TenantCreationRequestDto,
     tenantId: string,
   ): Promise<Tenant> {
-    const updatedTenant = await this.tenantRepository.update(tenantId, {
+    const updatedTenant = await this._tenantRepository.update(tenantId, {
       name: reqDto.name,
     });
 

@@ -7,10 +7,10 @@ import { Subscription } from '../../domain/subscription.entity';
 export class ToggleStatusUseCase implements IToggleStatusUseCase {
   constructor(
     @Inject('ISubscriptionRepository')
-    private readonly subscriptionRepository: ISubscriptionRepository,
+    private readonly _subscriptionRepository: ISubscriptionRepository,
   ) {}
 
   async execute(subscriptionId: string): Promise<Subscription> {
-    return await this.subscriptionRepository.updateStatus(subscriptionId);
+    return await this._subscriptionRepository.updateStatus(subscriptionId);
   }
 }

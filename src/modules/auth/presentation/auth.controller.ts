@@ -24,7 +24,6 @@ import { IVerifyEmailUseCase } from '../application/ports/use-cases/verify-email
 import { ISendVerificationEmailUseCase } from '../application/ports/use-cases/send-verification-email.use-case.interface';
 import { Request, Response } from 'express';
 import { User } from '../domain/entities/user.entity';
-// import { IsVerifiedGuard } from './guards/is-verified.guard';
 import { IRefreshTokenUseCase } from '../application/ports/use-cases/refresh-token.use-case.interface';
 
 import { ResendVerificationCodeRequestDto } from './dto/resend-verification-code.dto';
@@ -39,8 +38,6 @@ export class AuthController {
   constructor(
     private readonly _configService: ConfigService,
 
-    // private readonly registerUserUseCase: IUserRegisterUseCase,
-    // private readonly loginUserUseCase: IUserLoginUseCase,
     @Inject('IUserRegisterUseCase')
     private readonly _registerUserUseCase: IUserRegisterUseCase,
 
@@ -132,7 +129,6 @@ export class AuthController {
 
   @Post('refresh')
   refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    // const token: string | undefined = req.cookies?.refresh_token;
     const cookies = req.cookies as Record<string, string>;
     const token = cookies.refresh_token;
     if (!token) {
@@ -165,8 +161,6 @@ export class AuthController {
     @Req() req: Request,
     @Body() reqDto: RequestForgotPasswordRequestDto,
   ) {
-    // console.log('forgot password');
-
     const data = await this._requestPasswordResetUseCase.execute(reqDto.email);
 
     return new ApiResponse(
@@ -181,7 +175,6 @@ export class AuthController {
     @Query('token') token: string,
     @Body() reqDto: ResetPasswordRequestDto,
   ) {
-    // console.log('token', token);
     const pass = reqDto.password;
     const response = await this._userResetPasswordUseCase.execute(token, pass);
 

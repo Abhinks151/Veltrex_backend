@@ -151,12 +151,9 @@ export class TenantRepository implements ITenantRepository {
           isBlocked: isBlocked,
         },
       });
-      // console.log("repository block is working");
 
       return toTenantMapper(response);
     } catch (error) {
-      // console.error("Toggle block error:", error);
-
       if (error instanceof ApplicationError || error instanceof HttpException) {
         throw error;
       }
