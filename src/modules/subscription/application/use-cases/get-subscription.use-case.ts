@@ -25,6 +25,10 @@ export class GetSubscriptionUseCase implements IGetSubscriptionUseCase {
     const subscription = await this._subscriptionRepository.findByTenantId(
       tenant.id,
     );
+    if (!subscription) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.SUBSCRIPTION_NOT_FOUND);
+    }
+
     return subscription;
   }
 }

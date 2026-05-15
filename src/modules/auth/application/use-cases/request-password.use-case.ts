@@ -34,6 +34,10 @@ export class RequestPasswordResetUseCase implements IRequestPasswordResetUseCase
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
+    if (user.isBlocked) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+    }
+
     const token = this._tokenGenerator.generateToken();
     const hashedToken = this._tokenGenerator.hash(token);
     const expiresAt = new Date(

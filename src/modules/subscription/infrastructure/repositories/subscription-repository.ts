@@ -1,8 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ISubscriptionRepository } from '../../application/ports/repositories/subscription-repository.interface';
 import { Subscription } from '../../domain/subscription.entity';
 import { toSubscriptionMapper } from '../../application/mapper/subscription.mapper';
-import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 
 import { CreateSubscriptionDto } from '../../application/dto/create-subscription.dto';
@@ -28,26 +27,22 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     return toSubscriptionMapper(created);
   }
 
-  async findByTenantId(tenantId: string): Promise<Subscription> {
+  async findByTenantId(tenantId: string): Promise<Subscription | null> {
     const subscription = await this._prisma.subscription.findUnique({
       where: { tenantId },
     });
     if (!subscription) {
-      throw new BadRequestException(
-        MESSAGE_CONSTANTS.ERROR.SUBSCRIPTION_NOT_FOUND,
-      );
+      return null;
     }
     return toSubscriptionMapper(subscription);
   }
 
-  async updateStatus(subscriptionId: string): Promise<Subscription> {
+  async updateStatus(subscriptionId: string): Promise<Subscription | null> {
     const existing = await this._prisma.subscription.findUnique({
       where: { id: subscriptionId },
     });
     if (!existing) {
-      throw new BadRequestException(
-        MESSAGE_CONSTANTS.ERROR.SUBSCRIPTION_NOT_FOUND,
-      );
+      return null;
     }
     const updated = await this._prisma.subscription.update({
       where: { id: subscriptionId },
@@ -58,12 +53,6 @@ export class SubscriptionRepository implements ISubscriptionRepository {
             : SubscriptionStatus.ACTIVE,
       },
     });
-
-    if (!updated) {
-      throw new BadRequestException(
-        MESSAGE_CONSTANTS.ERROR.SUBSCRIPTION_NOT_FOUND,
-      );
-    }
 
     return toSubscriptionMapper(updated);
   }

@@ -19,7 +19,7 @@ export class TenantQueryService implements ITenantQueryService {
     return this._tenantRepository.findAll(query);
   }
 
-  async getById(id: string): Promise<Tenant> {
+  async getById(id: string): Promise<Tenant | null> {
     return this._tenantRepository.findById(id);
   }
 
@@ -35,7 +35,7 @@ export class TenantQueryService implements ITenantQueryService {
     return this._tenantRepository.update(id, { name });
   }
 
-  async findByOwnerId(ownerId: string): Promise<Tenant> {
+  async findByOwnerId(ownerId: string): Promise<Tenant | null> {
     return this._tenantRepository.findByOwnerId(ownerId);
   }
 }

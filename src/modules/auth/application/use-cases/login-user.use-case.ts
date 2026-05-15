@@ -6,7 +6,10 @@ import { JwtPayload } from '../ports/services/jwt-payload.interface';
 import { IUserRepository } from '../ports/repositories/user-repository.interface';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { LoginUserResponseDto } from '../dto/login-response.dto';
-import { NotFoundError } from '../../../../shared/common/errors/domain-errors';
+import {
+  BadRequestError,
+  NotFoundError,
+} from '../../../../shared/common/errors/domain-errors';
 
 @Injectable()
 export class LoginUserUseCase implements IUserLoginUseCase {
@@ -32,6 +35,10 @@ export class LoginUserUseCase implements IUserLoginUseCase {
     const user = await this._userRepository.findByUuid(userId);
     if (!user) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+    }
+
+    if (user.isBlocked) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
     }
 
     const payload: JwtPayload & { name: string } = {

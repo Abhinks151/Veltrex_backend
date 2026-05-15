@@ -4,7 +4,10 @@ import { IUpdateUserUseCase } from '../ports/use-cases/update-user.use-case.inte
 import { IUserRepository } from '../ports/repositories/user-repository.interface';
 import { UpdateUserOutputDto } from '../../presentation/dto/user.response.dto';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
-import { NotFoundError } from '../../../../shared/common/errors/domain-errors';
+import {
+  BadRequestError,
+  NotFoundError,
+} from '../../../../shared/common/errors/domain-errors';
 
 export class UpdateUserUseCase implements IUpdateUserUseCase {
   constructor(
@@ -20,6 +23,10 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
 
     if (!user) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+    }
+
+    if (user.isBlocked) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
     }
 
     Object.assign(user, reqDto);

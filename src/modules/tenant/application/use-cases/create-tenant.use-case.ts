@@ -9,7 +9,10 @@ import { ISubscriptionQueryService } from '@/modules/subscription/application/po
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { PlanType } from '@/shared/enums/plan-type.enum';
 import { CreateSubscriptionDto } from '@/modules/subscription/application/dto/create-subscription.dto';
-import { NotFoundError } from '../../../../shared/common/errors/domain-errors';
+import {
+  ConflictError,
+  NotFoundError,
+} from '../../../../shared/common/errors/domain-errors';
 
 @Injectable()
 export class CreateTenantUseCase implements ICreateTenantUseCase {
@@ -32,6 +35,16 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
       await this._authQueryService.validateUserForTenantCreation(ownerId);
     if (!user) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+    }
+
+    const userHasTenant = await this._tenantRepository.findByOwnerId(ownerId);
+    if (userHasTenant) {
+      throw new ConflictError(MESSAGE_CONSTANTS.ERROR.USER_ALREADY_HAS_TENANT);
+    }
+
+    const nameTaken = await this._tenantRepository.findByName(reqDto.name);
+    if (nameTaken) {
+      throw new ConflictError(MESSAGE_CONSTANTS.ERROR.TENANT_NAME_TAKEN);
     }
 
     const data = {

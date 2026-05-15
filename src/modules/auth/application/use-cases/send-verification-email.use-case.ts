@@ -35,6 +35,10 @@ export class SendVerificationEmailUseCase implements ISendVerificationEmailUseCa
       throw new BadRequestException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
+    if (user.isBlocked) {
+      throw new BadRequestException(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+    }
+
     if (user.isVerified) {
       throw new BadRequestException(
         MESSAGE_CONSTANTS.ERROR.USER_ALREADY_VERIFIED,

@@ -39,6 +39,18 @@ export class UserResetPasswordUseCase implements IUserResetPasswordUseCase {
 
     const hashedPassowrd = await this._passwordService.hash(password);
 
+    const user = await this._userRepository.findById(
+      tokenExist.userId.toString(),
+    );
+
+    if (!user) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+    }
+
+    if (user.isBlocked) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+    }
+
     // console.log(tokenExist);
     const updateUser = await this._userRepository.update(
       tokenExist.userId.toString(),

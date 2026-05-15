@@ -46,6 +46,10 @@ export class VerifyEmailUseCase implements IVerifyEmailUseCase {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
+    if (user.isBlocked) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+    }
+
     await this._userRepository.update(user.uuid, { is_verified: true });
 
     await this._emailVerificationTokenRepository.deleteToken(

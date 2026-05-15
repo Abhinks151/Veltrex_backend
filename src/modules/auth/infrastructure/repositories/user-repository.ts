@@ -14,17 +14,6 @@ export class UserRepository implements IUserRepository {
 
   async create(data: RegisterUserInput): Promise<User> {
     try {
-      const userExists = await this._prisma.user.findUnique({
-        where: { email: data.email },
-      });
-
-      if (userExists) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_ALREADY_EXISTS,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       const user = await this._prisma.user.create({ data });
 
       return toDomainUser(user);
@@ -51,21 +40,11 @@ export class UserRepository implements IUserRepository {
       where: { email },
     });
 
-    if (user?.isDeleted) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
+    if (!user || user.isDeleted) {
+      return null;
     }
 
-    if (user?.isBlocked) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    return user ? toDomainUser(user) : null;
+    return toDomainUser(user);
   }
 
   async findByUuid(uuid: string): Promise<User | null> {
@@ -73,43 +52,15 @@ export class UserRepository implements IUserRepository {
       where: { id: uuid },
     });
 
-    if (user?.isDeleted) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
+    if (!user || user.isDeleted) {
+      return null;
     }
 
-    if (user?.isBlocked) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    return user ? toDomainUser(user) : null;
+    return toDomainUser(user);
   }
 
   async update(uuid: string, data: UpdateUserInputDto): Promise<User> {
     try {
-      const user = await this._prisma.user.findUnique({
-        where: { id: uuid },
-      });
-
-      if (!user || user.isDeleted) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      if (user.isBlocked) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       const { is_verified, ...rest } = data;
 
       const updateData: Prisma.UserUpdateInput = {
