@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IUserRepository } from '../../application/ports/repositories/user-repository.interface';
 import { User } from '../../domain/entities/user.entity';
 import { RegisterUserInput } from '../../application/dto/register-user-input.dto';
@@ -7,6 +7,11 @@ import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { UpdateUserInputDto } from '../../application/dto/update-user-input.dto';
 import { toDomainUser } from '../../application/mapper/user.mapper';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+} from '@/shared/common/errors/domain-errors';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -22,16 +27,10 @@ export class UserRepository implements IUserRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_ALREADY_EXISTS,
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new ConflictError(MESSAGE_CONSTANTS.ERROR.USER_ALREADY_EXISTS);
       }
 
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.FAILED_TO_CREATE_USER,
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_CREATE_USER);
     }
   }
 
@@ -82,30 +81,22 @@ export class UserRepository implements IUserRepository {
           const target = error.meta?.target as string[];
 
           if (target?.includes('email')) {
-            throw new HttpException(
+            throw new ConflictError(
               MESSAGE_CONSTANTS.ERROR.USER_ALREADY_EXISTS,
-              HttpStatus.BAD_REQUEST,
             );
           }
 
-          throw new HttpException(
+          throw new ConflictError(
             MESSAGE_CONSTANTS.ERROR.UNIQUE_CONSTRAINT_VIOLATION,
-            HttpStatus.BAD_REQUEST,
           );
         }
 
         if (error.code === 'P2025') {
-          throw new HttpException(
-            MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-            HttpStatus.NOT_FOUND,
-          );
+          throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
         }
       }
 
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_USER,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_USER);
     }
   }
 
@@ -164,15 +155,9 @@ export class UserRepository implements IUserRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-        );
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
       }
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_USER,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_USER);
     }
   }
 
