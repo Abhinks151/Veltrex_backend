@@ -1,6 +1,6 @@
 import { ITenantRepository } from '../../application/ports/repositories/tenant-repository.interface';
 import { Tenant } from '../../domain/tenant.entity';
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { toTenantMapper } from '../../application/mapper/tenant.mapper';
 import { TenantInputDto } from '../../application/dto/tenant-intput.dto';
 import { Prisma } from '@prisma/client';
@@ -28,7 +28,7 @@ export class TenantRepository implements ITenantRepository {
 
       return toTenantMapper(response);
     } catch (error) {
-      if (error instanceof HttpException || error instanceof ApplicationError) {
+      if (error instanceof ApplicationError) {
         throw error;
       }
 
@@ -58,7 +58,7 @@ export class TenantRepository implements ITenantRepository {
 
       return toTenantMapper(response);
     } catch (error) {
-      if (error instanceof HttpException || error instanceof ApplicationError) {
+      if (error instanceof ApplicationError) {
         throw error;
       }
 
@@ -112,7 +112,7 @@ export class TenantRepository implements ITenantRepository {
 
       return toTenantMapper(response);
     } catch (error) {
-      if (error instanceof ApplicationError || error instanceof HttpException) {
+      if (error instanceof ApplicationError) {
         throw error;
       }
 
