@@ -29,7 +29,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
       );
     }
 
-    this._logger.info('Refresh token verified, issuing new tokens', {
+    this._logger.log('Refresh token verified, issuing new tokens', {
       userId: payload.userId,
     });
 

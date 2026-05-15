@@ -2,22 +2,25 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { IUserRepository } from '../../application/ports/repositories/user-repository.interface';
-import dotenv from 'dotenv';
 import { JwtPayload } from '../../application/ports/services/jwt-payload.interface';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { ValidatedUserDto } from '../../application/dto/jwt-strategy.dto';
-dotenv.config();
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 // export class JwtStrategy extends PassportStrategy(Strategy) {
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+
+    private readonly _configService: ConfigService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET_KEY || 'this is a super hard secret',
+      secretOrKey:
+        _configService.get<string>('JWT_SECRET_KEY') ||
+        'this is a super hard secret',
     });
   }
 

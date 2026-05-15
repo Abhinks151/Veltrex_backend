@@ -34,7 +34,7 @@ export class ProfileController {
     private readonly _updateProfileUseCase: IUpdateProfileUseCase,
     @Inject('IChangePasswordUseCase')
     private readonly _changePasswordUseCase: IChangePasswordUseCase,
-  ) { }
+  ) {}
 
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
@@ -95,7 +95,9 @@ export class ProfileController {
       fileFilter: (req, file, callback) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
           return callback(
-            new BadRequestException(MESSAGE_CONSTANTS.ERROR.ONLY_IMAGE_FILES_ALLOWED),
+            new BadRequestException(
+              MESSAGE_CONSTANTS.ERROR.ONLY_IMAGE_FILES_ALLOWED,
+            ),
             false,
           );
         }

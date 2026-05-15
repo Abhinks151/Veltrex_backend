@@ -10,7 +10,6 @@ import { TokenService } from './infrastructure/services/token-service';
 import { LocalStrategy } from './infrastructure/strategies/local.strategy';
 import { JwtStrategy } from './infrastructure/strategies/jwt.strategy';
 import { StringValue } from 'ms';
-import dotenv from 'dotenv';
 import { AuthService } from './infrastructure/services/auth-service';
 import { RequestPasswordResetUseCase } from './application/use-cases/request-password.use-case';
 import { PasswordResetTokenRepository } from './infrastructure/repositories/password-reset-repository';
@@ -26,17 +25,22 @@ import { RolesGuard } from './presentation/guards/roles.guard';
 import { IsVerifiedGuard } from './presentation/guards/is-verified.guard';
 import { UpdateUserUseCase } from './application/use-cases/update-user.use-case';
 
-dotenv.config();
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET_KEY,
-      signOptions: {
-        expiresIn: (process.env.JWT_ACCESS_TOKEN_EXPIRES_IN ||
-          '5m') as StringValue,
-      },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow<string>('JWT_SECRET_KEY'),
+        signOptions: {
+          expiresIn: configService.get<string>(
+            'JWT_ACCESS_TOKEN_EXPIRES_IN',
+          ) as StringValue,
+        },
+      }),
     }),
   ],
   controllers: [AuthController],

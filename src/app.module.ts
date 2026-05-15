@@ -9,14 +9,15 @@ import { AuthModule } from './modules/auth/auth.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { WinstonModule } from 'nest-winston';
+import { createWinstonConfig } from './shared/common/logger/logger.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     PrismaModule,
     LoggerModule,
@@ -25,12 +26,27 @@ import { ProfileModule } from './modules/profile/profile.module';
     SubscriptionModule,
     ProfileModule,
 
+    // Rate Limiting
     ThrottlerModule.forRoot([
       {
         ttl: Number(process.env.RATE_LIMIT_TTL) ?? 60000,
         limit: Number(process.env.RATE_LIMIT) ?? 10,
       },
     ]),
+
+    //config package
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+
+    // Logger
+    WinstonModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        createWinstonConfig(configService),
+    }),
   ],
   providers: [
     {

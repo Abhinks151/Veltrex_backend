@@ -1,25 +1,23 @@
 import { IEmailService } from '../../application/ports/services/email-service.interface';
-// import nodemailer from "nodemailer";
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
 import { Injectable } from '@nestjs/common';
-dotenv.config();
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EmailService implements IEmailService {
   private _tranporter;
-  constructor() {
+  constructor(private readonly _configService: ConfigService) {
     this._tranporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: this._configService.get<string>('EMAIL_USER'),
+        pass: this._configService.get<string>('EMAIL_PASS'),
       },
     });
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const link = `${process.env.FRONTEND_URL}/auth/reset-password?token=${token}`;
+    const link = `${this._configService.get<string>('FRONTEND_URL')}/auth/reset-password?token=${token}`;
 
     await this._tranporter.sendMail({
       from: 'Veltrex',
@@ -58,7 +56,7 @@ export class EmailService implements IEmailService {
   }
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
+    const link = `${this._configService.get<string>('FRONTEND_URL')}/auth/verify?token=${token}`;
 
     await this._tranporter.sendMail({
       from: 'Veltrex',

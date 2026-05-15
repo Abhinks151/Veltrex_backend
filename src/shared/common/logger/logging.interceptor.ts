@@ -31,7 +31,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
-        this.logger.info('HTTP Request handled', {
+        this.logger.log('HTTP Request handled', {
           requestId,
           method,
           url,

@@ -26,7 +26,7 @@ export class LoginUserUseCase implements IUserLoginUseCase {
     userId: string,
     requestId: string,
   ): Promise<LoginUserResponseDto> {
-    this._logger.info('User login attempt', {
+    this._logger.log('User login attempt', {
       requestId: requestId,
       userId: userId,
     });

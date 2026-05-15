@@ -41,7 +41,7 @@ export class TenantController {
     private readonly getAllTenantUseCase: IGetAllTenantUseCase,
     @Inject('ICheckTenantNameUseCase')
     private readonly checkTenantNameUseCase: ICheckTenantNameUseCase,
-  ) { }
+  ) {}
 
   @Auth()
   @Get('check-name/:name')
