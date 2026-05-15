@@ -15,6 +15,8 @@ import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { WinstonModule } from 'nest-winston';
 import { createWinstonConfig } from './shared/common/logger/logger.config';
+import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @Module({
   imports: [
@@ -38,6 +40,11 @@ import { createWinstonConfig } from './shared/common/logger/logger.config';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+
+    //multer for s3
+    MulterModule.register({
+      storage: memoryStorage(),
     }),
 
     // Logger

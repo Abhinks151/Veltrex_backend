@@ -15,8 +15,13 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
+  const allowedOrigins = [
+    configService.get<string>('FRONTEND_URL')?.replace(/\/$/, ''),
+    configService.get<string>('PRODUCTION_URL')?.replace(/\/$/, ''),
+  ].filter(Boolean);
+
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL')?.replace(/\/$/, ''),
+    origin: allowedOrigins,
 
     credentials: true,
   });

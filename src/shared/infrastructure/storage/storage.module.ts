@@ -2,13 +2,15 @@ import { Module } from '@nestjs/common';
 
 import { FILE_STORAGE } from './storage.constants';
 
-import { CloudinaryStorageService } from './services/cloudinary-storage.service';
+// import { CloudinaryStorageService } from './services/cloudinary-storage.service';
+import { S3StorageService } from './services/s3-storage.service';
 
 @Module({
   providers: [
     {
       provide: FILE_STORAGE,
-      useClass: CloudinaryStorageService,
+      // useClass: CloudinaryStorageService,
+      useClass: S3StorageService,
     },
   ],
 
