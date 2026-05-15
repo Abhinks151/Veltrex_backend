@@ -24,22 +24,20 @@ import { IVerifyEmailUseCase } from '../application/ports/use-cases/verify-email
 import { ISendVerificationEmailUseCase } from '../application/ports/use-cases/send-verification-email.use-case.interface';
 import { Request, Response } from 'express';
 import { User } from '../domain/entities/user.entity';
-// import { IsVerifiedGuard } from './guards/is-verified.guard';
 import { IRefreshTokenUseCase } from '../application/ports/use-cases/refresh-token.use-case.interface';
 
-import dotenv from 'dotenv';
 import { ResendVerificationCodeRequestDto } from './dto/resend-verification-code.dto';
 import { Auth } from './decorators/auth.decorator';
 import { IUpdateUserUseCase } from '../application/ports/use-cases/update-user.use-case.interface';
 import { UpdateUserRequestDto } from './dto/update-user.request.dto';
 import { MESSAGE_CONSTANTS } from '../../../shared/enums/messageConstants';
-dotenv.config();
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    // private readonly registerUserUseCase: IUserRegisterUseCase,
-    // private readonly loginUserUseCase: IUserLoginUseCase,
+    private readonly _configService: ConfigService,
+
     @Inject('IUserRegisterUseCase')
     private readonly _registerUserUseCase: IUserRegisterUseCase,
 
@@ -92,8 +90,11 @@ export class AuthController {
     res.cookie('refresh_token', data.refresh_token, {
       httpOnly: true,
       sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: Number(process.env.JWT_REFRESH_TOKEN_EXPIRES_IN) || 604800000,
+      secure: this._configService.get<string>('NODE_ENV') === 'production',
+      maxAge:
+        Number(
+          this._configService.get<string>('JWT_REFRESH_TOKEN_EXPIRES_IN'),
+        ) || 604800000,
     });
 
     return new ApiResponse(
@@ -128,7 +129,6 @@ export class AuthController {
 
   @Post('refresh')
   refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    // const token: string | undefined = req.cookies?.refresh_token;
     const cookies = req.cookies as Record<string, string>;
     const token = cookies.refresh_token;
     if (!token) {
@@ -142,8 +142,11 @@ export class AuthController {
     res.cookie('refresh_token', data.refresh_token, {
       httpOnly: true,
       sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: Number(process.env.JWT_REFRESH_TOKEN_EXPIRES_IN) || 604800000,
+      secure: this._configService.get<string>('NODE_ENV') === 'production',
+      maxAge:
+        Number(
+          this._configService.get<string>('JWT_REFRESH_TOKEN_EXPIRES_IN'),
+        ) || 604800000,
     });
 
     return new ApiResponse(
@@ -158,8 +161,6 @@ export class AuthController {
     @Req() req: Request,
     @Body() reqDto: RequestForgotPasswordRequestDto,
   ) {
-    // console.log('forgot password');
-
     const data = await this._requestPasswordResetUseCase.execute(reqDto.email);
 
     return new ApiResponse(
@@ -174,7 +175,6 @@ export class AuthController {
     @Query('token') token: string,
     @Body() reqDto: ResetPasswordRequestDto,
   ) {
-    // console.log('token', token);
     const pass = reqDto.password;
     const response = await this._userResetPasswordUseCase.execute(token, pass);
 

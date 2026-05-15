@@ -8,10 +8,10 @@ import { CreateSubscriptionDto } from './application/dto/create-subscription.dto
 export class SubscriptionQueryService implements ISubscriptionQueryService {
   constructor(
     @Inject('ISubscriptionRepository')
-    private readonly subscriptionRepository: ISubscriptionRepository,
+    private readonly _subscriptionRepository: ISubscriptionRepository,
   ) {}
 
   create(data: CreateSubscriptionDto): Promise<Subscription> {
-    return this.subscriptionRepository.create(data);
+    return this._subscriptionRepository.create(data);
   }
 }

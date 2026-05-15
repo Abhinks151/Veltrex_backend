@@ -11,7 +11,6 @@ import {
   ApplicationError,
   BadRequestError,
   ConflictError,
-  NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 
 @Injectable()
@@ -20,28 +19,6 @@ export class TenantRepository implements ITenantRepository {
 
   async create(tenant: TenantCreationRequestDto): Promise<Tenant> {
     try {
-      const userHasTenant = await this.prisma.tenant.findUnique({
-        where: {
-          ownerId: tenant.ownerId,
-        },
-      });
-
-      if (userHasTenant) {
-        throw new ConflictError(
-          MESSAGE_CONSTANTS.ERROR.USER_ALREADY_HAS_TENANT,
-        );
-      }
-
-      const nameTaken = await this.prisma.tenant.findFirst({
-        where: {
-          name: { equals: tenant.name, mode: 'insensitive' },
-        },
-      });
-
-      if (nameTaken) {
-        throw new ConflictError(MESSAGE_CONSTANTS.ERROR.TENANT_NAME_TAKEN);
-      }
-
       const response = await this.prisma.tenant.create({
         data: {
           name: tenant.name,
@@ -71,25 +48,6 @@ export class TenantRepository implements ITenantRepository {
   }
 
   async update(tenantId: string, tenant: TenantInputDto): Promise<Tenant> {
-    const tenantExists = await this.prisma.tenant.findUnique({
-      where: { id: tenantId },
-    });
-
-    if (!tenantExists) {
-      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
-    }
-
-    const nameTaken = await this.prisma.tenant.findFirst({
-      where: {
-        name: { equals: tenant.name, mode: 'insensitive' },
-        NOT: { id: tenantId },
-      },
-    });
-
-    if (nameTaken) {
-      throw new ConflictError(MESSAGE_CONSTANTS.ERROR.TENANT_NAME_TAKEN);
-    }
-
     try {
       const response = await this.prisma.tenant.update({
         where: { id: tenantId },
@@ -117,7 +75,7 @@ export class TenantRepository implements ITenantRepository {
     }
   }
 
-  async findByOwnerId(ownerId: string): Promise<Tenant> {
+  async findByOwnerId(ownerId: string): Promise<Tenant | null> {
     const response = await this.prisma.tenant.findUnique({
       where: {
         ownerId: ownerId,
@@ -125,19 +83,19 @@ export class TenantRepository implements ITenantRepository {
     });
 
     if (!response) {
-      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+      return null;
     }
 
     return toTenantMapper(response);
   }
 
-  async findById(id: string): Promise<Tenant> {
+  async findById(id: string): Promise<Tenant | null> {
     const response = await this.prisma.tenant.findUnique({
       where: { id },
     });
 
     if (!response) {
-      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+      return null;
     }
 
     return toTenantMapper(response);
@@ -151,12 +109,9 @@ export class TenantRepository implements ITenantRepository {
           isBlocked: isBlocked,
         },
       });
-      // console.log("repository block is working");
 
       return toTenantMapper(response);
     } catch (error) {
-      // console.error("Toggle block error:", error);
-
       if (error instanceof ApplicationError || error instanceof HttpException) {
         throw error;
       }

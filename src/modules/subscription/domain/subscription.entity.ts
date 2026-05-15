@@ -15,23 +15,3 @@ export class Subscription {
     public updatedAt: Date,
   ) {}
 }
-
-// model Subscription {
-//   id        String   @id @default(uuid()) @db.Uuid
-
-//   tenantId  String   @db.Uuid @unique
-//   tenant    Tenant   @relation(fields: [tenantId], references: [id])
-
-//   plan      PlanType
-//   status    SubscriptionStatus
-
-//   startDate DateTime
-//   endDate   DateTime
-
-//   trialUsed Boolean  @default(false)
-
-//   razorpaySubscriptionId String?
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }

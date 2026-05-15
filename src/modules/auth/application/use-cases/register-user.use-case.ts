@@ -25,7 +25,7 @@ export class RegisterUserUseCase implements IUserRegisterUseCase {
     data: RegisterUserInput,
     requestId: string,
   ): Promise<RegisterUserOutputDto> {
-    this._logger.info('User registration attempt', {
+    this._logger.log('User registration attempt', {
       requestId,
       email: data.email,
     });

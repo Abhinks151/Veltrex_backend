@@ -1,17 +1,28 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { AppLogger } from './shared/common/logger/logger.service';
-import dotenv from 'dotenv';
+import { ConfigService } from '@nestjs/config';
+
 import cookieParser from 'cookie-parser';
-dotenv.config();
+
+import { AppModule } from './app.module';
+import { AppLogger } from './shared/common/logger/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: new AppLogger(),
-  });
+  const app = await NestFactory.create(AppModule);
+
+  const logger = app.get(AppLogger);
+  app.useLogger(logger);
+
+  const configService = app.get(ConfigService);
+
+  const allowedOrigins = [
+    configService.get<string>('FRONTEND_URL')?.replace(/\/$/, ''),
+    configService.get<string>('PRODUCTION_URL')?.replace(/\/$/, ''),
+  ].filter(Boolean);
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL?.replace(/\/$/, ''),
+    origin: allowedOrigins,
+
     credentials: true,
   });
 
@@ -24,6 +35,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(configService.get<number>('PORT') ?? 3000);
 }
+
 void bootstrap();

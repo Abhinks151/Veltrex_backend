@@ -1,20 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
-import dotenv from 'dotenv';
-dotenv.config();
 import {
   IFileStorageService,
   UploadFileResult,
 } from '../interfaces/file-storage.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CloudinaryStorageService implements IFileStorageService {
-  constructor() {
+  constructor(private readonly _configService: ConfigService) {
     cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
+      cloud_name: this._configService.get<string>('CLOUDINARY_NAME'),
+      api_key: this._configService.get<string>('CLOUDINARY_API_KEY'),
+      api_secret: this._configService.get<string>('CLOUDINARY_API_SECRET'),
     });
   }
 

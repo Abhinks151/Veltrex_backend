@@ -7,7 +7,7 @@ import { ITenantQueryService } from './application/ports/services/tenant-query.s
 export class TenantQueryService implements ITenantQueryService {
   constructor(
     @Inject('ITenantRepository')
-    private readonly tenantRepository: ITenantRepository,
+    private readonly _tenantRepository: ITenantRepository,
   ) {}
 
   async getAllTenants(query: {
@@ -16,23 +16,26 @@ export class TenantQueryService implements ITenantQueryService {
     search?: string;
     status?: string;
   }): Promise<{ tenants: Tenant[]; total: number }> {
-    return this.tenantRepository.findAll(query);
+    return this._tenantRepository.findAll(query);
   }
 
-  async getById(id: string): Promise<Tenant> {
-    return this.tenantRepository.findById(id);
+  async getById(id: string): Promise<Tenant | null> {
+    return this._tenantRepository.findById(id);
   }
 
   async updateBlockStatus(id: string, isBlocked: boolean): Promise<Tenant> {
-    const tenant = await this.tenantRepository.updateBlockStatus(id, isBlocked);
+    const tenant = await this._tenantRepository.updateBlockStatus(
+      id,
+      isBlocked,
+    );
     return tenant;
   }
 
   async updateName(id: string, name: string): Promise<Tenant> {
-    return this.tenantRepository.update(id, { name });
+    return this._tenantRepository.update(id, { name });
   }
 
-  async findByOwnerId(ownerId: string): Promise<Tenant> {
-    return this.tenantRepository.findByOwnerId(ownerId);
+  async findByOwnerId(ownerId: string): Promise<Tenant | null> {
+    return this._tenantRepository.findByOwnerId(ownerId);
   }
 }

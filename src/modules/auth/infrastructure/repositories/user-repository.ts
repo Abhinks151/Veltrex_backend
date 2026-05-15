@@ -3,7 +3,6 @@ import { IUserRepository } from '../../application/ports/repositories/user-repos
 import { User } from '../../domain/entities/user.entity';
 import { RegisterUserInput } from '../../application/dto/register-user-input.dto';
 import { Prisma } from '@prisma/client';
-// import { Role } from '@/shared/enums/roles.enum';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { UpdateUserInputDto } from '../../application/dto/update-user-input.dto';
 import { toDomainUser } from '../../application/mapper/user.mapper';
@@ -15,34 +14,7 @@ export class UserRepository implements IUserRepository {
 
   async create(data: RegisterUserInput): Promise<User> {
     try {
-      // return this.prisma.user.create({ data });
-
-      const userExists = await this._prisma.user.findUnique({
-        where: { email: data.email },
-      });
-
-      if (userExists) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_ALREADY_EXISTS,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       const user = await this._prisma.user.create({ data });
-
-      // return {
-      //   id: user.id,
-      //   uuid: user.uuid,
-      //   name: user.name,
-      //   email: user.email,
-      //   password: user.password,
-      //   role: user.role as any,
-      //   isVerified: user.is_verified,
-      //   isBlocked: user.is_blocked,
-      //   isDeleted: user.is_deleted,
-      //   createdAt: user.createdAt,
-      //   updatedAt: user.updatedAt,
-      // };
 
       return toDomainUser(user);
     } catch (error) {
@@ -68,21 +40,11 @@ export class UserRepository implements IUserRepository {
       where: { email },
     });
 
-    if (user?.isDeleted) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
+    if (!user || user.isDeleted) {
+      return null;
     }
 
-    if (user?.isBlocked) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    return user ? toDomainUser(user) : null;
+    return toDomainUser(user);
   }
 
   async findByUuid(uuid: string): Promise<User | null> {
@@ -90,111 +52,15 @@ export class UserRepository implements IUserRepository {
       where: { id: uuid },
     });
 
-    if (user?.isDeleted) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
+    if (!user || user.isDeleted) {
+      return null;
     }
 
-    if (user?.isBlocked) {
-      throw new HttpException(
-        MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    return user ? toDomainUser(user) : null;
+    return toDomainUser(user);
   }
-
-  // async update(uuid: string, data: UpdateUserInputDto): Promise<User> {
-  //   try {
-  //     const user = await this._prisma.user.findUnique({
-  //       where: { id: uuid },
-  //     });
-
-  //     if (user?.isDeleted) {
-  //       throw new HttpException(
-  //         MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-  //         HttpStatus.NOT_FOUND,
-  //       );
-  //     }
-
-  //     if (user?.isBlocked) {
-  //       throw new HttpException(
-  //         MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED,
-  //         HttpStatus.BAD_REQUEST,
-  //       );
-  //     }
-
-  //     const updateData: Prisma.UserUpdateInput = { ...data };
-  //     if ('is_verified' in updateData) {
-  //       if ('is_verified' in data) {
-  //         updateData.isVerified = data.is_verified;
-  //       }
-  //       // updateData.isVerified = updateData.is_verified;
-  //       delete updateData.is_verified;
-  //     }
-
-  //     const updatedUser = await this._prisma.user.update({
-  //       where: { id: uuid },
-  //       data: updateData,
-  //     });
-
-  //     return toDomainUser(updatedUser);
-  //   } catch (error) {
-  //     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-  //       if (error.code === 'P2002') {
-  //         const target = error.meta?.target as string[];
-
-  //         if (target?.includes('email')) {
-  //           throw new HttpException(
-  //             MESSAGE_CONSTANTS.ERROR.USER_ALREADY_EXISTS,
-  //             HttpStatus.BAD_REQUEST,
-  //           );
-  //         }
-
-  //         throw new HttpException(
-  //           MESSAGE_CONSTANTS.ERROR.UNIQUE_CONSTRAINT_VIOLATION,
-  //           HttpStatus.BAD_REQUEST,
-  //         );
-  //       }
-
-  //       if (error.code === 'P2025') {
-  //         throw new HttpException(
-  //           MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-  //           HttpStatus.NOT_FOUND,
-  //         );
-  //       }
-  //     }
-
-  //     throw new HttpException(
-  //       MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_USER,
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
 
   async update(uuid: string, data: UpdateUserInputDto): Promise<User> {
     try {
-      const user = await this._prisma.user.findUnique({
-        where: { id: uuid },
-      });
-
-      if (!user || user.isDeleted) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      if (user.isBlocked) {
-        throw new HttpException(
-          MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       const { is_verified, ...rest } = data;
 
       const updateData: Prisma.UserUpdateInput = {

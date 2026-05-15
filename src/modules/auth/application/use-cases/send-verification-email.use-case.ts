@@ -4,10 +4,8 @@ import { IUserRepository } from '../ports/repositories/user-repository.interface
 import { IEmailVerificationTokenRepository } from '../ports/repositories/email-verification-repository.interface';
 import { ITokenGenerator } from '../ports/services/token-generator.interface';
 import { IEmailService } from '../ports/services/email-service.interface';
-import dotenv from 'dotenv';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
-
-dotenv.config();
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SendVerificationEmailUseCase implements ISendVerificationEmailUseCase {
@@ -23,6 +21,8 @@ export class SendVerificationEmailUseCase implements ISendVerificationEmailUseCa
 
     @Inject('IEmailService')
     private readonly _emailService: IEmailService,
+
+    private readonly _configService: ConfigService,
   ) {}
 
   async execute(email: string): Promise<void> {
@@ -33,6 +33,10 @@ export class SendVerificationEmailUseCase implements ISendVerificationEmailUseCa
     const user = await this._userRepository.findByEmail(email);
     if (!user) {
       throw new BadRequestException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+    }
+
+    if (user.isBlocked) {
+      throw new BadRequestException(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
     }
 
     if (user.isVerified) {
@@ -49,7 +53,9 @@ export class SendVerificationEmailUseCase implements ISendVerificationEmailUseCa
     const hashedToken = this._tokenGenerator.hash(token);
 
     const expiresAt = new Date(
-      Date.now() + (Number(process.env.VERIFY_TOKEN_EXPIRY) || 3600000),
+      Date.now() +
+        (Number(this._configService.get<string>('VERIFY_TOKEN_EXPIRY')) ||
+          3600000),
     );
 
     await this._emailVerificationTokenRepository.create(

@@ -11,11 +11,9 @@ export interface IUserRepository extends IBaseRepository<
   RegisterUserRequestDto,
   UpdateUserInputDto
 > {
-  // create(data: RegisterUserRequestDto): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findByUuid(uuid: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
-  // update(uuid: string, data: UpdateUserInputDto): Promise<User>
   findAllAdminUsers(query: {
     page?: number;
     limit?: number;

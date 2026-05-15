@@ -7,7 +7,7 @@ import { ITenantQueryService } from '@/modules/tenant/application/ports/services
 export class ListAllTenantsUseCase implements IListAllTenantsUseCase {
   constructor(
     @Inject('ITenantQueryService')
-    private readonly tenantQueryService: ITenantQueryService,
+    private readonly _tenantQueryService: ITenantQueryService,
   ) {}
 
   async execute(query: {
@@ -16,6 +16,6 @@ export class ListAllTenantsUseCase implements IListAllTenantsUseCase {
     search?: string;
     status?: string;
   }): Promise<{ tenants: Tenant[]; total: number }> {
-    return this.tenantQueryService.getAllTenants(query);
+    return this._tenantQueryService.getAllTenants(query);
   }
 }

@@ -3,6 +3,9 @@ import { IUploadProfileImageUseCase } from '../ports/use-cases/upload-profile-im
 import { IFileStorageService } from '@/shared/infrastructure/storage/interfaces/file-storage.interface';
 import { IAuthQueryService } from '@/modules/auth/application/ports/services/auth-query.service.interface';
 import { FILE_STORAGE } from '@/shared/infrastructure/storage/storage.constants';
+import { S3BucketFolderConstants } from '@/shared/enums/s3-bucket-folder.constants';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { NotFoundError } from '@/shared/common/errors/domain-errors';
 
 @Injectable()
 export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
@@ -15,9 +18,15 @@ export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
 
   async execute(userId: string, file: Express.Multer.File): Promise<string> {
     const user = await this._authQueryService.findById(userId);
-    const oldKey = user?.profileImageKey;
+    if (!user) {
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+    }
+    const oldKey = user.profileImageKey;
 
-    const result = await this._fileStorageService.upload(file, 'profiles');
+    const result = await this._fileStorageService.upload(
+      file,
+      S3BucketFolderConstants.PROFILES,
+    );
 
     await this._authQueryService.updateProfileImage(
       userId,

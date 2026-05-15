@@ -4,11 +4,9 @@ import { IUserRepository } from '../ports/repositories/user-repository.interface
 import { IPasswordResetTokenRepository } from '../ports/repositories/password-reset-repository.interface';
 import { ITokenGenerator } from '../ports/services/token-generator.interface';
 import { IEmailService } from '../ports/services/email-service.interface';
-import dotenv from 'dotenv';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { BadRequestError } from '../../../../shared/common/errors/domain-errors';
-
-dotenv.config();
+import { ConfigService } from '@nestjs/config';
 
 export class RequestPasswordResetUseCase implements IRequestPasswordResetUseCase {
   constructor(
@@ -23,6 +21,8 @@ export class RequestPasswordResetUseCase implements IRequestPasswordResetUseCase
 
     @Inject('IEmailService')
     private readonly _emailService: IEmailService,
+
+    private readonly _configService: ConfigService,
   ) {}
   async execute(email: string): Promise<void> {
     if (!email) {
@@ -34,10 +34,16 @@ export class RequestPasswordResetUseCase implements IRequestPasswordResetUseCase
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
+    if (user.isBlocked) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+    }
+
     const token = this._tokenGenerator.generateToken();
     const hashedToken = this._tokenGenerator.hash(token);
     const expiresAt = new Date(
-      Date.now() + (Number(process.env.RESET_TOKEN_EXPIRY) || 3600000),
+      Date.now() +
+        (Number(this._configService.get<string>('RESET_TOKEN_EXPIRY')) ||
+          3600000),
     );
 
     await this._passwordResetTokenRepository.create(

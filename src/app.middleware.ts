@@ -8,7 +8,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction) {
     const { requestId, method, originalUrl } = req;
-    this.logger.info(`Incoming ${method} request on ${originalUrl}`, {
+    this.logger.log(`Incoming ${method} request on ${originalUrl}`, {
       requestId,
     });
     next();

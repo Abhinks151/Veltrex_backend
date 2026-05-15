@@ -3,7 +3,6 @@ import { IAuthService } from '../../application/ports/services/auth-service.inte
 import { User } from '../../domain/entities/user.entity';
 import { IUserRepository } from '../../application/ports/repositories/user-repository.interface';
 import { IPasswordService } from '../../application/ports/services/password-service.interface';
-// import { toDomainUser } from './mapper/user.mapper';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 export class AuthService implements IAuthService {
