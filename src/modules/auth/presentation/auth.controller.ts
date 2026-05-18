@@ -23,7 +23,6 @@ import { IUserResetPasswordUseCase } from '../application/ports/use-cases/reset-
 import { IVerifyEmailUseCase } from '../application/ports/use-cases/verify-email.use-case.interface';
 import { ISendVerificationEmailUseCase } from '../application/ports/use-cases/send-verification-email.use-case.interface';
 import { Request, Response } from 'express';
-import { User } from '../domain/entities/user.entity';
 import { IRefreshTokenUseCase } from '../application/ports/use-cases/refresh-token.use-case.interface';
 
 import { ResendVerificationCodeRequestDto } from './dto/resend-verification-code.dto';
@@ -32,6 +31,8 @@ import { IUpdateUserUseCase } from '../application/ports/use-cases/update-user.u
 import { UpdateUserRequestDto } from './dto/update-user.request.dto';
 import { MESSAGE_CONSTANTS } from '../../../shared/enums/messageConstants';
 import { ConfigService } from '@nestjs/config';
+import { CurrentUser } from '@/shared/common/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../application/types/authenticated-user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -65,12 +66,6 @@ export class AuthController {
 
   @Post('register')
   async register(@Req() req: Request, @Body() reqDto: RegisterUserRequestDto) {
-    // const input: RegisterUserRequestDto = {
-    //   email: reqDto.email,
-    //   password: reqDto.password,
-    //   name: reqDto.name,
-    // };
-
     const data = await this._registerUserUseCase.execute(reqDto, req.requestId);
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_CREATED);
   }
@@ -109,21 +104,17 @@ export class AuthController {
   //to run the guards
   @Auth()
   @Get('profile')
-  getProfile(@Req() req: Request) {
-    return new ApiResponse(
-      true,
-      req.user,
-      MESSAGE_CONSTANTS.SUCCESS.USER_PROFILE,
-    );
+  getProfile(@CurrentUser() user: AuthenticatedUser) {
+    return new ApiResponse(true, user, MESSAGE_CONSTANTS.SUCCESS.USER_PROFILE);
   }
 
   @Auth()
   @Patch('update')
   async update(
-    @Req() req: Request & { user: User; requestId: string },
+    @CurrentUser() user: AuthenticatedUser,
     @Body() reqDto: UpdateUserRequestDto,
   ) {
-    const data = await this._updateUserUseCase.execute(reqDto, req.user.userId);
+    const data = await this._updateUserUseCase.execute(reqDto, user.userId);
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_UPDATED);
   }
 
