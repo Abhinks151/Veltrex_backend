@@ -26,6 +26,8 @@ import { ICheckTenantNameUseCase } from '../application/ports/use-cases/check-te
 import { MESSAGE_CONSTANTS } from '../../../shared/enums/messageConstants';
 import { Query } from '@nestjs/common';
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
+import { CurrentUser } from '@/shared/common/decorators/current-user.decorator';
+import { AuthenticatedUser } from '@/modules/auth/application/types/authenticated-user.interface';
 
 @Controller('tenant')
 export class TenantController {
@@ -53,12 +55,12 @@ export class TenantController {
   @UseGuards(RolesGuard)
   @Auth()
   @Get('get')
-  async getTenant(@Req() req: Request) {
-    if (!req.user) {
+  async getTenant(@CurrentUser() user: AuthenticatedUser) {
+    if (!user) {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
-    const reposnse = await this._getTenantUseCase.execute(req.user.userId);
+    const reposnse = await this._getTenantUseCase.execute(user.userId);
     return new ApiResponse(
       true,
       reposnse,

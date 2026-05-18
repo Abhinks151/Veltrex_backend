@@ -44,6 +44,6 @@ import { CheckTenantNameUseCase } from './application/use-cases/check-tenant-nam
       useClass: CheckTenantNameUseCase,
     },
   ],
-  exports: [TenantQueryService, 'ITenantQueryService'],
+  exports: [TenantQueryService, 'ITenantQueryService', 'ITenantRepository'],
 })
 export class TenantModule {}
