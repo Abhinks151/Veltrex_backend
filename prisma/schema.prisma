@@ -65,6 +65,7 @@ model Tenant {
   isDeleted Boolean  @default(false) @map("is_deleted")
   subscription Subscription?
   machines  Machine[]
+  fixtures  Fixture[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -127,6 +128,26 @@ model Machine {
 }
 
 enum MachineType {
+  MILL
+  LATHE
+}
+
+model Fixture {
+  id          String      @id @default(uuid()) @db.Uuid
+  tenantId    String      @map("tenant_id") @db.Uuid
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  name        String
+  dimensions  Json
+  type        FixtureType
+  isBlocked   Boolean     @default(false) @map("is_blocked")
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("fixtures")
+}
+
+enum FixtureType {
   MILL
   LATHE
 }

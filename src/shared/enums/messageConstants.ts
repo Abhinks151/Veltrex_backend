@@ -33,6 +33,11 @@ export const MESSAGE_CONSTANTS = {
     FAILED_TO_CREATE_MACHINE: 'Failed to create machine',
     FAILED_TO_UPDATE_MACHINE: 'Failed to update machine',
     MACHINE_ALREADY_DELETED: 'Machine is already deleted',
+    FIXTURE_NOT_FOUND: 'Fixture not found',
+    FIXTURE_NAME_TAKEN: 'Fixture name already exists for this tenant',
+    FAILED_TO_CREATE_FIXTURE: 'Failed to create fixture',
+    FAILED_TO_UPDATE_FIXTURE: 'Failed to update fixture',
+    FIXTURE_ALREADY_DELETED: 'Fixture is already deleted',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
@@ -69,5 +74,10 @@ export const MESSAGE_CONSTANTS = {
     MACHINES_FETCHED: 'Machines fetched successfully',
     MACHINE_BLOCK_TOGGLED: 'Machine block status updated',
     MACHINE_DELETED: 'Machine deleted successfully',
+    FIXTURE_CREATED: 'Fixture created successfully',
+    FIXTURE_UPDATED: 'Fixture updated successfully',
+    FIXTURES_FETCHED: 'Fixtures fetched successfully',
+    FIXTURE_BLOCK_TOGGLED: 'Fixture block status updated',
+    FIXTURE_DELETED: 'Fixture deleted successfully',
   },
 };
