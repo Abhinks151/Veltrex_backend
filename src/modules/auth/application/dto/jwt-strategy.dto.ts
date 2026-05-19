@@ -6,4 +6,5 @@ export interface ValidatedUserDto {
   role: string;
   is_verified: boolean;
   profileImage?: string;
+  tenantId?: string;
 }

@@ -64,6 +64,7 @@ model Tenant {
   isBlocked Boolean  @default(false) @map("is_blocked")
   isDeleted Boolean  @default(false) @map("is_deleted")
   subscription Subscription?
+  machines  Machine[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -102,4 +103,30 @@ enum UserRole {
   ADMIN
   MACHINIST
   MAINTENANCE
+}
+
+model Machine {
+  id              String      @id @default(uuid()) @db.Uuid
+  tenantId        String      @map("tenant_id") @db.Uuid
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  name            String
+  brand           String
+  maxRpm          Int         @map("max_rpm")
+  axis            Int
+  type            MachineType
+  maxTravelSpeed  Int         @map("max_travel_speed")
+  holdingSize     Int         @map("holding_size")
+  toolCount       Int         @map("tool_count")
+  status          String
+  isBlocked       Boolean     @default(false) @map("is_blocked")
+  isDeleted       Boolean     @default(false) @map("is_deleted")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  @@map("machines")
+}
+
+enum MachineType {
+  MILL
+  LATHE
 }

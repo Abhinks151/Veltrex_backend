@@ -28,6 +28,11 @@ export const MESSAGE_CONSTANTS = {
     SUBSCRIPTION_NOT_FOUND: 'Subscription not found',
     ONLY_IMAGE_FILES_ALLOWED: 'Only image files are allowed!',
     FILE_IS_REQUIRED: 'File is required',
+    MACHINE_NOT_FOUND: 'Machine not found',
+    MACHINE_NAME_TAKEN: 'Machine name already exists for this tenant',
+    FAILED_TO_CREATE_MACHINE: 'Failed to create machine',
+    FAILED_TO_UPDATE_MACHINE: 'Failed to update machine',
+    MACHINE_ALREADY_DELETED: 'Machine is already deleted',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
@@ -59,5 +64,10 @@ export const MESSAGE_CONSTANTS = {
     SUBSCRIPTION_FETCHED: 'Subscription fetched successfully',
     SUBSCRIPTION_UPDATED: 'Subscription updated successfully',
     PROFILE_IMAGE_UPLOADED: 'Profile image uploaded successfully',
+    MACHINE_CREATED: 'Machine created successfully',
+    MACHINE_UPDATED: 'Machine updated successfully',
+    MACHINES_FETCHED: 'Machines fetched successfully',
+    MACHINE_BLOCK_TOGGLED: 'Machine block status updated',
+    MACHINE_DELETED: 'Machine deleted successfully',
   },
 };
