@@ -6,5 +6,6 @@ export interface LoginUserResponseDto {
     email: string;
     name: string;
     role: string;
+    profileImage?: string;
   };
 }

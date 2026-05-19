@@ -41,6 +41,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
       id: response.uuid,
       email: response.email,
       name: response.name,
+      profileImage: response.profileImage,
     };
   }
 }
