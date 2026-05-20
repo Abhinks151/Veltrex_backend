@@ -9,6 +9,7 @@ declare global {
       email: string;
       role: Role;
       is_verified: boolean;
+      tenantId?: string;
     }
 
     interface Request {

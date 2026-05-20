@@ -13,6 +13,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { MachineModule } from './modules/machine/machine.module';
+import { FixtureModule } from './modules/fixture/fixture.module';
 import { WinstonModule } from 'nest-winston';
 import { createWinstonConfig } from './shared/common/logger/logger.config';
 import { MulterModule } from '@nestjs/platform-express';
@@ -27,6 +29,8 @@ import { memoryStorage } from 'multer';
     SuperAdminModule,
     SubscriptionModule,
     ProfileModule,
+    MachineModule,
+    FixtureModule,
 
     // Rate Limiting
     ThrottlerModule.forRoot([

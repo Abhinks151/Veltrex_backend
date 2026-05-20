@@ -11,7 +11,7 @@ import { SubscriptionModule } from '../subscription/subscription.module';
 import { CheckTenantNameUseCase } from './application/use-cases/check-tenant-name.use-case';
 
 @Module({
-  imports: [AuthModule, forwardRef(() => SubscriptionModule)],
+  imports: [forwardRef(() => AuthModule), forwardRef(() => SubscriptionModule)],
   controllers: [TenantController],
   providers: [
     TenantQueryService,

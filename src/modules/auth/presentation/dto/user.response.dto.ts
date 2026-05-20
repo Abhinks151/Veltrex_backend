@@ -8,6 +8,7 @@ export interface UpdateUserOutputDto {
   id: string;
   email: string;
   name: string;
+  profileImage?: string;
 }
 
 export interface LoginUserOutputDto {
