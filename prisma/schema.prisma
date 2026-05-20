@@ -118,7 +118,7 @@ model Machine {
   maxTravelSpeed  Int         @map("max_travel_speed")
   holdingSize     Int         @map("holding_size")
   toolCount       Int         @map("tool_count")
-  status          String
+  status          MachineStatus
   isBlocked       Boolean     @default(false) @map("is_blocked")
   isDeleted       Boolean     @default(false) @map("is_deleted")
   createdAt       DateTime    @default(now()) @map("created_at")
@@ -130,6 +130,12 @@ model Machine {
 enum MachineType {
   MILL
   LATHE
+}
+
+enum MachineStatus {
+  IDLE
+  RUNNING
+  MAINTENANCE
 }
 
 model Fixture {

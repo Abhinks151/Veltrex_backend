@@ -7,6 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { MachineType } from '@/shared/enums/machine-type.enum';
+import { MachineStatus } from '@/shared/enums/machine-status.enum';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 
 export class EditMachineRequest {
@@ -49,6 +50,6 @@ export class EditMachineRequest {
   toolCount?: number;
 
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(MachineStatus)
+  status?: MachineStatus;
 }

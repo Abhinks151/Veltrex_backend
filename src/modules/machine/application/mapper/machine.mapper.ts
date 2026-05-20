@@ -1,5 +1,6 @@
 import { Machine } from '../../domain/machine.entity';
 import { MachineType } from '@/shared/enums/machine-type.enum';
+import { MachineStatus } from '@/shared/enums/machine-status.enum';
 
 interface RawMachine {
   id: string;
@@ -31,7 +32,7 @@ export const toMachineMapper = (machine: RawMachine): Machine => {
     machine.maxTravelSpeed,
     machine.holdingSize,
     machine.toolCount,
-    machine.status,
+    machine.status as MachineStatus,
     machine.isBlocked,
     machine.isDeleted,
     machine.createdAt,

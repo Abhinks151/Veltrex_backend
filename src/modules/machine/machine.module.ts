@@ -7,6 +7,7 @@ import { EditMachineUseCase } from './application/use-cases/edit-machine.use-cas
 import { GetAllActiveMachinesUseCase } from './application/use-cases/get-all-active-machines.use-case';
 import { BlockMachineUseCase } from './application/use-cases/block-machine.use-case';
 import { DeleteMachineUseCase } from './application/use-cases/delete-machine.use-case';
+import { ListMachinesUseCase } from './application/use-cases/list-machines.use-case';
 import { MachineQueryService } from './machine-query.service';
 
 @Module({
@@ -28,6 +29,10 @@ import { MachineQueryService } from './machine-query.service';
     {
       provide: 'IGetAllActiveMachinesUseCase',
       useClass: GetAllActiveMachinesUseCase,
+    },
+    {
+      provide: 'IListMachinesUseCase',
+      useClass: ListMachinesUseCase,
     },
     {
       provide: 'IBlockMachineUseCase',

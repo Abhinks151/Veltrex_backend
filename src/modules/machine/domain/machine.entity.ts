@@ -1,4 +1,5 @@
 import { MachineType } from '@/shared/enums/machine-type.enum';
+import { MachineStatus } from '@/shared/enums/machine-status.enum';
 
 export class Machine {
   constructor(
@@ -12,7 +13,7 @@ export class Machine {
     public readonly maxTravelSpeed: number,
     public readonly holdingSize: number,
     public readonly toolCount: number,
-    public readonly status: string,
+    public readonly status: MachineStatus,
     public readonly isBlocked: boolean,
     public readonly isDeleted: boolean,
     public readonly createdAt: Date,

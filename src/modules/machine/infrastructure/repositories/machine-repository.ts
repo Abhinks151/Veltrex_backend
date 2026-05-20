@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { IMachineRepository } from '../../application/ports/repositories/machine-repository.interface';
 import { Machine } from '../../domain/machine.entity';
 import {
@@ -7,6 +8,7 @@ import {
   MachineInputDto,
 } from '../../application/dto/create-machine.dto';
 import { toMachineMapper } from '../../application/mapper/machine.mapper';
+import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 
 @Injectable()
 export class MachineRepository implements IMachineRepository {
@@ -76,6 +78,47 @@ export class MachineRepository implements IMachineRepository {
     });
 
     return response.map(toMachineMapper);
+  }
+
+  async findAllPaginated(
+    tenantId: string,
+    query: PaginationQueryDto,
+  ): Promise<{ machines: Machine[]; total: number }> {
+    const { page = 1, limit = 10, search, status } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.MachineWhereInput = {
+      tenantId,
+      isDeleted: false,
+    };
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { brand: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (status && status !== 'all') {
+      where.isBlocked = status === 'blocked';
+    }
+
+    const [machines, total] = await Promise.all([
+      this._prisma.machine.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this._prisma.machine.count({ where }),
+    ]);
+
+    return {
+      machines: machines.map(toMachineMapper),
+      total,
+    };
   }
 
   async updateBlockStatus(id: string, isBlocked: boolean): Promise<Machine> {

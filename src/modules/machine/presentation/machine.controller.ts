@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -24,8 +25,10 @@ import { EditMachineRequest } from './dto/edit-machine.request.dto';
 import { ICreateMachineUseCase } from '../application/ports/use-cases/create-machine.use-case.interface';
 import { IEditMachineUseCase } from '../application/ports/use-cases/edit-machine.use-case.interface';
 import { IGetAllActiveMachinesUseCase } from '../application/ports/use-cases/get-all-active-machines.use-case.interface';
+import { IListMachinesUseCase } from '../application/ports/use-cases/list-machines.use-case.interface';
 import { IBlockMachineUseCase } from '../application/ports/use-cases/block-machine.use-case.interface';
 import { IDeleteMachineUseCase } from '../application/ports/use-cases/delete-machine.use-case.interface';
+import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 
 @Controller('machine')
 export class MachineController {
@@ -36,6 +39,8 @@ export class MachineController {
     private readonly _editMachineUseCase: IEditMachineUseCase,
     @Inject('IGetAllActiveMachinesUseCase')
     private readonly _getAllActiveMachinesUseCase: IGetAllActiveMachinesUseCase,
+    @Inject('IListMachinesUseCase')
+    private readonly _listMachinesUseCase: IListMachinesUseCase,
     @Inject('IBlockMachineUseCase')
     private readonly _blockMachineUseCase: IBlockMachineUseCase,
     @Inject('IDeleteMachineUseCase')
@@ -90,6 +95,26 @@ export class MachineController {
 
     const result = await this._getAllActiveMachinesUseCase.execute(
       req.user.tenantId,
+    );
+    return new ApiResponse(
+      true,
+      result,
+      MESSAGE_CONSTANTS.SUCCESS.MACHINES_FETCHED,
+    );
+  }
+
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Get('list')
+  async list(@Req() req: Request, @Query() query: PaginationQueryDto) {
+    if (!req.user || !req.user.tenantId) {
+      throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+    }
+
+    const result = await this._listMachinesUseCase.execute(
+      req.user.tenantId,
+      query,
     );
     return new ApiResponse(
       true,

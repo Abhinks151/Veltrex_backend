@@ -1,4 +1,5 @@
 import { MachineType } from '@/shared/enums/machine-type.enum';
+import { MachineStatus } from '@/shared/enums/machine-status.enum';
 
 export interface CreateMachineDto {
   tenantId: string;
@@ -10,7 +11,7 @@ export interface CreateMachineDto {
   maxTravelSpeed: number;
   holdingSize: number;
   toolCount: number;
-  status: string;
+  status: MachineStatus;
 }
 
 export type MachineInputDto = Partial<CreateMachineDto>;
