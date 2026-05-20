@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { IFixtureRepository } from '../../application/ports/repositories/fixture-repository.interface';
 import { Fixture } from '../../domain/fixture.entity';
 import {
@@ -7,6 +8,7 @@ import {
   FixtureInputDto,
 } from '../../application/dto/create-fixture.dto';
 import { toFixtureMapper } from '../../application/mapper/fixture.mapper';
+import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 
 @Injectable()
 export class FixtureRepository implements IFixtureRepository {
@@ -47,6 +49,7 @@ export class FixtureRepository implements IFixtureRepository {
       where: {
         tenantId,
         name: { equals: name, mode: 'insensitive' },
+        isDeleted: false,
       },
     });
 
@@ -60,6 +63,42 @@ export class FixtureRepository implements IFixtureRepository {
     });
 
     return response.map(toFixtureMapper);
+  }
+
+  async findAllPaginated(
+    tenantId: string,
+    query: PaginationQueryDto,
+  ): Promise<{ fixtures: Fixture[]; total: number }> {
+    const { page = 1, limit = 10, search, status } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.FixtureWhereInput = {
+      tenantId,
+      isDeleted: false,
+    };
+
+    if (search) {
+      where.OR = [{ name: { contains: search, mode: 'insensitive' } }];
+    }
+
+    if (status && status !== 'all') {
+      where.isBlocked = status === 'blocked';
+    }
+
+    const [fixtures, total] = await Promise.all([
+      this._prisma.fixture.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this._prisma.fixture.count({ where }),
+    ]);
+
+    return {
+      fixtures: fixtures.map(toFixtureMapper),
+      total,
+    };
   }
 
   async updateBlockStatus(id: string, isBlocked: boolean): Promise<Fixture> {

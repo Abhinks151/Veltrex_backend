@@ -7,6 +7,7 @@ import { EditFixtureUseCase } from './application/use-cases/edit-fixture.use-cas
 import { GetAllActiveFixturesUseCase } from './application/use-cases/get-all-active-fixtures.use-case';
 import { BlockFixtureUseCase } from './application/use-cases/block-fixture.use-case';
 import { DeleteFixtureUseCase } from './application/use-cases/delete-fixture.use-case';
+import { ListFixturesUseCase } from './application/use-cases/list-fixtures.use-case';
 
 @Module({
   imports: [AuthModule],
@@ -27,6 +28,10 @@ import { DeleteFixtureUseCase } from './application/use-cases/delete-fixture.use
     {
       provide: 'IGetAllActiveFixturesUseCase',
       useClass: GetAllActiveFixturesUseCase,
+    },
+    {
+      provide: 'IListFixturesUseCase',
+      useClass: ListFixturesUseCase,
     },
     {
       provide: 'IBlockFixtureUseCase',

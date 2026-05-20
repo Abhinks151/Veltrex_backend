@@ -60,6 +60,7 @@ export class MachineRepository implements IMachineRepository {
       where: {
         tenantId,
         name: { equals: name, mode: 'insensitive' },
+        isDeleted: false,
       },
     });
 

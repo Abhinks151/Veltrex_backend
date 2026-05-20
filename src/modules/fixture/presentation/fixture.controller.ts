@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -24,8 +25,10 @@ import { EditFixtureRequest } from './dto/edit-fixture.request.dto';
 import { ICreateFixtureUseCase } from '../application/ports/use-cases/create-fixture.use-case.interface';
 import { IEditFixtureUseCase } from '../application/ports/use-cases/edit-fixture.use-case.interface';
 import { IGetAllActiveFixturesUseCase } from '../application/ports/use-cases/get-all-active-fixtures.use-case.interface';
+import { IListFixturesUseCase } from '../application/ports/use-cases/list-fixtures.use-case.interface';
 import { IBlockFixtureUseCase } from '../application/ports/use-cases/block-fixture.use-case.interface';
 import { IDeleteFixtureUseCase } from '../application/ports/use-cases/delete-fixture.use-case.interface';
+import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 
 @Controller('fixture')
 export class FixtureController {
@@ -36,6 +39,8 @@ export class FixtureController {
     private readonly _editFixtureUseCase: IEditFixtureUseCase,
     @Inject('IGetAllActiveFixturesUseCase')
     private readonly _getAllActiveFixturesUseCase: IGetAllActiveFixturesUseCase,
+    @Inject('IListFixturesUseCase')
+    private readonly _listFixturesUseCase: IListFixturesUseCase,
     @Inject('IBlockFixtureUseCase')
     private readonly _blockFixtureUseCase: IBlockFixtureUseCase,
     @Inject('IDeleteFixtureUseCase')
@@ -90,6 +95,26 @@ export class FixtureController {
 
     const result = await this._getAllActiveFixturesUseCase.execute(
       req.user.tenantId,
+    );
+    return new ApiResponse(
+      true,
+      result,
+      MESSAGE_CONSTANTS.SUCCESS.FIXTURES_FETCHED,
+    );
+  }
+
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Get('list')
+  async list(@Req() req: Request, @Query() query: PaginationQueryDto) {
+    if (!req.user || !req.user.tenantId) {
+      throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+    }
+
+    const result = await this._listFixturesUseCase.execute(
+      req.user.tenantId,
+      query,
     );
     return new ApiResponse(
       true,
