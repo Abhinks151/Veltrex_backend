@@ -8,7 +8,6 @@ import { GetAllActiveMachinesUseCase } from './application/use-cases/get-all-act
 import { BlockMachineUseCase } from './application/use-cases/block-machine.use-case';
 import { DeleteMachineUseCase } from './application/use-cases/delete-machine.use-case';
 import { ListMachinesUseCase } from './application/use-cases/list-machines.use-case';
-import { MachineQueryService } from './machine-query.service';
 
 @Module({
   imports: [AuthModule],
@@ -42,12 +41,6 @@ import { MachineQueryService } from './machine-query.service';
       provide: 'IDeleteMachineUseCase',
       useClass: DeleteMachineUseCase,
     },
-    {
-      provide: 'IMachineQueryService',
-      useClass: MachineQueryService,
-    },
-    MachineQueryService,
   ],
-  exports: [MachineQueryService, 'IMachineQueryService'],
 })
 export class MachineModule {}
