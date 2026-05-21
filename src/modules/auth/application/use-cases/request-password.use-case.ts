@@ -24,7 +24,7 @@ export class RequestPasswordResetUseCase implements IRequestPasswordResetUseCase
 
     private readonly _configService: ConfigService,
   ) {}
-  async execute(email: string): Promise<void> {
+  async execute(email: string, resetLink?: string): Promise<void> {
     if (!email) {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.EMAIL_REQUIRED);
     }
@@ -52,7 +52,7 @@ export class RequestPasswordResetUseCase implements IRequestPasswordResetUseCase
       expiresAt,
     );
 
-    await this._emailService.sendPasswordResetEmail(email, token);
+    await this._emailService.sendPasswordResetEmail(email, token, resetLink);
 
     return;
   }

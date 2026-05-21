@@ -1,3 +1,3 @@
 export interface IRequestPasswordResetUseCase {
-  execute(email: string): Promise<void>;
+  execute(email: string, resetLink?: string): Promise<void>;
 }

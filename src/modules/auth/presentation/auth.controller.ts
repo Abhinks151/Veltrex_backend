@@ -152,7 +152,10 @@ export class AuthController {
     @Req() req: Request,
     @Body() reqDto: RequestForgotPasswordRequestDto,
   ) {
-    const data = await this._requestPasswordResetUseCase.execute(reqDto.email);
+    const data = await this._requestPasswordResetUseCase.execute(
+      reqDto.email,
+      reqDto.resetLink,
+    );
 
     return new ApiResponse(
       true,

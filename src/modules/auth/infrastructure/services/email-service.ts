@@ -16,8 +16,14 @@ export class EmailService implements IEmailService {
     });
   }
 
-  async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const link = `${this._configService.get<string>('FRONTEND_URL')}/auth/reset-password?token=${token}`;
+  async sendPasswordResetEmail(
+    email: string,
+    token: string,
+    resetLink?: string,
+  ): Promise<void> {
+    const link = resetLink
+      ? `${resetLink}?token=${token}`
+      : `${this._configService.get<string>('FRONTEND_URL')}/auth/reset-password?token=${token}`;
 
     await this._tranporter.sendMail({
       from: 'Veltrex',
