@@ -1,4 +1,8 @@
 export interface IEmailService {
-  sendPasswordResetEmail(email: string, token: string): Promise<void>;
+  sendPasswordResetEmail(
+    email: string,
+    token: string,
+    resetLink?: string,
+  ): Promise<void>;
   sendVerificationEmail(email: string, token: string): Promise<void>;
 }
