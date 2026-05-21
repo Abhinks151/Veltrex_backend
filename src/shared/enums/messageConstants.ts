@@ -24,6 +24,7 @@ export const MESSAGE_CONSTANTS = {
     FAILED_TO_CREATE_USER: 'Failed to create user',
     FAILED_TO_UPDATE_USER: 'Failed to update user',
     USER_IS_BLOCKED: 'User is blocked',
+    USER_IS_DELETED: 'User is deleted',
     UNIQUE_CONSTRAINT_VIOLATION: 'Unique constraint violation',
     SUBSCRIPTION_NOT_FOUND: 'Subscription not found',
     ONLY_IMAGE_FILES_ALLOWED: 'Only image files are allowed!',
@@ -46,6 +47,7 @@ export const MESSAGE_CONSTANTS = {
     PASSWORD_MAX_LENGTH_12: 'Password must be at most 12 characters long',
     NAME_MIN_LENGTH_3: 'Name must be at least 3 characters long',
     NAME_MIN_LENGTH_2: 'Name must be at least 2 characters long',
+    ROLE_INVALID: 'Invalid role',
   },
   SUCCESS: {
     USER_REGISTERED: 'User registered successfully',
@@ -79,5 +81,6 @@ export const MESSAGE_CONSTANTS = {
     FIXTURES_FETCHED: 'Fixtures fetched successfully',
     FIXTURE_BLOCK_TOGGLED: 'Fixture block status updated',
     FIXTURE_DELETED: 'Fixture deleted successfully',
+    USER_DELETED: 'User deleted successfully',
   },
 };

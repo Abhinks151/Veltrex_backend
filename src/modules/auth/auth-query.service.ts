@@ -38,7 +38,7 @@ export class AuthQueryService implements IAuthQueryService {
     search?: string;
     status?: string;
   }): Promise<{ users: User[]; total: number }> {
-    return this._userRepository.findAllAdminUsers(query);
+    return await this._userRepository.findAllAdminUsers(query);
   }
 
   async findById(id: string): Promise<User | null> {
