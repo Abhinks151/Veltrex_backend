@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './presentation/auth.controller';
+import { EmployeeController } from './presentation/employee.controller';
 import { RegisterUserUseCase } from './application/use-cases/register-user.use-case';
 import { LoginUserUseCase } from './application/use-cases/login-user.use-case';
 import { UserRepository } from './infrastructure/repositories/user-repository';
@@ -24,8 +25,14 @@ import { AuthQueryService } from './auth-query.service';
 import { RolesGuard } from './presentation/guards/roles.guard';
 import { IsVerifiedGuard } from './presentation/guards/is-verified.guard';
 import { UpdateUserUseCase } from './application/use-cases/update-user.use-case';
+import { ListEmployeesUseCase } from './application/use-cases/list-employees.use-case';
+import { UpdateEmployeeUseCase } from './application/use-cases/update-employee.use-case';
+import { ToggleEmployeeBlockUseCase } from './application/use-cases/toggle-employee-block.use-case';
+import { SoftDeleteEmployeeUseCase } from './application/use-cases/soft-delete-employee.use-case';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CreateEmployeeUseCase } from './application/use-cases/create-employee.use-case';
+import { SendEmployeeInviteUseCase } from './application/use-cases/send-employee-invite.use-case';
 
 @Module({
   imports: [
@@ -43,7 +50,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, EmployeeController],
   providers: [
     AuthService,
     LocalStrategy,
@@ -124,6 +131,30 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     {
       provide: 'IAuthQueryService',
       useClass: AuthQueryService,
+    },
+    {
+      provide: 'ICreateEmployeeUseCase',
+      useClass: CreateEmployeeUseCase,
+    },
+    {
+      provide: 'ISendEmployeeInviteUseCase',
+      useClass: SendEmployeeInviteUseCase,
+    },
+    {
+      provide: 'IListEmployeesUseCase',
+      useClass: ListEmployeesUseCase,
+    },
+    {
+      provide: 'IUpdateEmployeeUseCase',
+      useClass: UpdateEmployeeUseCase,
+    },
+    {
+      provide: 'IToggleEmployeeBlockUseCase',
+      useClass: ToggleEmployeeBlockUseCase,
+    },
+    {
+      provide: 'ISoftDeleteEmployeeUseCase',
+      useClass: SoftDeleteEmployeeUseCase,
     },
   ],
   exports: [

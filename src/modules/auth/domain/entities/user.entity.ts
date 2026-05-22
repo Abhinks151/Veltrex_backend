@@ -22,8 +22,12 @@ export class User {
   public userId: string;
   public uuid: string;
 
-  checkBlocked() {
-    this.isBlocked = true;
+  toggleBlock() {
+    this.isBlocked = !this.isBlocked;
+  }
+
+  softDelete() {
+    this.isDeleted = true;
   }
 
   canCreateTenant(): boolean {

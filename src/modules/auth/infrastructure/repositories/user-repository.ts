@@ -143,6 +143,80 @@ export class UserRepository implements IUserRepository {
     };
   }
 
+  async findAllEmployees(
+    tenantId: string,
+    query: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      status?: string;
+      sort?: string;
+    },
+  ): Promise<{ users: User[]; total: number }> {
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      status = 'all',
+      sort = 'asc',
+    } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.UserWhereInput = {
+      tenantId,
+      isDeleted: false,
+      role: {
+        not: 'SUPER_ADMIN',
+      },
+    };
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (status !== 'all') {
+      where.isBlocked = status === 'blocked';
+    }
+
+    const [users, total] = await Promise.all([
+      this._prisma.user.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        orderBy: {
+          name: sort as Prisma.SortOrder,
+        },
+      }),
+      this._prisma.user.count({ where }),
+    ]);
+
+    return {
+      users: users.map(toDomainUser),
+      total,
+    };
+  }
+
+  async softDelete(id: string): Promise<User> {
+    try {
+      const updatedUser = await this._prisma.user.update({
+        where: { id },
+        data: { isDeleted: true },
+      });
+      return toDomainUser(updatedUser);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+      }
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_USER);
+    }
+  }
+
   async updateBlockStatus(id: string, isBlocked: boolean): Promise<User> {
     try {
       const updatedUser = await this._prisma.user.update({

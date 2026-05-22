@@ -5,4 +5,5 @@ export interface IEmailService {
     resetLink?: string,
   ): Promise<void>;
   sendVerificationEmail(email: string, token: string): Promise<void>;
+  sendEmployeeWelcomeEmail(email: string, token: string): Promise<void>;
 }
