@@ -110,7 +110,7 @@ export class FixtureRepository implements IFixtureRepository {
     return toFixtureMapper(response);
   }
 
-  async softDelete(id: string): Promise<Fixture> {
+  async delete(id: string): Promise<Fixture> {
     const response = await this._prisma.fixture.update({
       where: { id },
       data: { isDeleted: true },

@@ -9,6 +9,7 @@ import { GetTenantUseCase } from './application/use-cases/get-tenant.use-case';
 import { GetAllTenantUseCase } from './application/use-cases/get-all-tenant.use-case';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { CheckTenantNameUseCase } from './application/use-cases/check-tenant-name.use-case';
+import { PlanRepository } from '../super-admin/infrastructure/repositories/plan-repository';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => SubscriptionModule)],
@@ -42,6 +43,10 @@ import { CheckTenantNameUseCase } from './application/use-cases/check-tenant-nam
     {
       provide: 'ICheckTenantNameUseCase',
       useClass: CheckTenantNameUseCase,
+    },
+    {
+      provide: 'IPlanRepository',
+      useClass: PlanRepository,
     },
   ],
   exports: [TenantQueryService, 'ITenantQueryService', 'ITenantRepository'],

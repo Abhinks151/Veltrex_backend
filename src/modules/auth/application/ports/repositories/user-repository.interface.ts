@@ -2,13 +2,13 @@
 // findByEmail
 
 import { User } from '../../../domain/entities/user.entity';
-import { RegisterUserRequestDto } from '../../../presentation/dto/register-user.request.dto';
+import { RegisterUserInput } from '../../dto/register-user-input.dto';
 import { UpdateUserInputDto } from '../../dto/update-user-input.dto';
 import { IBaseRepository } from '@/shared/infrastructure/repository/base-repository.interface';
 
 export interface IUserRepository extends IBaseRepository<
   User,
-  RegisterUserRequestDto,
+  RegisterUserInput,
   UpdateUserInputDto
 > {
   findByEmail(email: string): Promise<User | null>;
@@ -24,7 +24,7 @@ export interface IUserRepository extends IBaseRepository<
       sort?: string;
     },
   ): Promise<{ users: User[]; total: number }>;
-  softDelete(id: string): Promise<User>;
+  delete(id: string): Promise<User>;
   updateBlockStatus(id: string, isBlocked: boolean): Promise<User>;
   findAllAdminUsers(query: {
     page?: number;

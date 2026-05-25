@@ -7,11 +7,13 @@ import { SubscriptionQueryService } from './subscription-query.service';
 import { TenantModule } from '../tenant/tenant.module';
 import { GetSubscriptionUseCase } from './application/use-cases/get-subscription.use-case';
 import { ToggleStatusUseCase } from './application/use-cases/toggle-status.use-case';
+import { SubscriptionGuard } from './presentation/guards/subscription.guard';
 
 @Module({
   imports: [AuthModule, forwardRef(() => TenantModule)],
   controllers: [SubscriptionController],
   providers: [
+    SubscriptionGuard,
     {
       provide: 'ICreateSubscriptionUseCase',
       useClass: CreateSubscriptionUseCase,
@@ -34,6 +36,10 @@ import { ToggleStatusUseCase } from './application/use-cases/toggle-status.use-c
       useClass: SubscriptionQueryService,
     },
   ],
-  exports: ['ISubscriptionQueryService'],
+  exports: [
+    'ISubscriptionQueryService',
+    'ISubscriptionRepository',
+    SubscriptionGuard,
+  ],
 })
 export class SubscriptionModule {}

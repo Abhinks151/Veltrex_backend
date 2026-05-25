@@ -1,10 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
   Patch,
+  Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { IListAllTenantsUseCase } from '../application/ports/use-cases/list-all-tenants.use-case.interface';
@@ -19,9 +22,15 @@ import { IListAllAdminUsersUseCase } from '../application/ports/use-cases/list-a
 import { IToggleUserBlockUseCase } from '../application/ports/use-cases/toggle-user-block.use-case.interface';
 import { UpdateTenantNameRequestDto } from './dto/update-name.request.dto';
 import { MESSAGE_CONSTANTS } from '../../../shared/enums/messageConstants';
+import { ICreatePlanUseCase } from '../application/ports/use-cases/create-plan.use-case.interface';
+import { IUpdatePlanUseCase } from '../application/ports/use-cases/update-plan.use-case.interface';
+import { ITogglePlanBlockUseCase } from '../application/ports/use-cases/toggle-plan-block.use-case.interface';
+import { IDeletePlanUseCase } from '../application/ports/use-cases/delete-plan.use-case.interface';
+import { IListAllPlansUseCase } from '../application/ports/use-cases/list-all-plans.use-case.interface';
+import { CreatePlanDto } from './dto/create-plan.dto';
+import { UpdatePlanDto } from './dto/update-plan.dto';
 
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
-import { Query } from '@nestjs/common';
 
 @Controller('super-admin')
 export class SuperAdminController {
@@ -36,6 +45,16 @@ export class SuperAdminController {
     private readonly _listAllAdminUsersUseCase: IListAllAdminUsersUseCase,
     @Inject('IToggleUserBlockUseCase')
     private readonly _toggleUserBlockUseCase: IToggleUserBlockUseCase,
+    @Inject('ICreatePlanUseCase')
+    private readonly _createPlanUseCase: ICreatePlanUseCase,
+    @Inject('IUpdatePlanUseCase')
+    private readonly _updatePlanUseCase: IUpdatePlanUseCase,
+    @Inject('ITogglePlanBlockUseCase')
+    private readonly _togglePlanBlockUseCase: ITogglePlanBlockUseCase,
+    @Inject('IDeletePlanUseCase')
+    private readonly _deletePlanUseCase: IDeletePlanUseCase,
+    @Inject('IListAllPlansUseCase')
+    private readonly _listAllPlansUseCase: IListAllPlansUseCase,
   ) {}
 
   @Roles(Role.SUPER_ADMIN)
@@ -102,5 +121,55 @@ export class SuperAdminController {
       tenant,
       MESSAGE_CONSTANTS.SUCCESS.TENANT_NAME_UPDATED,
     );
+  }
+
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Get('plans')
+  async listAllPlans(@Query() query: PaginationQueryDto) {
+    const { plans, total } = await this._listAllPlansUseCase.execute(query);
+    return new ApiResponse(
+      true,
+      { plans, total },
+      'Plans fetched successfully',
+    );
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Post('plans')
+  async createPlan(@Body() body: CreatePlanDto) {
+    const plan = await this._createPlanUseCase.execute(body);
+    return new ApiResponse(true, plan, 'Plan created successfully');
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Patch('plans/:id')
+  async updatePlan(@Param('id') id: string, @Body() body: UpdatePlanDto) {
+    const plan = await this._updatePlanUseCase.execute(id, body);
+    return new ApiResponse(true, plan, 'Plan updated successfully');
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Patch('plans/:id/toggle-block')
+  async togglePlanBlock(@Param('id') id: string) {
+    const plan = await this._togglePlanBlockUseCase.execute(id);
+    const status = plan.isBlocked ? 'blocked' : 'unblocked';
+    return new ApiResponse(true, plan, `Plan ${status} successfully`);
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Delete('plans/:id')
+  async deletePlan(@Param('id') id: string) {
+    await this._deletePlanUseCase.execute(id);
+    return new ApiResponse(true, null, 'Plan deleted successfully');
   }
 }

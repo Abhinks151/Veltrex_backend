@@ -7,6 +7,12 @@ import { TenantModule } from '../tenant/tenant.module';
 import { UpdateTenantUseCase } from './application/use-cases/update-tenant.use-case';
 import { ListAllAdminUsersUseCase } from './application/use-cases/list-all-users.use-case';
 import { ToggleUserBlockUseCase } from './application/use-cases/toggle-user-block.use-case';
+import { PlanRepository } from './infrastructure/repositories/plan-repository';
+import { CreatePlanUseCase } from './application/use-cases/create-plan.use-case';
+import { UpdatePlanUseCase } from './application/use-cases/update-plan.use-case';
+import { TogglePlanBlockUseCase } from './application/use-cases/toggle-plan-block.use-case';
+import { DeletePlanUseCase } from './application/use-cases/delete-plan.use-case';
+import { ListAllPlansUseCase } from './application/use-cases/list-all-plans.use-case';
 
 @Module({
   imports: [AuthModule, TenantModule],
@@ -31,6 +37,30 @@ import { ToggleUserBlockUseCase } from './application/use-cases/toggle-user-bloc
     {
       provide: 'IToggleUserBlockUseCase',
       useClass: ToggleUserBlockUseCase,
+    },
+    {
+      provide: 'IPlanRepository',
+      useClass: PlanRepository,
+    },
+    {
+      provide: 'ICreatePlanUseCase',
+      useClass: CreatePlanUseCase,
+    },
+    {
+      provide: 'IUpdatePlanUseCase',
+      useClass: UpdatePlanUseCase,
+    },
+    {
+      provide: 'ITogglePlanBlockUseCase',
+      useClass: TogglePlanBlockUseCase,
+    },
+    {
+      provide: 'IDeletePlanUseCase',
+      useClass: DeletePlanUseCase,
+    },
+    {
+      provide: 'IListAllPlansUseCase',
+      useClass: ListAllPlansUseCase,
     },
   ],
 })

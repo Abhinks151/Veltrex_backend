@@ -5,7 +5,6 @@ import { toSubscriptionMapper } from '../../application/mapper/subscription.mapp
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 
 import { CreateSubscriptionDto } from '../../application/dto/create-subscription.dto';
-import { PlanType } from '@/shared/enums/plan-type.enum';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 
 @Injectable()
@@ -16,20 +15,21 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     const created = await this._prisma.subscription.create({
       data: {
         tenantId: subscription.tenantId,
-        plan: subscription.plan as PlanType,
+        planId: subscription.planId,
         status: subscription.status as SubscriptionStatus,
-        startDate: subscription.startDate,
-        endDate: subscription.endDate,
-        trialUsed: subscription.trialUsed,
+        currentPeriodStart: subscription.startDate,
+        currentPeriodEnd: subscription.endDate,
         razorpaySubscriptionId: subscription.razorpaySubscriptionId,
       },
+      include: { plan: true },
     });
     return toSubscriptionMapper(created);
   }
 
   async findByTenantId(tenantId: string): Promise<Subscription | null> {
-    const subscription = await this._prisma.subscription.findUnique({
+    const subscription = await this._prisma.subscription.findFirst({
       where: { tenantId },
+      include: { plan: true },
     });
     if (!subscription) {
       return null;
@@ -52,6 +52,7 @@ export class SubscriptionRepository implements ISubscriptionRepository {
             ? SubscriptionStatus.CANCELLED
             : SubscriptionStatus.ACTIVE,
       },
+      include: { plan: true },
     });
 
     return toSubscriptionMapper(updated);

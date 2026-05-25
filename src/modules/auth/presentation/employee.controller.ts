@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UserRole } from '@prisma/client';
 import { Auth } from './decorators/auth.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
@@ -23,7 +24,7 @@ import { ICreateEmployeeUseCase } from '../application/ports/use-cases/create-em
 import { IListEmployeesUseCase } from '../application/ports/use-cases/list-employees.use-case.interface';
 import { IUpdateEmployeeUseCase } from '../application/ports/use-cases/update-employee.use-case.interface';
 import { IToggleEmployeeBlockUseCase } from '../application/ports/use-cases/toggle-employee-block.use-case.interface';
-import { ISoftDeleteEmployeeUseCase } from '../application/ports/use-cases/soft-delete-employee.use-case.interface';
+import { ISoftDeleteEmployeeUseCase } from '../application/ports/use-cases/delete-employee.use-case.interface';
 import { ApiResponse } from '@/shared/common/apiResponse/api-response';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
@@ -52,6 +53,7 @@ export class EmployeeController {
   ) {
     const data = await this._createEmployeeUseCase.execute({
       ...reqDto,
+      role: reqDto.role as UserRole,
       tenantId: user.tenantId as string,
     });
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_CREATED);

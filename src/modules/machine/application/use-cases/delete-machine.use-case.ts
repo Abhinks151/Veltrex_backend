@@ -28,7 +28,7 @@ export class DeleteMachineUseCase implements IDeleteMachineUseCase {
     }
 
     try {
-      return await this._machineRepository.softDelete(id);
+      return await this._machineRepository.delete(id);
     } catch {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.INTERNAL_SERVER_ERROR);
     }

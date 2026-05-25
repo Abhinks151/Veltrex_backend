@@ -39,6 +39,11 @@ export const MESSAGE_CONSTANTS = {
     FAILED_TO_CREATE_FIXTURE: 'Failed to create fixture',
     FAILED_TO_UPDATE_FIXTURE: 'Failed to update fixture',
     FIXTURE_ALREADY_DELETED: 'Fixture is already deleted',
+    SUBSCRIPTION_EXPIRED:
+      'Subscription has expired. Please upgrade to continue.',
+    SUBSCRIPTION_RESTRICTED: 'Subscription is restricted. Access denied.',
+    NO_SUBSCRIPTION_FOUND: 'No active subscription found for this tenant',
+    TENANT_ID_MISSING: 'Tenant identification missing',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',

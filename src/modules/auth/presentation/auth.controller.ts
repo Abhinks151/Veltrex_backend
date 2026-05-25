@@ -24,7 +24,6 @@ import { IVerifyEmailUseCase } from '../application/ports/use-cases/verify-email
 import { ISendVerificationEmailUseCase } from '../application/ports/use-cases/send-verification-email.use-case.interface';
 import { Request, Response } from 'express';
 import { IRefreshTokenUseCase } from '../application/ports/use-cases/refresh-token.use-case.interface';
-
 import { ResendVerificationCodeRequestDto } from './dto/resend-verification-code.dto';
 import { Auth } from './decorators/auth.decorator';
 import { IUpdateUserUseCase } from '../application/ports/use-cases/update-user.use-case.interface';
@@ -33,6 +32,7 @@ import { MESSAGE_CONSTANTS } from '../../../shared/enums/messageConstants';
 import { ConfigService } from '@nestjs/config';
 import { CurrentUser } from '@/shared/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../application/types/authenticated-user.interface';
+import { setRefreshTokenCookie } from '@/shared/utils/auth.utils';
 
 @Controller('auth')
 export class AuthController {
@@ -82,15 +82,7 @@ export class AuthController {
       req.requestId,
     );
 
-    res.cookie('refresh_token', data.refresh_token, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: this._configService.get<string>('NODE_ENV') === 'production',
-      maxAge:
-        Number(
-          this._configService.get<string>('JWT_REFRESH_TOKEN_EXPIRES_IN'),
-        ) || 604800000,
-    });
+    setRefreshTokenCookie(res, data.refresh_token, this._configService);
 
     return new ApiResponse(
       true,
@@ -130,15 +122,7 @@ export class AuthController {
 
     const data = this._refreshTokenUseCase.execute(token);
 
-    res.cookie('refresh_token', data.refresh_token, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: this._configService.get<string>('NODE_ENV') === 'production',
-      maxAge:
-        Number(
-          this._configService.get<string>('JWT_REFRESH_TOKEN_EXPIRES_IN'),
-        ) || 604800000,
-    });
+    setRefreshTokenCookie(res, data.refresh_token, this._configService);
 
     return new ApiResponse(
       true,

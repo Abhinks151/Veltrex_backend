@@ -19,5 +19,5 @@ export interface IFixtureRepository extends IBaseRepository<
     query: PaginationQueryDto,
   ): Promise<{ fixtures: Fixture[]; total: number }>;
   updateBlockStatus(id: string, isBlocked: boolean): Promise<Fixture>;
-  softDelete(id: string): Promise<Fixture>;
+  delete(id: string): Promise<Fixture>;
 }

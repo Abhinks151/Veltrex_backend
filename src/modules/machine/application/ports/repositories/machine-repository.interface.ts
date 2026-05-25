@@ -19,5 +19,5 @@ export interface IMachineRepository extends IBaseRepository<
     query: PaginationQueryDto,
   ): Promise<{ machines: Machine[]; total: number }>;
   updateBlockStatus(id: string, isBlocked: boolean): Promise<Machine>;
-  softDelete(id: string): Promise<Machine>;
+  delete(id: string): Promise<Machine>;
 }

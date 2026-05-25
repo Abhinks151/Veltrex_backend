@@ -6,4 +6,5 @@ export interface RegisterUserInput {
   name: string;
   role?: UserRole;
   tenantId?: string;
+  isVerified?: boolean;
 }

@@ -131,7 +131,7 @@ export class MachineRepository implements IMachineRepository {
     return toMachineMapper(response);
   }
 
-  async softDelete(id: string): Promise<Machine> {
+  async delete(id: string): Promise<Machine> {
     const response = await this._prisma.machine.update({
       where: { id },
       data: { isDeleted: true },

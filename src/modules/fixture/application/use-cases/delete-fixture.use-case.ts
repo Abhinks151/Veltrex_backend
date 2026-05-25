@@ -28,7 +28,7 @@ export class DeleteFixtureUseCase implements IDeleteFixtureUseCase {
     }
 
     try {
-      return await this._fixtureRepository.softDelete(id);
+      return await this._fixtureRepository.delete(id);
     } catch {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.INTERNAL_SERVER_ERROR);
     }

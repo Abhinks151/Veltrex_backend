@@ -28,7 +28,7 @@ import { UpdateUserUseCase } from './application/use-cases/update-user.use-case'
 import { ListEmployeesUseCase } from './application/use-cases/list-employees.use-case';
 import { UpdateEmployeeUseCase } from './application/use-cases/update-employee.use-case';
 import { ToggleEmployeeBlockUseCase } from './application/use-cases/toggle-employee-block.use-case';
-import { SoftDeleteEmployeeUseCase } from './application/use-cases/soft-delete-employee.use-case';
+import { SoftDeleteEmployeeUseCase } from './application/use-cases/delete-employee.use-case';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee.use-case';

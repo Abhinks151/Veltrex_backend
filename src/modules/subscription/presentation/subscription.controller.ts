@@ -50,7 +50,7 @@ export class SubscriptionController {
 
     const mappedData = {
       tenantId: data.tenantId,
-      plan: data.plan,
+      planId: data.planId,
       status: data.status,
       startDate: new Date(data.startDate),
       endDate: new Date(data.endDate),

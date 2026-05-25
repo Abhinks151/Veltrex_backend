@@ -1,4 +1,3 @@
-import { PlanType } from '@/shared/enums/plan-type.enum';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import {
   IsBoolean,
@@ -16,8 +15,8 @@ export class CreateSubscriptionDto {
   @IsString()
   tenantId!: string;
 
-  @IsEnum(PlanType)
-  plan!: PlanType;
+  @IsString()
+  planId!: string;
 
   @IsEnum(SubscriptionStatus)
   status!: SubscriptionStatus;

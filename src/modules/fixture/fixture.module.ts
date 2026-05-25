@@ -9,8 +9,10 @@ import { BlockFixtureUseCase } from './application/use-cases/block-fixture.use-c
 import { DeleteFixtureUseCase } from './application/use-cases/delete-fixture.use-case';
 import { ListFixturesUseCase } from './application/use-cases/list-fixtures.use-case';
 
+import { SubscriptionModule } from '../subscription/subscription.module';
+
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, SubscriptionModule],
   controllers: [FixtureController],
   providers: [
     {

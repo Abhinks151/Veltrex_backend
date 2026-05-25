@@ -26,7 +26,7 @@ export class User {
     this.isBlocked = !this.isBlocked;
   }
 
-  softDelete() {
+  delete() {
     this.isDeleted = true;
   }
 

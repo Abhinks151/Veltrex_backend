@@ -14,10 +14,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Auth } from '@/modules/auth/presentation/decorators/auth.decorator';
-import { Roles } from '@/modules/auth/presentation/decorators/roles.decorator';
-import { RolesGuard } from '@/modules/auth/presentation/guards/roles.guard';
 import { Role } from '@/shared/enums/roles.enum';
+import { Roles } from '@/modules/auth/presentation/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/modules/auth/presentation/guards/jwt-auth.guard';
+import { IsVerifiedGuard } from '@/modules/auth/presentation/guards/is-verified.guard';
+import { RolesGuard } from '@/modules/auth/presentation/guards/roles.guard';
+import { SubscriptionGuard } from '@/modules/subscription/presentation/guards/subscription.guard';
 import { ApiResponse } from '@/shared/common/apiResponse/api-response';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { CreateMachineRequest } from './dto/create-machine.request.dto';
@@ -48,8 +50,7 @@ export class MachineController {
   ) {}
 
   @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Auth()
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Post('create')
   async create(@Req() req: Request, @Body() dto: CreateMachineRequest) {
     if (!req.user || !req.user.tenantId) {
@@ -69,8 +70,7 @@ export class MachineController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Auth()
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Patch('edit/:id')
   async edit(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -85,8 +85,7 @@ export class MachineController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Auth()
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Get('active')
   async getActive(@Req() req: Request) {
     if (!req.user || !req.user.tenantId) {
@@ -104,8 +103,7 @@ export class MachineController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Auth()
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Get('list')
   async list(@Req() req: Request, @Query() query: PaginationQueryDto) {
     if (!req.user || !req.user.tenantId) {
@@ -124,8 +122,7 @@ export class MachineController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Auth()
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Patch('block/:id')
   async toggleBlock(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await this._blockMachineUseCase.execute(id);
@@ -137,8 +134,7 @@ export class MachineController {
   }
 
   @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Auth()
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Delete('delete/:id')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await this._deleteMachineUseCase.execute(id);
