@@ -6,6 +6,10 @@ import { JwtPayload } from '../ports/services/jwt-payload.interface';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { UnauthorizedError } from '../../../../shared/common/errors/domain-errors';
 
+import { IUserRepository } from '../ports/repositories/user-repository.interface';
+import { ITenantQueryService } from '@/modules/tenant/application/ports/services/tenant-query.service.interface';
+import { Role } from '@/shared/enums/roles.enum';
+
 @Injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
@@ -13,12 +17,18 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 
     @Inject('ITokenService')
     private readonly _tokenService: ITokenService,
+
+    @Inject('IUserRepository')
+    private readonly _userRepository: IUserRepository,
+
+    @Inject('ITenantQueryService')
+    private readonly _tenantQueryService: ITenantQueryService,
   ) {}
 
-  execute(refreshToken: string): {
+  async execute(refreshToken: string): Promise<{
     access_token: string;
     refresh_token: string;
-  } {
+  }> {
     let payload: JwtPayload;
 
     try {
@@ -27,6 +37,45 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
       throw new UnauthorizedError(
         MESSAGE_CONSTANTS.ERROR.INVALID_EXPIRED_REFRESH_TOKEN,
       );
+    }
+
+    if ((payload.role as Role) !== Role.SUPER_ADMIN) {
+      const user = await this._userRepository.findById(payload.userId);
+      if (!user) {
+        throw new UnauthorizedError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
+      }
+
+      if (user.isBlocked) {
+        throw new UnauthorizedError(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+      }
+
+      let tenant = null;
+      if (user.tenantId) {
+        tenant = await this._tenantQueryService.getById(user.tenantId);
+      } else {
+        tenant = await this._tenantQueryService.findByOwnerId(payload.userId);
+      }
+
+      if (tenant) {
+        if (tenant.isBlocked) {
+          throw new UnauthorizedError(
+            MESSAGE_CONSTANTS.ERROR.TENANT_IS_BLOCKED,
+          );
+        }
+
+        if (user.uuid !== tenant.ownerId) {
+          const owner = await this._userRepository.findById(tenant.ownerId);
+          if (owner && owner.isBlocked) {
+            throw new UnauthorizedError(
+              MESSAGE_CONSTANTS.ERROR.TENANT_IS_BLOCKED,
+            );
+          }
+        }
+      }
+
+      if (!tenant && (payload.role as Role) !== Role.ADMIN) {
+        throw new UnauthorizedError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+      }
     }
 
     this._logger.log('Refresh token verified, issuing new tokens', {

@@ -10,7 +10,7 @@ import { ToggleStatusUseCase } from './application/use-cases/toggle-status.use-c
 import { SubscriptionGuard } from './presentation/guards/subscription.guard';
 
 @Module({
-  imports: [AuthModule, forwardRef(() => TenantModule)],
+  imports: [forwardRef(() => AuthModule), forwardRef(() => TenantModule)],
   controllers: [SubscriptionController],
   providers: [
     SubscriptionGuard,

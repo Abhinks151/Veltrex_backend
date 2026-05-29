@@ -18,6 +18,7 @@ export const toDomainUser = (user: PrismaUser): User => {
     u.isVerified,
     u.isBlocked,
     u.isDeleted,
+    u.tenantId ?? undefined,
     u.profileImage ?? undefined,
     u.profileImageKey ?? undefined,
   );

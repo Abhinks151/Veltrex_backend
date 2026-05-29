@@ -10,6 +10,14 @@ export class TenantQueryService implements ITenantQueryService {
     private readonly _tenantRepository: ITenantRepository,
   ) {}
 
+  async checkValidTenant(ownerId: string): Promise<boolean> {
+    const tenant = await this._tenantRepository.findByOwnerId(ownerId);
+    if (!tenant || tenant.isBlocked) {
+      return false;
+    }
+    return true;
+  }
+
   async getAllTenants(query: {
     page?: number;
     limit?: number;
@@ -37,5 +45,10 @@ export class TenantQueryService implements ITenantQueryService {
 
   async findByOwnerId(ownerId: string): Promise<Tenant | null> {
     return this._tenantRepository.findByOwnerId(ownerId);
+  }
+
+  async isTenantBlocked(tenantId: string): Promise<boolean> {
+    const tenant = await this._tenantRepository.findById(tenantId);
+    return tenant?.isBlocked ?? false;
   }
 }

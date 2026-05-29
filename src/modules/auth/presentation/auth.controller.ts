@@ -111,7 +111,10 @@ export class AuthController {
   }
 
   @Post('refresh')
-  refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const cookies = req.cookies as Record<string, string>;
     const token = cookies.refresh_token;
     if (!token) {
@@ -120,7 +123,7 @@ export class AuthController {
       );
     }
 
-    const data = this._refreshTokenUseCase.execute(token);
+    const data = await this._refreshTokenUseCase.execute(token);
 
     setRefreshTokenCookie(res, data.refresh_token, this._configService);
 

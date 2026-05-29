@@ -11,4 +11,6 @@ export interface ITenantQueryService {
   updateBlockStatus(id: string, isBlocked: boolean): Promise<Tenant>;
   updateName(id: string, name: string): Promise<Tenant>;
   findByOwnerId(ownerId: string): Promise<Tenant | null>;
+  checkValidTenant(ownerId: string): Promise<boolean>;
+  isTenantBlocked(tenantId: string): Promise<boolean>;
 }

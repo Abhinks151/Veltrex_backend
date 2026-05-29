@@ -17,6 +17,30 @@ import {
 export class TenantRepository implements ITenantRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async checkValidTenant(ownerId: string): Promise<Tenant | null> {
+    try {
+      const response = await this.prisma.tenant.findUnique({
+        where: {
+          ownerId: ownerId,
+          isBlocked: false,
+          isDeleted: false,
+        },
+      });
+
+      if (!response) {
+        return null;
+      }
+
+      return toTenantMapper(response);
+    } catch (error) {
+      if (error instanceof ApplicationError) {
+        throw error;
+      }
+
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_CHECK_TENANT);
+    }
+  }
+
   async create(tenant: TenantCreationRequestDto): Promise<Tenant> {
     try {
       const response = await this.prisma.tenant.create({

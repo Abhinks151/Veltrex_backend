@@ -44,6 +44,8 @@ export const MESSAGE_CONSTANTS = {
     SUBSCRIPTION_RESTRICTED: 'Subscription is restricted. Access denied.',
     NO_SUBSCRIPTION_FOUND: 'No active subscription found for this tenant',
     TENANT_ID_MISSING: 'Tenant identification missing',
+    FAILED_TO_CHECK_TENANT: 'Failed to check tenant',
+    TENANT_IS_BLOCKED: 'Tenant is blocked',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
