@@ -1,8 +1,20 @@
+import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 import { Subscription } from '../../../domain/subscription.entity';
 import { CreateSubscriptionDto } from '../../dto/create-subscription.dto';
 
 export interface ISubscriptionRepository {
-  create(subscription: CreateSubscriptionDto): Promise<Subscription>;
+  create(
+    subscription: CreateSubscriptionDto,
+    ctx?: ITransactionContext,
+  ): Promise<Subscription>;
   findByTenantId(tenantId: string): Promise<Subscription | null>;
+  findActiveByTenantId(
+    tenantId: string,
+    ctx?: ITransactionContext,
+  ): Promise<Subscription | null>;
+  expireSubscription(
+    subscriptionId: string,
+    ctx?: ITransactionContext,
+  ): Promise<void>;
   updateStatus(subscriptionId: string): Promise<Subscription | null>;
 }

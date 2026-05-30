@@ -7,6 +7,7 @@ export const toTenantMapper = (tenant: Tenant): Tenant => {
     tenant.ownerId,
     tenant.isBlocked,
     tenant.isDeleted,
+    tenant.trialUsed,
     tenant.createdAt,
     tenant.updatedAt,
   );

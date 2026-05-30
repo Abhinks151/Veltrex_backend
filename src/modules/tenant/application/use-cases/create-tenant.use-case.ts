@@ -64,21 +64,22 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
 
     const response = await this._tenantRepository.create(data);
     try {
-      // Calculate end date based on plan duration
       let endDate: Date;
       if (plan.durationDays) {
         endDate = new Date(
           Date.now() + plan.durationDays * 24 * 60 * 60 * 1000,
         );
       } else {
-        // Lifetime plan - set a far future date
         endDate = new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000);
       }
 
       const subscriptionData: CreateSubscriptionDto = {
         tenantId: response.id,
         planId: plan.id,
-        status: SubscriptionStatus.ACTIVE,
+        status:
+          plan.price === 0
+            ? SubscriptionStatus.ACTIVE
+            : SubscriptionStatus.EXPIRED,
         startDate: new Date(),
         endDate: endDate,
         trialUsed: planCode === 'TRIAL',

@@ -16,15 +16,19 @@ export class GetSubscriptionUseCase implements IGetSubscriptionUseCase {
     private readonly _tenantQueryService: ITenantQueryService,
   ) {}
 
-  async execute(userId: string): Promise<Subscription> {
-    const tenant = await this._tenantQueryService.findByOwnerId(userId);
-    if (!tenant) {
-      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+  async execute(userId: string, tenantId?: string): Promise<Subscription> {
+    let finalTenantId = tenantId;
+
+    if (!finalTenantId) {
+      const tenant = await this._tenantQueryService.findByOwnerId(userId);
+      if (!tenant) {
+        throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+      }
+      finalTenantId = tenant.id;
     }
 
-    const subscription = await this._subscriptionRepository.findByTenantId(
-      tenant.id,
-    );
+    const subscription =
+      await this._subscriptionRepository.findByTenantId(finalTenantId);
     if (!subscription) {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.SUBSCRIPTION_NOT_FOUND);
     }

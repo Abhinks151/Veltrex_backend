@@ -5,18 +5,22 @@ import {
 import { Subscription } from '../../domain/subscription.entity';
 
 export const toSubscriptionMapper = (
-  subscription: PrismaSubscription & { plan?: PrismaPlan },
+  subscription: PrismaSubscription & {
+    plan?: PrismaPlan;
+    tenant?: { trialUsed: boolean };
+  },
 ): Subscription => {
   return new Subscription(
     subscription.id,
     subscription.tenantId,
     subscription.planId,
-    subscription.status,
+    subscription.status as any,
     subscription.currentPeriodStart,
     subscription.currentPeriodEnd,
     subscription.razorpaySubscriptionId,
     subscription.createdAt,
     subscription.updatedAt,
+    subscription.tenant?.trialUsed || false,
     subscription.plan
       ? {
           id: subscription.plan.id,

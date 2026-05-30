@@ -34,11 +34,13 @@ import { SoftDeleteEmployeeUseCase } from './application/use-cases/delete-employ
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee.use-case';
 import { SendEmployeeInviteUseCase } from './application/use-cases/send-employee-invite.use-case';
+import { SubscriptionModule } from '../subscription/subscription.module';
 
 @Module({
   imports: [
     PassportModule,
     forwardRef(() => TenantModule),
+    forwardRef(() => SubscriptionModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

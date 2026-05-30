@@ -23,6 +23,7 @@ import { IToggleStatusUseCase } from '../application/ports/use-cases/toggle-stat
 
 import { CreateSubscriptionDto } from '../presentation/dto/create-subscription.dto';
 
+@Auth()
 @Controller('subscription')
 export class SubscriptionController {
   constructor(
@@ -69,9 +70,6 @@ export class SubscriptionController {
     );
   }
 
-  @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Auth()
   @Get('get')
   async getSubscription(@Req() req: Request) {
     // const userId = "placeholder-user-id";
@@ -81,6 +79,7 @@ export class SubscriptionController {
 
     const reposnse = await this._getSubscriptionUseCase.execute(
       req.user.userId,
+      req.user.tenantId,
     );
     return new ApiResponse(
       true,

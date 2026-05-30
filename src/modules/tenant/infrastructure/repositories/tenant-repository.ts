@@ -7,6 +7,8 @@ import { Prisma } from '@prisma/client';
 import { TenantCreationRequestDto } from '../../application/dto/create-tenant.dto';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
+import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 import {
   ApplicationError,
   BadRequestError,
@@ -196,5 +198,12 @@ export class TenantRepository implements ITenantRepository {
       tenants: tenants.map((item: Tenant) => toTenantMapper(item)),
       total,
     };
+  }
+  async markTrialAsUsed(id: string, ctx?: ITransactionContext): Promise<void> {
+    const client = resolvePrismaClient(this.prisma, ctx);
+    await client.tenant.update({
+      where: { id },
+      data: { trialUsed: true },
+    });
   }
 }

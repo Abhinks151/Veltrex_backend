@@ -4,6 +4,7 @@ export class Tenant {
   ownerId: string;
   isBlocked: boolean;
   isDeleted: boolean;
+  trialUsed: boolean;
   createdAt: Date;
   updatedAt: Date;
 
@@ -13,6 +14,7 @@ export class Tenant {
     ownerId: string,
     isBlocked: boolean,
     isDeleted: boolean,
+    trialUsed: boolean,
     createdAt: Date,
     updatedAt: Date,
   ) {
@@ -21,6 +23,7 @@ export class Tenant {
     this.ownerId = ownerId;
     this.isBlocked = isBlocked;
     this.isDeleted = isDeleted;
+    this.trialUsed = trialUsed;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }

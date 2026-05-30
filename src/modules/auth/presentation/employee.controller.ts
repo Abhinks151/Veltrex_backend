@@ -15,6 +15,7 @@ import { Auth } from './decorators/auth.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
 import { Role } from '@/shared/enums/roles.enum';
+import { SubscriptionGuard } from '@/modules/subscription/presentation/guards/subscription.guard';
 import { CurrentUser } from '@/shared/common/decorators/current-user.decorator';
 import { ValidatedUserDto } from '../application/dto/jwt-strategy.dto';
 import { CreateEmployeeRequestDto } from './dto/create-employee.request.dto';
@@ -28,6 +29,8 @@ import { ISoftDeleteEmployeeUseCase } from '../application/ports/use-cases/delet
 import { ApiResponse } from '@/shared/common/apiResponse/api-response';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
+@UseGuards(RolesGuard, SubscriptionGuard)
+@Auth()
 @Controller('platform/employees')
 export class EmployeeController {
   constructor(
@@ -43,9 +46,7 @@ export class EmployeeController {
     private readonly _softDeleteEmployeeUseCase: ISoftDeleteEmployeeUseCase,
   ) {}
 
-  @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  @Auth()
   @Post()
   async create(
     @CurrentUser() user: ValidatedUserDto,
@@ -59,9 +60,7 @@ export class EmployeeController {
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_CREATED);
   }
 
-  @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  @Auth()
   @Get()
   async list(
     @CurrentUser() user: ValidatedUserDto,
@@ -78,9 +77,7 @@ export class EmployeeController {
     );
   }
 
-  @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  @Auth()
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -90,9 +87,7 @@ export class EmployeeController {
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_UPDATED);
   }
 
-  @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  @Auth()
   @Patch(':id/toggle-block')
   async toggleBlock(@Param('id') id: string) {
     const data = await this._toggleEmployeeBlockUseCase.execute(id);
@@ -100,9 +95,7 @@ export class EmployeeController {
     return new ApiResponse(true, data, `Employee ${status} successfully`);
   }
 
-  @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  @Auth()
   @Delete(':id')
   async delete(@Param('id') id: string) {
     const data = await this._softDeleteEmployeeUseCase.execute(id);

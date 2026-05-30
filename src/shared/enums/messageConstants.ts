@@ -46,6 +46,19 @@ export const MESSAGE_CONSTANTS = {
     TENANT_ID_MISSING: 'Tenant identification missing',
     FAILED_TO_CHECK_TENANT: 'Failed to check tenant',
     TENANT_IS_BLOCKED: 'Tenant is blocked',
+    PLAN_NOT_FOUND: 'Plan not found',
+    PAYMENT_NOT_FOUND: 'Payment not found',
+    ACTIVE_PAID_SUBSCRIPTION_EXISTS:
+      'Organization already has an active paid subscription',
+    FREE_PLAN_ONLY: 'This endpoint is only for free plans',
+    ACTIVE_SUBSCRIPTION_EXISTS:
+      'Organization already has an active paid subscription',
+    PAYMENT_ALREADY_SUCCEEDED: 'Payment has already succeeded',
+    PAYMENT_NO_PLAN: 'Payment does not have an associated plan',
+    INVALID_PAYMENT_SIGNATURE: 'Invalid payment signature',
+    FREE_PLAN_ACTIVATION_BLOCKED:
+      'Cannot activate free plan: an active paid subscription already exists',
+    TRIAL_ALREADY_USED: 'Free trial has already been used by this organization',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
@@ -89,5 +102,10 @@ export const MESSAGE_CONSTANTS = {
     FIXTURE_BLOCK_TOGGLED: 'Fixture block status updated',
     FIXTURE_DELETED: 'Fixture deleted successfully',
     USER_DELETED: 'User deleted successfully',
+    ORDER_CREATED: 'Order created successfully',
+    PAYMENT_VERIFIED: 'Payment verified successfully',
+    RETRY_ORDER_CREATED: 'New order created for retry',
+    LATEST_PENDING_FETCHED: 'Latest pending payment fetched',
+    FREE_PLAN_ACTIVATED: 'Free plan activated successfully',
   },
 };

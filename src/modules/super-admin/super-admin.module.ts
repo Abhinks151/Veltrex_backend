@@ -63,5 +63,6 @@ import { ListAllPlansUseCase } from './application/use-cases/list-all-plans.use-
       useClass: ListAllPlansUseCase,
     },
   ],
+  exports: ['IPlanRepository'],
 })
 export class SuperAdminModule {}

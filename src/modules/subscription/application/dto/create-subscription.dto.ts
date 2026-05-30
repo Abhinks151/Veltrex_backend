@@ -4,6 +4,6 @@ export interface CreateSubscriptionDto {
   status: string;
   startDate: Date;
   endDate: Date;
-  trialUsed: boolean;
-  razorpaySubscriptionId: string;
+  trialUsed?: boolean;
+  razorpaySubscriptionId?: string;
 }

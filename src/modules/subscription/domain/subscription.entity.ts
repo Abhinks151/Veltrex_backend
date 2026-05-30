@@ -21,6 +21,7 @@ export class Subscription {
     public razorpaySubscriptionId: string | null,
     public createdAt: Date,
     public updatedAt: Date,
+    public trialUsed: boolean,
     public plan?: PlanInfo,
   ) {}
 }

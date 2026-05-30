@@ -1,3 +1,4 @@
+import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 import { IBaseRepository } from '@/shared/infrastructure/repository/base-repository.interface';
 import { Tenant } from '../../../domain/tenant.entity';
 import { TenantInputDto } from '../../dto/tenant-intput.dto';
@@ -17,4 +18,5 @@ export interface ITenantRepository extends IBaseRepository<
     search?: string;
     status?: string;
   }): Promise<{ tenants: Tenant[]; total: number }>;
+  markTrialAsUsed(id: string, ctx?: ITransactionContext): Promise<void>;
 }

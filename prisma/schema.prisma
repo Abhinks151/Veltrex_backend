@@ -100,6 +100,7 @@ model Plan {
   updatedAt    DateTime @updatedAt
   durationDays Int?
   subscriptions Subscription[]
+  payments      Payment[]
 
   @@map("plans")
 }
@@ -140,6 +141,8 @@ model Payment {
   tenant            Tenant          @relation(fields: [tenantId], references: [id])
   subscriptionId    String?         @db.Uuid
   subscription      Subscription?   @relation(fields: [subscriptionId], references: [id])
+  planId            String?         @db.Uuid
+  plan              Plan?           @relation(fields: [planId], references: [id])
   amount            Decimal         @db.Decimal(10, 2)
   currency          String
   provider          PaymentProvider
