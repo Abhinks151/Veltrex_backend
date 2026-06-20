@@ -14,10 +14,8 @@ declare global {
 
     interface Request {
       requestId: string;
-    }
-
-    interface Request {
       cookies: Record<string, string>;
+      user?: User;
     }
   }
 }

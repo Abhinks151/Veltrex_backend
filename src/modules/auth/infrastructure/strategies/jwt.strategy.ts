@@ -8,6 +8,7 @@ import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { ITenantQueryService } from '@/modules/tenant/application/ports/services/tenant-query.service.interface';
 import { ValidatedUserDto } from '../../application/dto/jwt-strategy.dto';
 import { ConfigService } from '@nestjs/config';
+import { Role } from '@/shared/enums/roles.enum';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -33,12 +34,55 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
+    if (user.isBlocked) {
+      throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+    }
+
+    if ((payload.role as Role) === Role.SUPER_ADMIN) {
+      return {
+        userId: payload.userId,
+        id: payload.userId,
+        name: user.name,
+        uuid: payload.userId,
+        email: payload.email,
+        role: payload.role as Role,
+        is_verified: user.isVerified,
+        profileImage: user.profileImage,
+      };
+    }
+
     const tenantQueryService = this._moduleRef.get<ITenantQueryService>(
       'ITenantQueryService',
       { strict: false },
     );
 
-    const tenant = await tenantQueryService.findByOwnerId(payload.userId);
+    let tenant = null;
+    if (user.tenantId) {
+      tenant = await tenantQueryService.getById(user.tenantId);
+    } else {
+      tenant = await tenantQueryService.findByOwnerId(payload.userId);
+    }
+
+    if (tenant) {
+      if (tenant.isBlocked) {
+        throw new UnauthorizedException(
+          MESSAGE_CONSTANTS.ERROR.TENANT_IS_BLOCKED,
+        );
+      }
+
+      if (user.uuid !== tenant.ownerId) {
+        const owner = await this._userRepository.findById(tenant.ownerId);
+        if (owner && owner.isBlocked) {
+          throw new UnauthorizedException(
+            MESSAGE_CONSTANTS.ERROR.TENANT_IS_BLOCKED,
+          );
+        }
+      }
+    }
+
+    if (!tenant && (payload.role as Role) !== Role.ADMIN) {
+      throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+    }
 
     return {
       userId: payload.userId,
@@ -46,7 +90,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       name: user.name,
       uuid: payload.userId,
       email: payload.email,
-      role: payload.role,
+      role: payload.role as Role,
       is_verified: user.isVerified,
       profileImage: user.profileImage,
       tenantId: tenant?.id,

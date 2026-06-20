@@ -46,7 +46,7 @@ export class RequestPasswordResetUseCase implements IRequestPasswordResetUseCase
           3600000),
     );
 
-    await this._passwordResetTokenRepository.create(
+    await this._passwordResetTokenRepository.createToken(
       user.uuid,
       hashedToken,
       expiresAt,

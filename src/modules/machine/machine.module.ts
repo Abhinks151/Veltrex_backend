@@ -9,8 +9,10 @@ import { BlockMachineUseCase } from './application/use-cases/block-machine.use-c
 import { DeleteMachineUseCase } from './application/use-cases/delete-machine.use-case';
 import { ListMachinesUseCase } from './application/use-cases/list-machines.use-case';
 
+import { SubscriptionModule } from '../subscription/subscription.module';
+
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, SubscriptionModule],
   controllers: [MachineController],
   providers: [
     {

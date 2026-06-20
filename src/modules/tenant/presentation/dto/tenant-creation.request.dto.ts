@@ -1,6 +1,5 @@
-import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
-import { PlanType } from '@/shared/enums/plan-type.enum';
 
 export class TenantCreationRequestDto {
   @IsString()
@@ -8,6 +7,6 @@ export class TenantCreationRequestDto {
   name!: string;
 
   @IsOptional()
-  @IsEnum(PlanType)
-  plan?: PlanType;
+  @IsString()
+  plan?: string;
 }

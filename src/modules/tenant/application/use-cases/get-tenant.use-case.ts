@@ -13,6 +13,11 @@ export class GetTenantUseCase implements IGetTenantUseCase {
   ) {}
 
   async execute(ownerId: string): Promise<Tenant> {
+    const validTenant = await this._tenantRepository.checkValidTenant(ownerId);
+    if (!validTenant) {
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+    }
+
     const tenant = await this._tenantRepository.findByOwnerId(ownerId);
     if (!tenant) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);

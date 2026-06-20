@@ -7,6 +7,7 @@ import { IPasswordService } from '../ports/services/password-service.interface';
 import { ConflictError } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { ISendEmployeeInviteUseCase } from '../ports/use-cases/send-employee-invite.use-case.interface';
+import { generateRandomPassword } from '@/shared/utils/auth.utils';
 
 export class CreateEmployeeUseCase implements ICreateEmployeeUseCase {
   constructor(
@@ -24,16 +25,15 @@ export class CreateEmployeeUseCase implements ICreateEmployeeUseCase {
       throw new ConflictError(MESSAGE_CONSTANTS.ERROR.USER_ALREADY_EXISTS);
     }
 
-    // Generate a random placeholder password
-    const rawPassword = Math.random().toString(36).slice(-10);
+    const rawPassword = generateRandomPassword();
     const hashedPassword = await this._passwordService.hash(rawPassword);
 
     const newEmployee = await this._userRepository.create({
       ...data,
       password: hashedPassword,
+      isVerified: true,
     });
 
-    // Send invite (which generates reset token and sends email)
     await this._sendEmployeeInviteUseCase.execute(newEmployee.email);
 
     return newEmployee;

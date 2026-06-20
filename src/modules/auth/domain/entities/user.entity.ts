@@ -12,6 +12,7 @@ export class User {
     public isVerified: boolean,
     public isBlocked: boolean,
     public isDeleted: boolean,
+    public tenantId?: string,
     public profileImage?: string,
     public profileImageKey?: string,
   ) {
@@ -26,7 +27,7 @@ export class User {
     this.isBlocked = !this.isBlocked;
   }
 
-  softDelete() {
+  delete() {
     this.isDeleted = true;
   }
 

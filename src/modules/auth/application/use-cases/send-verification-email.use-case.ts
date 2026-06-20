@@ -58,7 +58,7 @@ export class SendVerificationEmailUseCase implements ISendVerificationEmailUseCa
           3600000),
     );
 
-    await this._emailVerificationTokenRepository.create(
+    await this._emailVerificationTokenRepository.createToken(
       user.uuid,
       hashedToken,
       expiresAt,

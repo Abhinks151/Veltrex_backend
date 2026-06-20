@@ -36,7 +36,7 @@ export class ProfileController {
     private readonly _changePasswordUseCase: IChangePasswordUseCase,
   ) {}
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MACHINIST, Role.MAINTENANCE)
   @UseGuards(RolesGuard)
   @Auth()
   @Get()
@@ -48,7 +48,7 @@ export class ProfileController {
     );
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MACHINIST, Role.MAINTENANCE)
   @UseGuards(RolesGuard)
   @Auth()
   @Patch('update')
@@ -63,7 +63,7 @@ export class ProfileController {
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_UPDATED);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MACHINIST, Role.MAINTENANCE)
   @UseGuards(RolesGuard)
   @Auth()
   @Patch('password')
@@ -83,7 +83,7 @@ export class ProfileController {
     );
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MACHINIST, Role.MAINTENANCE)
   @UseGuards(RolesGuard)
   @Auth()
   @Post('upload')

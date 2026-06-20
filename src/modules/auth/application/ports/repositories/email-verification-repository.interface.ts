@@ -1,7 +1,7 @@
 import { EmailVerificationToken } from '../../../domain/entities/email-verification-token.entity';
 
 export interface IEmailVerificationTokenRepository {
-  create(
+  createToken(
     userId: string,
     token: string,
     expiresAt: Date,

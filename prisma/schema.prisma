@@ -22,7 +22,7 @@ model User {
   isDeleted  Boolean  @default(false) @map("is_deleted")
 
   // membership relation
-  tenantId   String? @db.Uuid
+  tenantId String? @db.Uuid
 
   tenant Tenant? @relation("TenantMembers", fields: [tenantId], references: [id])
 
@@ -31,36 +31,37 @@ model User {
 
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
-  profileImage    String? @map("profile_image")
-  profileImageKey String? @map("profile_image_key")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  profileImage            String?                  @map("profile_image")
+  profileImageKey         String?                  @map("profile_image_key")
+  createdAt               DateTime                 @default(now()) @map("created_at")
+  updatedAt               DateTime                 @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
 model Tenant {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  
-  ownerId   String   @unique @db.Uuid
+  id   String @id @default(uuid()) @db.Uuid
+  name String
 
-  owner User @relation("TenantOwner", fields: [ownerId], references: [id])
+  ownerId String @unique @db.Uuid
+  owner   User   @relation("TenantOwner", fields: [ownerId], references: [id])
 
   // reverse membership relation
   users User[] @relation("TenantMembers")
 
-  isBlocked Boolean @default(false) @map("is_blocked")
-  isDeleted Boolean @default(false) @map("is_deleted")
-  subscription Subscription?
-  machines Machine[]
-  fixtures Fixture[]
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  isBlocked     Boolean        @default(false) @map("is_blocked")
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  subscriptions Subscription[]
+  payments      Payment[]
+  trialUsed     Boolean        @default(false)
+  machines      Machine[]
+  fixtures      Fixture[]
+  rawMaterials  RawMaterial[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
 
   @@map("tenants")
 }
-
 
 model PasswordResetToken {
   id        String   @id @default(uuid()) @db.Uuid
@@ -84,26 +85,48 @@ model EmailVerificationToken {
   @@map("email_verification_tokens")
 }
 
+model Plan {
+  id          String  @id @default(uuid()) @db.Uuid
+  code        String  @unique
+  name        String
+  description String?
 
+  price    Decimal @db.Decimal(10, 2)
+  currency String
 
+  isBlocked Boolean @default(false) @map("is_blocked")
+  isDeleted Boolean @default(false) @map("is_deleted")
 
-model Subscription {
-  id        String   @id @default(uuid()) @db.Uuid
-  tenantId  String   @db.Uuid @unique
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  plan      PlanType
-  status    SubscriptionStatus
-  startDate DateTime
-  endDate   DateTime
-  trialUsed Boolean  @default(false)
-  razorpaySubscriptionId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  durationDays Int?
+  subscriptions Subscription[]
+  payments      Payment[]
+
+  @@map("plans")
 }
 
-enum PlanType {
-  FREE
-  PRO
+model Subscription {
+  id String @id @default(uuid()) @db.Uuid
+
+  tenantId String @db.Uuid
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  planId String @db.Uuid
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status SubscriptionStatus
+
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+
+  razorpaySubscriptionId String?
+  payments               Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
 }
 
 enum SubscriptionStatus {
@@ -111,6 +134,37 @@ enum SubscriptionStatus {
   EXPIRED
   CANCELLED
   PAST_DUE
+}
+
+model Payment {
+  id                String          @id @default(uuid()) @db.Uuid
+  tenantId          String          @db.Uuid
+  tenant            Tenant          @relation(fields: [tenantId], references: [id])
+  subscriptionId    String?         @db.Uuid
+  subscription      Subscription?   @relation(fields: [subscriptionId], references: [id])
+  planId            String?         @db.Uuid
+  plan              Plan?           @relation(fields: [planId], references: [id])
+  amount            Decimal         @db.Decimal(10, 2)
+  currency          String
+  provider          PaymentProvider
+  providerPaymentId String?
+  providerOrderId   String?
+  status            PaymentStatus
+  paidAt            DateTime?
+  createdAt         DateTime        @default(now())
+
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  RAZORPAY
 }
 
 enum UserRole {
@@ -121,22 +175,22 @@ enum UserRole {
 }
 
 model Machine {
-  id              String      @id @default(uuid()) @db.Uuid
-  tenantId        String      @map("tenant_id") @db.Uuid
-  tenant          Tenant      @relation(fields: [tenantId], references: [id])
-  name            String
-  brand           String
-  maxRpm          Int         @map("max_rpm")
-  axis            Int
-  type            MachineType
-  maxTravelSpeed  Int         @map("max_travel_speed")
-  holdingSize     Int         @map("holding_size")
-  toolCount       Int         @map("tool_count")
-  status          MachineStatus
-  isBlocked       Boolean     @default(false) @map("is_blocked")
-  isDeleted       Boolean     @default(false) @map("is_deleted")
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
+  id             String        @id @default(uuid()) @db.Uuid
+  tenantId       String        @map("tenant_id") @db.Uuid
+  tenant         Tenant        @relation(fields: [tenantId], references: [id])
+  name           String
+  brand          String
+  maxRpm         Int           @map("max_rpm")
+  axis           Int
+  type           MachineType
+  maxTravelSpeed Int           @map("max_travel_speed")
+  holdingSize    Int           @map("holding_size")
+  toolCount      Int           @map("tool_count")
+  status         MachineStatus
+  isBlocked      Boolean       @default(false) @map("is_blocked")
+  isDeleted      Boolean       @default(false) @map("is_deleted")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
   @@map("machines")
 }
@@ -153,16 +207,16 @@ enum MachineStatus {
 }
 
 model Fixture {
-  id          String      @id @default(uuid()) @db.Uuid
-  tenantId    String      @map("tenant_id") @db.Uuid
-  tenant      Tenant      @relation(fields: [tenantId], references: [id])
-  name        String
-  dimensions  Json
-  type        FixtureType
-  isBlocked   Boolean     @default(false) @map("is_blocked")
-  isDeleted   Boolean     @default(false) @map("is_deleted")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  id         String      @id @default(uuid()) @db.Uuid
+  tenantId   String      @map("tenant_id") @db.Uuid
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  name       String
+  dimensions Json
+  type       FixtureType
+  isBlocked  Boolean     @default(false) @map("is_blocked")
+  isDeleted  Boolean     @default(false) @map("is_deleted")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
 
   @@map("fixtures")
 }
@@ -170,4 +224,20 @@ model Fixture {
 enum FixtureType {
   MILL
   LATHE
+}
+
+model RawMaterial {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  name       String
+  dimensions Json
+  material   String
+  minQty     Int      @map("min_qty")
+  isBlocked  Boolean  @default(false) @map("is_blocked")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("raw_materials")
 }

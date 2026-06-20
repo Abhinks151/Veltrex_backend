@@ -7,8 +7,8 @@ import { IAuthQueryService } from '@/modules/auth/application/ports/services/aut
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { ISubscriptionQueryService } from '@/modules/subscription/application/ports/services/subscription-query.service.interface';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
-import { PlanType } from '@/shared/enums/plan-type.enum';
 import { CreateSubscriptionDto } from '@/modules/subscription/application/dto/create-subscription.dto';
+import { IPlanRepository } from '@/modules/super-admin/application/ports/repositories/plan-repository.interface';
 import {
   ConflictError,
   NotFoundError,
@@ -25,6 +25,9 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
 
     @Inject('ISubscriptionQueryService')
     private readonly _subscriptionQueryService: ISubscriptionQueryService,
+
+    @Inject('IPlanRepository')
+    private readonly _planRepository: IPlanRepository,
   ) {}
 
   async execute(
@@ -47,6 +50,13 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
       throw new ConflictError(MESSAGE_CONSTANTS.ERROR.TENANT_NAME_TAKEN);
     }
 
+    // Fetch the plan from database
+    const planCode = reqDto.plan || 'TRIAL';
+    const plan = await this._planRepository.findByCode(planCode);
+    if (!plan) {
+      throw new NotFoundError(`Plan with code ${planCode} not found`);
+    }
+
     const data = {
       name: reqDto.name,
       ownerId,
@@ -54,18 +64,33 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
 
     const response = await this._tenantRepository.create(data);
     try {
+      let endDate: Date;
+      if (plan.durationDays) {
+        endDate = new Date(
+          Date.now() + plan.durationDays * 24 * 60 * 60 * 1000,
+        );
+      } else {
+        endDate = new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000);
+      }
+
       const subscriptionData: CreateSubscriptionDto = {
         tenantId: response.id,
-        plan: reqDto.plan ?? PlanType.FREE,
-        status: SubscriptionStatus.ACTIVE,
+        planId: plan.id,
+        status:
+          plan.price === 0
+            ? SubscriptionStatus.ACTIVE
+            : SubscriptionStatus.EXPIRED,
         startDate: new Date(),
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        trialUsed: false,
+        endDate: endDate,
+        trialUsed: planCode === 'TRIAL',
         razorpaySubscriptionId: '',
       };
       await this._subscriptionQueryService.create(subscriptionData);
     } catch (error) {
-      console.log(error);
+      console.log(
+        'Subscription creation failed during tenant creation:',
+        error,
+      );
     }
 
     return response;

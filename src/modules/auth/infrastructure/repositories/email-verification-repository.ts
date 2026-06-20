@@ -3,23 +3,45 @@ import { IEmailVerificationTokenRepository } from '../../application/ports/repos
 import { EmailVerificationToken } from '../../domain/entities/email-verification-token.entity';
 import { toDomainEmailVerificationToken } from '../../application/mapper/email-verification-token.mapper';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
+import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
+import {
+  EmailVerificationToken as RawEmailVerificationToken,
+  Prisma,
+} from '@prisma/client';
 
 @Injectable()
-export class EmailVerificationTokenRepository implements IEmailVerificationTokenRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+export class EmailVerificationTokenRepository
+  extends BaseRepository<
+    EmailVerificationToken,
+    Prisma.EmailVerificationTokenCreateInput,
+    Prisma.EmailVerificationTokenUpdateInput,
+    RawEmailVerificationToken
+  >
+  implements IEmailVerificationTokenRepository
+{
+  constructor(prisma: PrismaService) {
+    super(
+      prisma,
+      RepositoryModelNames.EMAIL_VERIFICATION_TOKEN,
+      toDomainEmailVerificationToken,
+      false,
+    );
+  }
 
-  async create(
+  async createToken(
     userId: string,
     token: string,
     expiresAt: Date,
   ): Promise<EmailVerificationToken> {
-    await this._prisma.emailVerificationToken.deleteMany({
+    const client = this._prisma;
+    await client.emailVerificationToken.deleteMany({
       where: {
         userId: userId,
       },
     });
 
-    const newToken = await this._prisma.emailVerificationToken.create({
+    const newToken = await client.emailVerificationToken.create({
       data: {
         userId: userId,
         token: token,

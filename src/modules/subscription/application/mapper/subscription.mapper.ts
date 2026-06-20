@@ -1,20 +1,36 @@
-import { PlanType } from '@/shared/enums/plan-type.enum';
+import {
+  Subscription as PrismaSubscription,
+  Plan as PrismaPlan,
+} from '@prisma/client';
 import { Subscription } from '../../domain/subscription.entity';
-import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 
 export const toSubscriptionMapper = (
-  subscription: Subscription,
+  subscription: PrismaSubscription & {
+    plan?: PrismaPlan;
+    tenant?: { trialUsed: boolean };
+  },
 ): Subscription => {
   return new Subscription(
     subscription.id,
     subscription.tenantId,
-    subscription.plan as unknown as PlanType,
-    subscription.status as unknown as SubscriptionStatus,
-    subscription.startDate,
-    subscription.endDate,
-    subscription.trialUsed,
+    subscription.planId,
+    subscription.status,
+    subscription.currentPeriodStart,
+    subscription.currentPeriodEnd,
     subscription.razorpaySubscriptionId,
     subscription.createdAt,
     subscription.updatedAt,
+    subscription.tenant?.trialUsed || false,
+    subscription.plan
+      ? {
+          id: subscription.plan.id,
+          code: subscription.plan.code,
+          name: subscription.plan.name,
+          description: subscription.plan.description,
+          price: Number(subscription.plan.price),
+          currency: subscription.plan.currency,
+          durationDays: subscription.plan.durationDays,
+        }
+      : undefined,
   );
 };

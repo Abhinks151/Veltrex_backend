@@ -51,7 +51,7 @@ export class SendEmployeeInviteUseCase implements ISendEmployeeInviteUseCase {
           3600000),
     );
 
-    await this._passwordResetTokenRepository.create(
+    await this._passwordResetTokenRepository.createToken(
       user.id,
       hashedToken,
       expiresAt,
