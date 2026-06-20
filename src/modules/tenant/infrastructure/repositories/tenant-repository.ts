@@ -14,14 +14,33 @@ import {
   BadRequestError,
   ConflictError,
 } from '@/shared/common/errors/domain-errors';
+import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
+import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
+import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
 
 @Injectable()
-export class TenantRepository implements ITenantRepository {
-  constructor(private readonly prisma: PrismaService) {}
+export class TenantRepository
+  extends BaseRepository<
+    Tenant,
+    TenantInputDto,
+    Prisma.TenantUpdateInput,
+    Prisma.TenantGetPayload<object>
+  >
+  implements ITenantRepository
+{
+  constructor(prisma: PrismaService) {
+    super(
+      prisma,
+      RepositoryModelNames.TENANT,
+      toTenantMapper as unknown as (
+        data: Prisma.TenantGetPayload<object>,
+      ) => Tenant,
+    );
+  }
 
   async checkValidTenant(ownerId: string): Promise<Tenant | null> {
     try {
-      const response = await this.prisma.tenant.findUnique({
+      const response = await this._prisma.tenant.findUnique({
         where: {
           ownerId: ownerId,
           isBlocked: false,
@@ -33,7 +52,9 @@ export class TenantRepository implements ITenantRepository {
         return null;
       }
 
-      return toTenantMapper(response);
+      return this._mapper(
+        response as unknown as Prisma.TenantGetPayload<object>,
+      );
     } catch (error) {
       if (error instanceof ApplicationError) {
         throw error;
@@ -45,14 +66,16 @@ export class TenantRepository implements ITenantRepository {
 
   async create(tenant: TenantCreationRequestDto): Promise<Tenant> {
     try {
-      const response = await this.prisma.tenant.create({
+      const response = await this._prisma.tenant.create({
         data: {
           name: tenant.name,
           ownerId: tenant.ownerId,
         },
       });
 
-      return toTenantMapper(response);
+      return this._mapper(
+        response as unknown as Prisma.TenantGetPayload<object>,
+      );
     } catch (error) {
       if (error instanceof ApplicationError) {
         throw error;
@@ -73,36 +96,8 @@ export class TenantRepository implements ITenantRepository {
     }
   }
 
-  async update(tenantId: string, tenant: TenantInputDto): Promise<Tenant> {
-    try {
-      const response = await this.prisma.tenant.update({
-        where: { id: tenantId },
-        data: {
-          name: tenant.name,
-        },
-      });
-
-      return toTenantMapper(response);
-    } catch (error) {
-      if (error instanceof ApplicationError) {
-        throw error;
-      }
-
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictError(MESSAGE_CONSTANTS.ERROR.TENANT_NAME_TAKEN);
-      }
-
-      throw new BadRequestError(
-        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_TENANT,
-      );
-    }
-  }
-
   async findByOwnerId(ownerId: string): Promise<Tenant | null> {
-    const response = await this.prisma.tenant.findUnique({
+    const response = await this._prisma.tenant.findUnique({
       where: {
         ownerId: ownerId,
       },
@@ -112,31 +107,12 @@ export class TenantRepository implements ITenantRepository {
       return null;
     }
 
-    return toTenantMapper(response);
-  }
-
-  async findById(id: string): Promise<Tenant | null> {
-    const response = await this.prisma.tenant.findUnique({
-      where: { id },
-    });
-
-    if (!response) {
-      return null;
-    }
-
-    return toTenantMapper(response);
+    return this._mapper(response as unknown as Prisma.TenantGetPayload<object>);
   }
 
   async updateBlockStatus(id: string, isBlocked: boolean): Promise<Tenant> {
     try {
-      const response = await this.prisma.tenant.update({
-        where: { id },
-        data: {
-          isBlocked: isBlocked,
-        },
-      });
-
-      return toTenantMapper(response);
+      return await super.update(id, { isBlocked });
     } catch (error) {
       if (error instanceof ApplicationError) {
         throw error;
@@ -147,7 +123,7 @@ export class TenantRepository implements ITenantRepository {
   }
 
   async findByName(name: string): Promise<Tenant | null> {
-    const response = await this.prisma.tenant.findFirst({
+    const response = await this._prisma.tenant.findFirst({
       where: {
         name: { equals: name, mode: 'insensitive' },
       },
@@ -157,17 +133,14 @@ export class TenantRepository implements ITenantRepository {
       return null;
     }
 
-    return toTenantMapper(response);
+    return this._mapper(response as unknown as Prisma.TenantGetPayload<object>);
   }
 
-  async findAll(query: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    status?: string;
-  }): Promise<{ tenants: Tenant[]; total: number }> {
-    const { page = 1, limit = 10, search = '', status = 'all' } = query;
-    const skip = (page - 1) * limit;
+  async findAll(
+    query: PaginationQueryDto,
+    ctx?: ITransactionContext,
+  ): Promise<{ items: Tenant[]; tenants: Tenant[]; total: number }> {
+    const { search = '', status = 'all' } = query;
 
     const where: Prisma.TenantWhereInput = {};
 
@@ -182,28 +155,31 @@ export class TenantRepository implements ITenantRepository {
       where.isBlocked = status === 'blocked';
     }
 
-    const [tenants, total] = await Promise.all([
-      this.prisma.tenant.findMany({
-        where,
-        skip,
-        take: Number(limit),
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      this.prisma.tenant.count({ where }),
-    ]);
+    const { items, total } = await super.findAll(query, ctx, where);
 
     return {
-      tenants: tenants.map((item: Tenant) => toTenantMapper(item)),
+      items,
+      tenants: items,
       total,
     };
   }
+
   async markTrialAsUsed(id: string, ctx?: ITransactionContext): Promise<void> {
-    const client = resolvePrismaClient(this.prisma, ctx);
-    await client.tenant.update({
+    const client = resolvePrismaClient(this._prisma, ctx);
+    const model = this.getModel(client);
+    await model.update({
       where: { id },
       data: { trialUsed: true },
     });
+  }
+
+  async delete(id: string): Promise<Tenant> {
+    try {
+      return await super.delete(id);
+    } catch {
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_TENANT,
+      );
+    }
   }
 }

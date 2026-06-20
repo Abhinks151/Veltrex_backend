@@ -7,28 +7,61 @@ import { Subscription } from '../../domain/subscription.entity';
 import { toSubscriptionMapper } from '../../application/mapper/subscription.mapper';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { CreateSubscriptionDto } from '../../application/dto/create-subscription.dto';
+import {
+  Subscription as PrismaSubscription,
+  Plan as PrismaPlan,
+  Prisma,
+} from '@prisma/client';
+import { BadRequestError } from '@/shared/common/errors/domain-errors';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
+import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
+
+export type RawSubscription = PrismaSubscription & {
+  plan?: PrismaPlan;
+  tenant?: { trialUsed: boolean };
+};
 
 @Injectable()
-export class SubscriptionRepository implements ISubscriptionRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+export class SubscriptionRepository
+  extends BaseRepository<
+    Subscription,
+    CreateSubscriptionDto,
+    Prisma.SubscriptionUpdateInput,
+    RawSubscription
+  >
+  implements ISubscriptionRepository
+{
+  constructor(prisma: PrismaService) {
+    super(
+      prisma,
+      RepositoryModelNames.SUBSCRIPTION,
+      toSubscriptionMapper,
+      false,
+    );
+  }
 
   async create(
     subscription: CreateSubscriptionDto,
     ctx?: ITransactionContext,
   ): Promise<Subscription> {
-    const client = resolvePrismaClient(this._prisma, ctx);
-    const created = await client.subscription.create({
-      data: {
-        tenantId: subscription.tenantId,
-        planId: subscription.planId,
+    try {
+      const data: Prisma.SubscriptionCreateInput = {
+        tenant: { connect: { id: subscription.tenantId } },
+        plan: { connect: { id: subscription.planId } },
         status: subscription.status as SubscriptionStatus,
         currentPeriodStart: subscription.startDate,
         currentPeriodEnd: subscription.endDate,
         razorpaySubscriptionId: subscription.razorpaySubscriptionId,
-      },
-      include: { plan: true, tenant: true },
-    });
-    return toSubscriptionMapper(created);
+      };
+
+      return await super.create(data as unknown as CreateSubscriptionDto, ctx, {
+        plan: true,
+        tenant: true,
+      });
+    } catch {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async findByTenantId(tenantId: string): Promise<Subscription | null> {
@@ -37,7 +70,9 @@ export class SubscriptionRepository implements ISubscriptionRepository {
       include: { plan: true, tenant: true },
       orderBy: { createdAt: 'desc' },
     });
-    return subscription ? toSubscriptionMapper(subscription) : null;
+    return subscription
+      ? toSubscriptionMapper(subscription as RawSubscription)
+      : null;
   }
 
   async findActiveByTenantId(
@@ -45,7 +80,8 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     ctx?: ITransactionContext,
   ): Promise<Subscription | null> {
     const client = resolvePrismaClient(this._prisma, ctx);
-    const subscription = await client.subscription.findFirst({
+    const model = this.getModel(client);
+    const subscription = await model.findFirst({
       where: { tenantId, status: SubscriptionStatus.ACTIVE },
       include: { plan: true, tenant: true },
     });
@@ -57,7 +93,8 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     ctx?: ITransactionContext,
   ): Promise<void> {
     const client = resolvePrismaClient(this._prisma, ctx);
-    await client.subscription.update({
+    const model = this.getModel(client);
+    await model.update({
       where: { id: subscriptionId },
       data: { status: SubscriptionStatus.EXPIRED },
     });
@@ -78,6 +115,6 @@ export class SubscriptionRepository implements ISubscriptionRepository {
       },
       include: { plan: true },
     });
-    return toSubscriptionMapper(updated);
+    return toSubscriptionMapper(updated as RawSubscription);
   }
 }

@@ -3,23 +3,45 @@ import { PasswordResetToken } from '../../domain/entities/password-reset-token.e
 import { Injectable } from '@nestjs/common';
 import { toDomainPasswordResetToken } from '../../application/mapper/password-reset-token.mapper';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
+import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
+import {
+  PasswordResetToken as RawPasswordResetToken,
+  Prisma,
+} from '@prisma/client';
 
 @Injectable()
-export class PasswordResetTokenRepository implements IPasswordResetTokenRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+export class PasswordResetTokenRepository
+  extends BaseRepository<
+    PasswordResetToken,
+    Prisma.PasswordResetTokenCreateInput,
+    Prisma.PasswordResetTokenUpdateInput,
+    RawPasswordResetToken
+  >
+  implements IPasswordResetTokenRepository
+{
+  constructor(prisma: PrismaService) {
+    super(
+      prisma,
+      RepositoryModelNames.PASSWORD_RESET_TOKEN,
+      toDomainPasswordResetToken,
+      false,
+    );
+  }
 
-  async create(
+  async createToken(
     userId: string,
     token: string,
     expiresAt: Date,
   ): Promise<PasswordResetToken> {
-    await this._prisma.passwordResetToken.deleteMany({
+    const client = this._prisma;
+    await client.passwordResetToken.deleteMany({
       where: {
         userId: userId,
       },
     });
 
-    const newToken = await this._prisma.passwordResetToken.create({
+    const newToken = await client.passwordResetToken.create({
       data: {
         userId: userId,
         token: token,

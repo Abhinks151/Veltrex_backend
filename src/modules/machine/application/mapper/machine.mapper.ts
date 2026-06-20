@@ -2,7 +2,7 @@ import { Machine } from '../../domain/machine.entity';
 import { MachineType } from '@/shared/enums/machine-type.enum';
 import { MachineStatus } from '@/shared/enums/machine-status.enum';
 
-interface RawMachine {
+export interface RawMachine {
   id: string;
   tenantId: string;
   name: string;

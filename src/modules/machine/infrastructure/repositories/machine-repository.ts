@@ -3,53 +3,49 @@ import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { IMachineRepository } from '../../application/ports/repositories/machine-repository.interface';
 import { Machine } from '../../domain/machine.entity';
+import { CreateMachineDto } from '../../application/dto/create-machine.dto';
 import {
-  CreateMachineDto,
-  MachineInputDto,
-} from '../../application/dto/create-machine.dto';
-import { toMachineMapper } from '../../application/mapper/machine.mapper';
+  RawMachine,
+  toMachineMapper,
+} from '../../application/mapper/machine.mapper';
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+} from '@/shared/common/errors/domain-errors';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
+import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
 
 @Injectable()
-export class MachineRepository implements IMachineRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+export class MachineRepository
+  extends BaseRepository<
+    Machine,
+    CreateMachineDto,
+    Prisma.MachineUpdateInput,
+    RawMachine
+  >
+  implements IMachineRepository
+{
+  constructor(prisma: PrismaService) {
+    super(prisma, RepositoryModelNames.MACHINE, toMachineMapper);
+  }
 
   async create(data: CreateMachineDto): Promise<Machine> {
-    const response = await this._prisma.machine.create({
-      data: {
-        name: data.name,
-        brand: data.brand,
-        maxRpm: data.maxRpm,
-        axis: data.axis,
-        type: data.type,
-        maxTravelSpeed: data.maxTravelSpeed,
-        holdingSize: data.holdingSize,
-        toolCount: data.toolCount,
-        status: data.status,
-        tenant: { connect: { id: data.tenantId } },
-      },
-    });
-
-    return toMachineMapper(response);
-  }
-
-  async update(id: string, data: MachineInputDto): Promise<Machine> {
-    const response = await this._prisma.machine.update({
-      where: { id },
-      data: {
-        ...data,
-      },
-    });
-
-    return toMachineMapper(response);
-  }
-
-  async findById(id: string): Promise<Machine | null> {
-    const response = await this._prisma.machine.findUnique({
-      where: { id },
-    });
-
-    return response ? toMachineMapper(response) : null;
+    try {
+      return await super.create(data);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictError(MESSAGE_CONSTANTS.ERROR.MACHINE_NAME_TAKEN);
+      }
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_CREATE_MACHINE,
+      );
+    }
   }
 
   async findByTenantAndName(
@@ -78,15 +74,14 @@ export class MachineRepository implements IMachineRepository {
       },
     });
 
-    return response.map(toMachineMapper);
+    return response.map(this._mapper);
   }
 
   async findAllPaginated(
     tenantId: string,
     query: PaginationQueryDto,
-  ): Promise<{ machines: Machine[]; total: number }> {
-    const { page = 1, limit = 10, search, status } = query;
-    const skip = (page - 1) * limit;
+  ): Promise<{ items: Machine[]; machines: Machine[]; total: number }> {
+    const { search, status } = query;
 
     const where: Prisma.MachineWhereInput = {
       tenantId,
@@ -104,39 +99,44 @@ export class MachineRepository implements IMachineRepository {
       where.isBlocked = status === 'blocked';
     }
 
-    const [machines, total] = await Promise.all([
-      this._prisma.machine.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      this._prisma.machine.count({ where }),
-    ]);
+    const { items, total } = await super.findAll(query, undefined, where);
 
     return {
-      machines: machines.map(toMachineMapper),
+      items,
+      machines: items,
       total,
     };
   }
 
   async updateBlockStatus(id: string, isBlocked: boolean): Promise<Machine> {
-    const response = await this._prisma.machine.update({
-      where: { id },
-      data: { isBlocked },
-    });
-
-    return toMachineMapper(response);
+    try {
+      return await super.update(id, { isBlocked });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.MACHINE_NOT_FOUND);
+      }
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_MACHINE,
+      );
+    }
   }
 
   async delete(id: string): Promise<Machine> {
-    const response = await this._prisma.machine.update({
-      where: { id },
-      data: { isDeleted: true },
-    });
-
-    return toMachineMapper(response);
+    try {
+      return await super.delete(id);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.MACHINE_NOT_FOUND);
+      }
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_MACHINE,
+      );
+    }
   }
 }

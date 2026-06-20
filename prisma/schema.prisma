@@ -56,6 +56,7 @@ model Tenant {
   trialUsed     Boolean        @default(false)
   machines      Machine[]
   fixtures      Fixture[]
+  rawMaterials  RawMaterial[]
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
@@ -223,4 +224,20 @@ model Fixture {
 enum FixtureType {
   MILL
   LATHE
+}
+
+model RawMaterial {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  name       String
+  dimensions Json
+  material   String
+  minQty     Int      @map("min_qty")
+  isBlocked  Boolean  @default(false) @map("is_blocked")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("raw_materials")
 }

@@ -1,0 +1,12 @@
+export enum RepositoryModelNames {
+  USER = 'user',
+  PLAN = 'plan',
+  TENANT = 'tenant',
+  FIXTURE = 'fixture',
+  MACHINE = 'machine',
+  PAYMENT = 'payment',
+  SUBSCRIPTION = 'subscription',
+  PASSWORD_RESET_TOKEN = 'passwordResetToken',
+  EMAIL_VERIFICATION_TOKEN = 'emailVerificationToken',
+  RAW_MATERIAL = 'rawMaterial',
+}

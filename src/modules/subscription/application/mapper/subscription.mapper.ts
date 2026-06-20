@@ -14,7 +14,7 @@ export const toSubscriptionMapper = (
     subscription.id,
     subscription.tenantId,
     subscription.planId,
-    subscription.status as any,
+    subscription.status,
     subscription.currentPeriodStart,
     subscription.currentPeriodEnd,
     subscription.razorpaySubscriptionId,

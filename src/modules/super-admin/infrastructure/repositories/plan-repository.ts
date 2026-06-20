@@ -3,31 +3,43 @@ import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { IPlanRepository } from '../../application/ports/repositories/plan-repository.interface';
 import { Plan } from '../../domain/plan.entity';
 import { toPlanMapper } from '../../application/mapper/plan.mapper';
-import { Prisma } from '@prisma/client';
+import { Plan as PrismaPlan, Prisma } from '@prisma/client';
 import {
   BadRequestError,
   ConflictError,
   NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
+import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
+import { CreatePlanDto } from '../../application/dto/create-plan.input.dto';
+import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
 
 @Injectable()
-export class PlanRepository implements IPlanRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+export class PlanRepository
+  extends BaseRepository<
+    Plan,
+    Prisma.PlanCreateInput,
+    Prisma.PlanUpdateInput,
+    PrismaPlan
+  >
+  implements IPlanRepository
+{
+  constructor(prisma: PrismaService) {
+    super(prisma, RepositoryModelNames.PLAN, toPlanMapper);
+  }
 
-  async create(plan: Partial<Plan>): Promise<Plan> {
+  async create(data: CreatePlanDto): Promise<Plan> {
     try {
-      const response = await this._prisma.plan.create({
-        data: {
-          code: plan.code!,
-          name: plan.name!,
-          description: plan.description,
-          price: plan.price!,
-          currency: plan.currency!,
-          durationDays: plan.durationDays,
-        },
-      });
-      return toPlanMapper(response);
+      const createData: Prisma.PlanCreateInput = {
+        code: data.code,
+        name: data.name,
+        description: data.description ?? null,
+        price: data.price,
+        currency: data.currency,
+        durationDays: data.durationDays ?? null,
+      };
+
+      return super.create(createData);
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -39,21 +51,9 @@ export class PlanRepository implements IPlanRepository {
     }
   }
 
-  async update(id: string, plan: Partial<Plan>): Promise<Plan> {
+  async update(id: string, plan: Prisma.PlanUpdateInput): Promise<Plan> {
     try {
-      const response = await this._prisma.plan.update({
-        where: { id },
-        data: {
-          name: plan.name,
-          description: plan.description,
-          price: plan.price,
-          currency: plan.currency,
-          durationDays: plan.durationDays,
-          isBlocked: plan.isBlocked,
-          isDeleted: plan.isDeleted,
-        },
-      });
-      return toPlanMapper(response);
+      return await super.update(id, plan);
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -65,25 +65,17 @@ export class PlanRepository implements IPlanRepository {
     }
   }
 
-  async findById(id: string): Promise<Plan | null> {
-    const response = await this._prisma.plan.findUnique({
-      where: { id, isDeleted: false },
-    });
-    return response ? toPlanMapper(response) : null;
-  }
-
   async findByCode(code: string): Promise<Plan | null> {
     const response = await this._prisma.plan.findUnique({
       where: { code, isDeleted: false },
     });
-    return response ? toPlanMapper(response) : null;
+    return response ? this._mapper(response) : null;
   }
 
   async findAll(
     query: PaginationQueryDto,
-  ): Promise<{ plans: Plan[]; total: number }> {
-    const { page = 1, limit = 10, search, status } = query;
-    const skip = (page - 1) * limit;
+  ): Promise<{ items: Plan[]; plans: Plan[]; total: number }> {
+    const { search, status } = query;
 
     const where: Prisma.PlanWhereInput = {
       isDeleted: false,
@@ -102,28 +94,18 @@ export class PlanRepository implements IPlanRepository {
       where.isBlocked = true;
     }
 
-    const [plans, total] = await Promise.all([
-      this._prisma.plan.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this._prisma.plan.count({ where }),
-    ]);
+    const { items, total } = await super.findAll(query, undefined, where);
 
     return {
-      plans: plans.map(toPlanMapper),
+      items,
+      plans: items,
       total,
     };
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<Plan> {
     try {
-      await this._prisma.plan.update({
-        where: { id },
-        data: { isDeleted: true },
-      });
+      return await super.delete(id);
     } catch {
       throw new BadRequestError('Failed to delete plan');
     }

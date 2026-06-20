@@ -1,7 +1,7 @@
 import { PasswordResetToken } from '../../../domain/entities/password-reset-token.entity';
 
 export interface IPasswordResetTokenRepository {
-  create(
+  createToken(
     userId: string,
     token: string,
     expiresAt: Date,

@@ -15,6 +15,7 @@ import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { MachineModule } from './modules/machine/machine.module';
 import { FixtureModule } from './modules/fixture/fixture.module';
+import { RawMaterialModule } from './modules/raw-material/raw-material.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { WinstonModule } from 'nest-winston';
 import { createWinstonConfig } from './shared/common/logger/logger.config';
@@ -33,6 +34,7 @@ import { memoryStorage } from 'multer';
     MachineModule,
     FixtureModule,
     PaymentModule,
+    RawMaterialModule,
 
     // Rate Limiting
     ThrottlerModule.forRoot([

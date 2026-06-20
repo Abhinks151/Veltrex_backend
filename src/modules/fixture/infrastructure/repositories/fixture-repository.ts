@@ -3,42 +3,55 @@ import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { IFixtureRepository } from '../../application/ports/repositories/fixture-repository.interface';
 import { Fixture } from '../../domain/fixture.entity';
+import { CreateFixtureDto } from '../../application/dto/create-fixture.dto';
 import {
-  CreateFixtureDto,
-  FixtureInputDto,
-} from '../../application/dto/create-fixture.dto';
-import { toFixtureMapper } from '../../application/mapper/fixture.mapper';
+  RawFixture,
+  toFixtureMapper,
+} from '../../application/mapper/fixture.mapper';
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+} from '@/shared/common/errors/domain-errors';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
+import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
 
 @Injectable()
-export class FixtureRepository implements IFixtureRepository {
-  constructor(private readonly _prisma: PrismaService) {}
+export class FixtureRepository
+  extends BaseRepository<
+    Fixture,
+    CreateFixtureDto,
+    Prisma.FixtureUpdateInput,
+    RawFixture
+  >
+  implements IFixtureRepository
+{
+  constructor(prisma: PrismaService) {
+    super(prisma, RepositoryModelNames.FIXTURE, toFixtureMapper);
+  }
 
   async create(data: CreateFixtureDto): Promise<Fixture> {
-    const response = await this._prisma.fixture.create({
-      data: {
+    try {
+      const fixtureData: Prisma.FixtureCreateInput = {
         name: data.name,
-        dimensions: data.dimensions,
+        dimensions: data.dimensions as Prisma.InputJsonValue,
         type: data.type,
         tenant: { connect: { id: data.tenantId } },
-      },
-    });
-
-    return toFixtureMapper(response);
-  }
-
-  async update(id: string, data: FixtureInputDto): Promise<Fixture> {
-    const response = await this._prisma.fixture.update({
-      where: { id },
-      data: { ...data },
-    });
-
-    return toFixtureMapper(response);
-  }
-
-  async findById(id: string): Promise<Fixture | null> {
-    const response = await this._prisma.fixture.findUnique({ where: { id } });
-    return response ? toFixtureMapper(response) : null;
+      };
+      return await super.create(fixtureData as unknown as CreateFixtureDto);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictError(MESSAGE_CONSTANTS.ERROR.FIXTURE_NAME_TAKEN);
+      }
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_CREATE_FIXTURE,
+      );
+    }
   }
 
   async findByTenantAndName(
@@ -53,7 +66,7 @@ export class FixtureRepository implements IFixtureRepository {
       },
     });
 
-    return response ? toFixtureMapper(response) : null;
+    return response ? this._mapper(response as unknown as RawFixture) : null;
   }
 
   async findAllActive(tenantId: string): Promise<Fixture[]> {
@@ -62,15 +75,14 @@ export class FixtureRepository implements IFixtureRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return response.map(toFixtureMapper);
+    return response.map((f) => this._mapper(f as unknown as RawFixture));
   }
 
   async findAllPaginated(
     tenantId: string,
     query: PaginationQueryDto,
-  ): Promise<{ fixtures: Fixture[]; total: number }> {
-    const { page = 1, limit = 10, search, status } = query;
-    const skip = (page - 1) * limit;
+  ): Promise<{ items: Fixture[]; fixtures: Fixture[]; total: number }> {
+    const { search, status } = query;
 
     const where: Prisma.FixtureWhereInput = {
       tenantId,
@@ -85,37 +97,44 @@ export class FixtureRepository implements IFixtureRepository {
       where.isBlocked = status === 'blocked';
     }
 
-    const [fixtures, total] = await Promise.all([
-      this._prisma.fixture.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this._prisma.fixture.count({ where }),
-    ]);
+    const { items, total } = await super.findAll(query, undefined, where);
 
     return {
-      fixtures: fixtures.map(toFixtureMapper),
+      items,
+      fixtures: items,
       total,
     };
   }
 
   async updateBlockStatus(id: string, isBlocked: boolean): Promise<Fixture> {
-    const response = await this._prisma.fixture.update({
-      where: { id },
-      data: { isBlocked },
-    });
-
-    return toFixtureMapper(response);
+    try {
+      return await super.update(id, { isBlocked });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.FIXTURE_NOT_FOUND);
+      }
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_FIXTURE,
+      );
+    }
   }
 
   async delete(id: string): Promise<Fixture> {
-    const response = await this._prisma.fixture.update({
-      where: { id },
-      data: { isDeleted: true },
-    });
-
-    return toFixtureMapper(response);
+    try {
+      return await super.delete(id);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.FIXTURE_NOT_FOUND);
+      }
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_FIXTURE,
+      );
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { Fixture } from '../../domain/fixture.entity';
 import { FixtureType } from '@/shared/enums/fixture-type.enum';
 
-interface RawFixture {
+export interface RawFixture {
   id: string;
   tenantId: string;
   name: string;

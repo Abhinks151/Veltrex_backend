@@ -104,7 +104,7 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         {
           status: PaymentStatus.SUCCESS,
           providerPaymentId: data.razorpayPaymentId,
-          subscriptionId: subscription.id,
+          subscription: { connect: { id: subscription.id } },
           paidAt: new Date(),
         },
         ctx,

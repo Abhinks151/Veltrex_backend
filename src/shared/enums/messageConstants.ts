@@ -39,6 +39,12 @@ export const MESSAGE_CONSTANTS = {
     FAILED_TO_CREATE_FIXTURE: 'Failed to create fixture',
     FAILED_TO_UPDATE_FIXTURE: 'Failed to update fixture',
     FIXTURE_ALREADY_DELETED: 'Fixture is already deleted',
+    RAW_MATERIAL_NOT_FOUND: 'Raw material not found',
+    RAW_MATERIAL_NAME_TAKEN:
+      'Raw material name already exists, try another one',
+    FAILED_TO_CREATE_RAW_MATERIAL: 'Failed to create raw material',
+    FAILED_TO_UPDATE_RAW_MATERIAL: 'Failed to update raw material',
+    RAW_MATERIAL_ALREADY_DELETED: 'Raw material is already deleted',
     SUBSCRIPTION_EXPIRED:
       'Subscription has expired. Please upgrade to continue.',
     SUBSCRIPTION_RESTRICTED: 'Subscription is restricted. Access denied.',
@@ -59,6 +65,7 @@ export const MESSAGE_CONSTANTS = {
     FREE_PLAN_ACTIVATION_BLOCKED:
       'Cannot activate free plan: an active paid subscription already exists',
     TRIAL_ALREADY_USED: 'Free trial has already been used by this organization',
+    DELETE_NOT_IMPLEMENTED: 'Delete not implemented',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
@@ -101,6 +108,11 @@ export const MESSAGE_CONSTANTS = {
     FIXTURES_FETCHED: 'Fixtures fetched successfully',
     FIXTURE_BLOCK_TOGGLED: 'Fixture block status updated',
     FIXTURE_DELETED: 'Fixture deleted successfully',
+    RAW_MATERIAL_CREATED: 'Raw material created successfully',
+    RAW_MATERIAL_UPDATED: 'Raw material updated successfully',
+    RAW_MATERIALS_FETCHED: 'Raw materials fetched successfully',
+    RAW_MATERIAL_BLOCK_TOGGLED: 'Raw material block status updated',
+    RAW_MATERIAL_DELETED: 'Raw material deleted successfully',
     USER_DELETED: 'User deleted successfully',
     ORDER_CREATED: 'Order created successfully',
     PAYMENT_VERIFIED: 'Payment verified successfully',

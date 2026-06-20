@@ -23,7 +23,7 @@ export interface IUserRepository extends IBaseRepository<
       status?: string;
       sort?: string;
     },
-  ): Promise<{ users: User[]; total: number }>;
+  ): Promise<{ items: User[]; users: User[]; total: number }>;
   delete(id: string): Promise<User>;
   updateBlockStatus(id: string, isBlocked: boolean): Promise<User>;
   findAllAdminUsers(query: {
@@ -31,5 +31,5 @@ export interface IUserRepository extends IBaseRepository<
     limit?: number;
     search?: string;
     status?: string;
-  }): Promise<{ users: User[]; total: number }>;
+  }): Promise<{ items: User[]; users: User[]; total: number }>;
 }
