@@ -17,6 +17,7 @@ import { MachineModule } from './modules/machine/machine.module';
 import { FixtureModule } from './modules/fixture/fixture.module';
 import { RawMaterialModule } from './modules/raw-material/raw-material.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { JobModule } from './modules/job/job.module';
 import { WinstonModule } from 'nest-winston';
 import { createWinstonConfig } from './shared/common/logger/logger.config';
 import { MulterModule } from '@nestjs/platform-express';
@@ -35,6 +36,7 @@ import { memoryStorage } from 'multer';
     FixtureModule,
     PaymentModule,
     RawMaterialModule,
+    JobModule,
 
     // Rate Limiting
     ThrottlerModule.forRoot([
