@@ -28,6 +28,10 @@ export interface PrismaRawJob {
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
+  part?: {
+    name: string;
+    partNumber: string;
+  };
 }
 
 export const toJobMapper = (raw: PrismaRawJob): Job => {
@@ -44,5 +48,8 @@ export const toJobMapper = (raw: PrismaRawJob): Job => {
     raw.isDeleted,
     raw.createdAt,
     raw.updatedAt,
+    raw.part
+      ? { name: raw.part.name, partNumber: raw.part.partNumber }
+      : undefined,
   );
 };

@@ -71,6 +71,10 @@ export const MESSAGE_CONSTANTS = {
     FAILED_TO_CREATE_JOB: 'Failed to create job',
     FAILED_TO_UPDATE_JOB: 'Failed to update job',
     INVALID_ASSIGNEE: 'Invalid assignee for this job',
+    PART_NUMBER_TAKEN: 'Part number already exists, try another one',
+    FAILED_TO_CREATE_PART: 'Failed to create part',
+    FAILED_TO_UPDATE_PART: 'Failed to update part',
+    ONLY_PDF_FILES_ALLOWED: 'Only PDF files are allowed!',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
@@ -132,5 +136,6 @@ export const MESSAGE_CONSTANTS = {
     PART_UPDATED: 'Part updated successfully',
     PARTS_FETCHED: 'Parts fetched successfully',
     PART_DELETED: 'Part deleted successfully',
+    PART_BLOCK_TOGGLED: 'Part block status updated',
   },
 };
