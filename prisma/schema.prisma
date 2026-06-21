@@ -31,6 +31,8 @@ model User {
 
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
+  createdJobs            Job[]                    @relation("JobCreatedBy")
+  assignedJobs           Job[]                    @relation("JobAssignedTo")
   profileImage            String?                  @map("profile_image")
   profileImageKey         String?                  @map("profile_image_key")
   createdAt               DateTime                 @default(now()) @map("created_at")
@@ -57,6 +59,8 @@ model Tenant {
   machines      Machine[]
   fixtures      Fixture[]
   rawMaterials  RawMaterial[]
+  parts         Part[]
+  jobs          Job[]
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
@@ -240,4 +244,59 @@ model RawMaterial {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("raw_materials")
+}
+
+model Part {
+  id                 String   @id @default(uuid()) @db.Uuid
+  tenantId           String   @map("tenant_id") @db.Uuid
+  tenant             Tenant   @relation(fields: [tenantId], references: [id])
+  name               String
+  partNumber         String   @map("part_number")
+  description        String?
+  setupSheet         String?  @map("setup_sheet")
+  engineeringDrawing String?  @map("engineering_drawing")
+  isDeleted          Boolean  @default(false) @map("is_deleted")
+  jobs               Job[]
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, partNumber])
+  @@map("parts")
+}
+
+model Job {
+  id         String      @id @default(uuid()) @db.Uuid
+  tenantId   String      @map("tenant_id") @db.Uuid
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  partId     String      @map("part_id") @db.Uuid
+  part       Part        @relation(fields: [partId], references: [id])
+  quantity   Int
+  priority   JobPriority
+  repeat     Boolean     @default(false)
+  status     JobStatus   @default(PENDING)
+  isDeleted  Boolean     @default(false) @map("is_deleted")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  createdByUserId String @map("created_by") @db.Uuid
+  creator         User   @relation("JobCreatedBy", fields: [createdByUserId], references: [id])
+
+  assignedToUserId String? @map("assigned_to") @db.Uuid
+  assignee         User?   @relation("JobAssignedTo", fields: [assignedToUserId], references: [id])
+
+  @@map("jobs")
+}
+
+enum JobPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
