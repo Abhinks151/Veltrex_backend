@@ -83,7 +83,9 @@ export class JobRepository
       where.status = status as JobStatus;
     }
 
-    const { items, total } = await super.findAll(query, undefined, where);
+    const { items, total } = await super.findAll(query, undefined, where, {
+      part: true,
+    });
 
     return {
       items,

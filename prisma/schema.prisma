@@ -195,6 +195,7 @@ model Machine {
   isDeleted      Boolean       @default(false) @map("is_deleted")
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
+  parts          Part[]
 
   @@map("machines")
 }
@@ -221,6 +222,7 @@ model Fixture {
   isDeleted  Boolean     @default(false) @map("is_deleted")
   createdAt  DateTime    @default(now()) @map("created_at")
   updatedAt  DateTime    @updatedAt @map("updated_at")
+  parts      Part[]
 
   @@map("fixtures")
 }
@@ -242,6 +244,7 @@ model RawMaterial {
   isDeleted  Boolean  @default(false) @map("is_deleted")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
+  parts      Part[]
 
   @@map("raw_materials")
 }
@@ -253,8 +256,32 @@ model Part {
   name               String
   partNumber         String   @map("part_number")
   description        String?
+  material           String?
+  operationType      OperationType? @map("operation_type")
+  
+  // nc_program is future plan
+  // ncProgramId String? @map("nc_program_id") @db.Uuid
+
+  machineId          String?  @map("machine_id") @db.Uuid
+  machine            Machine? @relation(fields: [machineId], references: [id])
+
+  fixtureId          String?  @map("fixture_id") @db.Uuid
+  fixture            Fixture? @relation(fields: [fixtureId], references: [id])
+
+  rawMaterialId      String?  @map("raw_material_id") @db.Uuid
+  rawMaterial        RawMaterial? @relation(fields: [rawMaterialId], references: [id])
+
+  dimensions         Json?    @map("dimensions")
+  cycleTime          String?  @map("cycle_time")
+  setupTime          String?  @map("setup_time")
+
   setupSheet         String?  @map("setup_sheet")
+  setupSheetKey      String?  @map("setup_sheet_key")
   engineeringDrawing String?  @map("engineering_drawing")
+  engineeringDrawingKey String? @map("engineering_drawing_key")
+
+  priority           PartPriority @default(MEDIUM)
+  isBlocked          Boolean  @default(false) @map("is_blocked")
   isDeleted          Boolean  @default(false) @map("is_deleted")
   jobs               Job[]
   createdAt          DateTime @default(now()) @map("created_at")
@@ -263,6 +290,19 @@ model Part {
   @@unique([tenantId, partNumber])
   @@map("parts")
 }
+
+enum OperationType {
+  MILL
+  LATHE
+}
+
+enum PartPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 
 model Job {
   id         String      @id @default(uuid()) @db.Uuid

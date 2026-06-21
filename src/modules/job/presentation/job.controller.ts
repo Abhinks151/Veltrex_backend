@@ -43,7 +43,7 @@ export class JobController {
     private readonly _deleteJobUseCase: IDeleteJobUseCase,
   ) {}
 
-  @Roles(Role.ADMIN, Role.MAINTENANCE)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Post('create')
   async create(@Req() req: Request, @Body() dto: CreateJobRequest) {
@@ -61,7 +61,7 @@ export class JobController {
     return new ApiResponse(true, result, MESSAGE_CONSTANTS.SUCCESS.JOB_CREATED);
   }
 
-  @Roles(Role.ADMIN, Role.MAINTENANCE, Role.MACHINIST)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Patch('edit/:id')
   async edit(
@@ -72,7 +72,7 @@ export class JobController {
     return new ApiResponse(true, result, MESSAGE_CONSTANTS.SUCCESS.JOB_UPDATED);
   }
 
-  @Roles(Role.ADMIN, Role.MAINTENANCE, Role.MACHINIST)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
   @Get('list')
   async list(@Req() req: Request, @Query() query: PaginationQueryDto) {
