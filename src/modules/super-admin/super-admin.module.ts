@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { SuperAdminController } from './presentation/super-admin.controller';
 import { ListAllTenantsUseCase } from './application/use-cases/list-all-tenants.use-case';
 import { ToggleTenantBlockUseCase } from './application/use-cases/toggle-tenant-block.use-case';
@@ -13,9 +13,11 @@ import { UpdatePlanUseCase } from './application/use-cases/update-plan.use-case'
 import { TogglePlanBlockUseCase } from './application/use-cases/toggle-plan-block.use-case';
 import { DeletePlanUseCase } from './application/use-cases/delete-plan.use-case';
 import { ListAllPlansUseCase } from './application/use-cases/list-all-plans.use-case';
+import { GetPlanByCodeUseCase } from './application/use-cases/get-plan-by-code.use-case';
+import { GetPlanByIdUseCase } from './application/use-cases/get-plan-by-id.use-case';
 
 @Module({
-  imports: [AuthModule, TenantModule],
+  imports: [forwardRef(() => AuthModule), forwardRef(() => TenantModule)],
   controllers: [SuperAdminController],
   providers: [
     {
@@ -62,7 +64,15 @@ import { ListAllPlansUseCase } from './application/use-cases/list-all-plans.use-
       provide: 'IListAllPlansUseCase',
       useClass: ListAllPlansUseCase,
     },
+    {
+      provide: 'ISuperAdminGetPlanByCodeUseCase',
+      useClass: GetPlanByCodeUseCase,
+    },
+    {
+      provide: 'ISuperAdminGetPlanByIdUseCase',
+      useClass: GetPlanByIdUseCase,
+    },
   ],
-  exports: ['IPlanRepository'],
+  exports: ['ISuperAdminGetPlanByCodeUseCase', 'ISuperAdminGetPlanByIdUseCase'],
 })
 export class SuperAdminModule {}

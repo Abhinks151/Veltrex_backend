@@ -27,12 +27,12 @@ import { CreateSubscriptionDto } from '../presentation/dto/create-subscription.d
 @Controller('subscription')
 export class SubscriptionController {
   constructor(
-    @Inject('ICreateSubscriptionUseCase')
+    @Inject('ISubscriptionCreateUseCase')
     private readonly _createSubscriptionUseCase: ICreateSubscriptionUseCase,
-    @Inject('IGetSubscriptionUseCase')
+    @Inject('ISubscriptionGetUseCase')
     private readonly _getSubscriptionUseCase: IGetSubscriptionUseCase,
 
-    @Inject('IToggleStatusUseCase')
+    @Inject('ISubscriptionToggleStatusUseCase')
     private readonly _toggleStatusUseCase: IToggleStatusUseCase,
   ) {}
 

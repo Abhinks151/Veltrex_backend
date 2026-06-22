@@ -12,11 +12,12 @@ import { SuperAdminModule } from '../super-admin/super-admin.module';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { TenantModule } from '../tenant/tenant.module';
 import { PaymentRepository } from './infrastructure/repositories/payment.repository';
+import { SubscriptionRepository } from '../subscription/infrastructure/repositories/subscription-repository';
 
 @Module({
   imports: [
     PrismaModule,
-    SuperAdminModule,
+    forwardRef(() => SuperAdminModule),
     forwardRef(() => SubscriptionModule),
     forwardRef(() => TenantModule),
   ],
@@ -53,6 +54,10 @@ import { PaymentRepository } from './infrastructure/repositories/payment.reposit
     {
       provide: 'IPaymentRepository',
       useClass: PaymentRepository,
+    },
+    {
+      provide: 'ISubscriptionRepository',
+      useClass: SubscriptionRepository,
     },
   ],
   exports: [

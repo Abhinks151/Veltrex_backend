@@ -3,12 +3,12 @@ import { Tenant } from '../../domain/tenant.entity';
 import { TenantCreationRequestDto } from '../dto/create-tenant.dto';
 import { ICreateTenantUseCase } from '../ports/use-cases/create-tenant.use-cases.interface';
 import { ITenantRepository } from '../ports/repositories/tenant-repository.interface';
-import { IAuthQueryService } from '@/modules/auth/application/ports/services/auth-query.service.interface';
+import { IValidateUserForTenantCreationUseCase } from '@/modules/auth/application/ports/use-cases/validate-user-for-tenant-creation.use-case.interface';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
-import { ISubscriptionQueryService } from '@/modules/subscription/application/ports/services/subscription-query.service.interface';
+import { ICreateSubscriptionUseCase } from '@/modules/subscription/application/ports/use-cases/create-subscription.use-case.interface';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { CreateSubscriptionDto } from '@/modules/subscription/application/dto/create-subscription.dto';
-import { IPlanRepository } from '@/modules/super-admin/application/ports/repositories/plan-repository.interface';
+import { IGetPlanByCodeUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-code.use-case.interface';
 import {
   ConflictError,
   NotFoundError,
@@ -20,14 +20,14 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
     @Inject('ITenantRepository')
     private readonly _tenantRepository: ITenantRepository,
 
-    @Inject('IAuthQueryService')
-    private readonly _authQueryService: IAuthQueryService,
+    @Inject('IAuthValidateUserForTenantCreationUseCase')
+    private readonly _validateUserForTenantCreationUseCase: IValidateUserForTenantCreationUseCase,
 
-    @Inject('ISubscriptionQueryService')
-    private readonly _subscriptionQueryService: ISubscriptionQueryService,
+    @Inject('ISubscriptionCreateUseCase')
+    private readonly _createSubscriptionUseCase: ICreateSubscriptionUseCase,
 
-    @Inject('IPlanRepository')
-    private readonly _planRepository: IPlanRepository,
+    @Inject('ISuperAdminGetPlanByCodeUseCase')
+    private readonly _getPlanByCodeUseCase: IGetPlanByCodeUseCase,
   ) {}
 
   async execute(
@@ -35,7 +35,7 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
     ownerId: string,
   ): Promise<Tenant> {
     const user =
-      await this._authQueryService.validateUserForTenantCreation(ownerId);
+      await this._validateUserForTenantCreationUseCase.execute(ownerId);
     if (!user) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
@@ -52,7 +52,7 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
 
     // Fetch the plan from database
     const planCode = reqDto.plan || 'TRIAL';
-    const plan = await this._planRepository.findByCode(planCode);
+    const plan = await this._getPlanByCodeUseCase.execute(planCode);
     if (!plan) {
       throw new NotFoundError(`Plan with code ${planCode} not found`);
     }
@@ -85,7 +85,7 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
         trialUsed: planCode === 'TRIAL',
         razorpaySubscriptionId: '',
       };
-      await this._subscriptionQueryService.create(subscriptionData);
+      await this._createSubscriptionUseCase.execute(ownerId, subscriptionData);
     } catch (error) {
       console.log(
         'Subscription creation failed during tenant creation:',

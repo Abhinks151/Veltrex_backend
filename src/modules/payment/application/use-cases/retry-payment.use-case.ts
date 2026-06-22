@@ -8,7 +8,7 @@ import { IRetryPaymentUseCase } from '../ports/use-cases/retry-payment.use-case.
 import { CreatePaymentOrderResponseDto } from '../dto/create-order-payment.reponse.dto';
 import { IPaymentGateway } from '../ports/services/payment-gateway.interface';
 import { IPaymentRepository } from '../ports/repositories/payment-repository.interface';
-import { IPlanRepository } from '@/modules/super-admin/application/ports/repositories/plan-repository.interface';
+import { IGetPlanByIdUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-id.use-case.interface';
 import { PaymentStatus, PaymentProvider } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
@@ -20,8 +20,8 @@ export class RetryPaymentUseCase implements IRetryPaymentUseCase {
     private readonly _paymentGateway: IPaymentGateway,
     @Inject('IPaymentRepository')
     private readonly _paymentRepository: IPaymentRepository,
-    @Inject('IPlanRepository')
-    private readonly _planRepository: IPlanRepository,
+    @Inject('ISuperAdminGetPlanByIdUseCase')
+    private readonly _getPlanByIdUseCase: IGetPlanByIdUseCase,
   ) {}
 
   async execute(paymentId: string): Promise<CreatePaymentOrderResponseDto> {
@@ -39,7 +39,7 @@ export class RetryPaymentUseCase implements IRetryPaymentUseCase {
       throw new BadRequestException(MESSAGE_CONSTANTS.ERROR.PAYMENT_NO_PLAN);
     }
 
-    const plan = await this._planRepository.findById(originalPayment.planId);
+    const plan = await this._getPlanByIdUseCase.execute(originalPayment.planId);
     if (!plan)
       throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.PLAN_NOT_FOUND);
 

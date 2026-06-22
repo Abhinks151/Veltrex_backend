@@ -3,22 +3,25 @@ import { IToggleUserBlockUseCase } from '../ports/use-cases/toggle-user-block.us
 import { User } from '@/modules/auth/domain/entities/user.entity';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { NotFoundError } from '@/shared/common/errors/domain-errors';
-import { IAuthQueryService } from '@/modules/auth/application/ports/services/auth-query.service.interface';
+import { IGetUserByIdUseCase } from '@/modules/auth/application/ports/use-cases/get-user-by-id.use-case.interface';
+import { IUpdateUserBlockStatusUseCase } from '@/modules/auth/application/ports/use-cases/update-user-block-status.use-case.interface';
 
 @Injectable()
 export class ToggleUserBlockUseCase implements IToggleUserBlockUseCase {
   constructor(
-    @Inject('IAuthQueryService')
-    private readonly _authQueryService: IAuthQueryService,
+    @Inject('IAuthGetUserByIdUseCase')
+    private readonly _getUserByIdUseCase: IGetUserByIdUseCase,
+    @Inject('IAuthUpdateUserBlockStatusUseCase')
+    private readonly _updateUserBlockStatusUseCase: IUpdateUserBlockStatusUseCase,
   ) {}
 
   async execute(id: string): Promise<User> {
-    const user = await this._authQueryService.findById(id);
+    const user = await this._getUserByIdUseCase.execute(id);
     if (!user) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_FOUND);
     }
 
     const newBlockStatus = !user.isBlocked;
-    return this._authQueryService.updateBlockStatus(id, newBlockStatus);
+    return this._updateUserBlockStatusUseCase.execute(id, newBlockStatus);
   }
 }

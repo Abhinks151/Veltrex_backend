@@ -32,15 +32,15 @@ import { AuthenticatedUser } from '@/modules/auth/application/types/authenticate
 @Controller('tenant')
 export class TenantController {
   constructor(
-    @Inject('ICreateTenantUseCase')
+    @Inject('ITenantCreateUseCase')
     private readonly _createTenantUseCase: ICreateTenantUseCase,
-    @Inject('IUpdateTenantUseCase')
+    @Inject('ITenantUpdateUseCase')
     private readonly _updateTenantUseCase: IUpdateTenantUseCase,
-    @Inject('IGetTenantUseCase')
+    @Inject('ITenantGetUseCase')
     private readonly _getTenantUseCase: IGetTenantUseCase,
-    @Inject('IGetAllTenantUseCase')
+    @Inject('ITenantGetAllUseCase')
     private readonly _getAllTenantUseCase: IGetAllTenantUseCase,
-    @Inject('ICheckTenantNameUseCase')
+    @Inject('ITenantCheckNameUseCase')
     private readonly _checkTenantNameUseCase: ICheckTenantNameUseCase,
   ) {}
 

@@ -10,7 +10,7 @@ import { VerifyPaymentResponseDto } from '../dto/verify-payment.reponse.dto';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
 import { IPaymentGateway } from '../ports/services/payment-gateway.interface';
 import { IPaymentRepository } from '../ports/repositories/payment-repository.interface';
-import { IPlanRepository } from '@/modules/super-admin/application/ports/repositories/plan-repository.interface';
+import { IGetPlanByIdUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-id.use-case.interface';
 import { ISubscriptionRepository } from '@/modules/subscription/application/ports/repositories/subscription-repository.interface';
 import { PaymentStatus, SubscriptionStatus } from '@prisma/client';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
@@ -24,8 +24,8 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
     private readonly _paymentGateway: IPaymentGateway,
     @Inject('IPaymentRepository')
     private readonly _paymentRepository: IPaymentRepository,
-    @Inject('IPlanRepository')
-    private readonly _planRepository: IPlanRepository,
+    @Inject('ISuperAdminGetPlanByIdUseCase')
+    private readonly _getPlanByIdUseCase: IGetPlanByIdUseCase,
     @Inject('ISubscriptionRepository')
     private readonly _subscriptionRepository: ISubscriptionRepository,
   ) {}
@@ -58,7 +58,7 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       throw new BadRequestException(MESSAGE_CONSTANTS.ERROR.PAYMENT_NO_PLAN);
     }
 
-    const plan = await this._planRepository.findById(payment.planId);
+    const plan = await this._getPlanByIdUseCase.execute(payment.planId);
     if (!plan)
       throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.PLAN_NOT_FOUND);
 

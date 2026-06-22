@@ -4,20 +4,28 @@ import { CreateTenantUseCase } from './application/use-cases/create-tenant.use-c
 import { TenantRepository } from './infrastructure/repositories/tenant-repository';
 import { UpdateTenantUseCase } from './application/use-cases/update-tenant.use-case';
 import { AuthModule } from '../auth/auth.module';
-import { TenantQueryService } from './tenant-query.service';
 import { GetTenantUseCase } from './application/use-cases/get-tenant.use-case';
 import { GetAllTenantUseCase } from './application/use-cases/get-all-tenant.use-case';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { CheckTenantNameUseCase } from './application/use-cases/check-tenant-name.use-case';
-import { PlanRepository } from '../super-admin/infrastructure/repositories/plan-repository';
+import { SuperAdminModule } from '../super-admin/super-admin.module';
+import { CheckValidTenantUseCase } from './application/use-cases/check-valid-tenant.use-case';
+import { ToggleTenantBlockUseCase } from './application/use-cases/toggle-tenant-block.use-case';
+import { GetTenantByIdUseCase } from './application/use-cases/get-tenant-by-id.use-case';
+import { GetTenantByOwnerIdUseCase } from './application/use-cases/get-tenant-by-owner-id.use-case';
+import { CheckTenantBlockedUseCase } from './application/use-cases/check-tenant-blocked.use-case';
+import { MarkTrialAsUsedUseCase } from './application/use-cases/mark-trial-as-used.use-case';
 
 @Module({
-  imports: [forwardRef(() => AuthModule), forwardRef(() => SubscriptionModule)],
+  imports: [
+    forwardRef(() => AuthModule),
+    forwardRef(() => SubscriptionModule),
+    forwardRef(() => SuperAdminModule),
+  ],
   controllers: [TenantController],
   providers: [
-    TenantQueryService,
     {
-      provide: 'ICreateTenantUseCase',
+      provide: 'ITenantCreateUseCase',
       useClass: CreateTenantUseCase,
     },
     {
@@ -25,30 +33,58 @@ import { PlanRepository } from '../super-admin/infrastructure/repositories/plan-
       useClass: TenantRepository,
     },
     {
-      provide: 'IUpdateTenantUseCase',
+      provide: 'ITenantUpdateUseCase',
       useClass: UpdateTenantUseCase,
     },
     {
-      provide: 'ITenantQueryService',
-      useClass: TenantQueryService,
-    },
-    {
-      provide: 'IGetTenantUseCase',
+      provide: 'ITenantGetUseCase',
       useClass: GetTenantUseCase,
     },
     {
-      provide: 'IGetAllTenantUseCase',
+      provide: 'ITenantGetAllUseCase',
       useClass: GetAllTenantUseCase,
     },
     {
-      provide: 'ICheckTenantNameUseCase',
+      provide: 'ITenantCheckNameUseCase',
       useClass: CheckTenantNameUseCase,
     },
     {
-      provide: 'IPlanRepository',
-      useClass: PlanRepository,
+      provide: 'ITenantCheckValidUseCase',
+      useClass: CheckValidTenantUseCase,
+    },
+    {
+      provide: 'ITenantToggleBlockUseCase',
+      useClass: ToggleTenantBlockUseCase,
+    },
+    {
+      provide: 'ITenantGetByIdUseCase',
+      useClass: GetTenantByIdUseCase,
+    },
+    {
+      provide: 'ITenantGetByOwnerIdUseCase',
+      useClass: GetTenantByOwnerIdUseCase,
+    },
+    {
+      provide: 'ITenantCheckBlockedUseCase',
+      useClass: CheckTenantBlockedUseCase,
+    },
+    {
+      provide: 'ITenantMarkTrialAsUsedUseCase',
+      useClass: MarkTrialAsUsedUseCase,
     },
   ],
-  exports: [TenantQueryService, 'ITenantQueryService', 'ITenantRepository'],
+  exports: [
+    'ITenantCreateUseCase',
+    'ITenantGetUseCase',
+    'ITenantGetAllUseCase',
+    'ITenantUpdateUseCase',
+    'ITenantCheckNameUseCase',
+    'ITenantCheckValidUseCase',
+    'ITenantToggleBlockUseCase',
+    'ITenantGetByIdUseCase',
+    'ITenantGetByOwnerIdUseCase',
+    'ITenantCheckBlockedUseCase',
+    'ITenantMarkTrialAsUsedUseCase',
+  ],
 })
 export class TenantModule {}
