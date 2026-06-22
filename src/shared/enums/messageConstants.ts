@@ -75,6 +75,14 @@ export const MESSAGE_CONSTANTS = {
     FAILED_TO_CREATE_PART: 'Failed to create part',
     FAILED_TO_UPDATE_PART: 'Failed to update part',
     ONLY_PDF_FILES_ALLOWED: 'Only PDF files are allowed!',
+    PART_IN_USE:
+      'Cannot delete part: it is currently associated with active jobs',
+    MACHINE_IN_USE:
+      'Cannot delete machine: it is currently associated with active parts',
+    FIXTURE_IN_USE:
+      'Cannot delete fixture: it is currently associated with active parts',
+    RAW_MATERIAL_IN_USE:
+      'Cannot delete raw material: it is currently associated with active parts',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',

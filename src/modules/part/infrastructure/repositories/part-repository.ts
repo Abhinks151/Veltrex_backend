@@ -147,4 +147,31 @@ export class PartRepository
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_PART);
     }
   }
+
+  async countActiveByMachineId(machineId: string): Promise<number> {
+    return await this._prisma.part.count({
+      where: {
+        machineId,
+        isDeleted: false,
+      },
+    });
+  }
+
+  async countActiveByFixtureId(fixtureId: string): Promise<number> {
+    return await this._prisma.part.count({
+      where: {
+        fixtureId,
+        isDeleted: false,
+      },
+    });
+  }
+
+  async countActiveByRawMaterialId(rawMaterialId: string): Promise<number> {
+    return await this._prisma.part.count({
+      where: {
+        rawMaterialId,
+        isDeleted: false,
+      },
+    });
+  }
 }

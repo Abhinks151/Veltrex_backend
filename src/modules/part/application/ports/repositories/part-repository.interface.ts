@@ -21,4 +21,7 @@ export interface IPartRepository extends IBaseRepository<
   ): Promise<{ items: Part[]; total: number }>;
   updateBlockStatus(id: string, isBlocked: boolean): Promise<Part>;
   delete(id: string): Promise<Part>;
+  countActiveByMachineId(machineId: string): Promise<number>;
+  countActiveByFixtureId(fixtureId: string): Promise<number>;
+  countActiveByRawMaterialId(rawMaterialId: string): Promise<number>;
 }
