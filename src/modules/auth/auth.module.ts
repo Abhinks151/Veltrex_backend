@@ -22,7 +22,6 @@ import { VerifyEmailUseCase } from './application/use-cases/verify-email.use-cas
 import { EmailService } from './infrastructure/services/email-service';
 import { UserResetPasswordUseCase } from './application/use-cases/reset-password.use-case';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
-import { AuthQueryService } from './auth-query.service';
 import { RolesGuard } from './presentation/guards/roles.guard';
 import { IsVerifiedGuard } from './presentation/guards/is-verified.guard';
 import { UpdateUserUseCase } from './application/use-cases/update-user.use-case';
@@ -35,6 +34,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee.use-case';
 import { SendEmployeeInviteUseCase } from './application/use-cases/send-employee-invite.use-case';
 import { SubscriptionModule } from '../subscription/subscription.module';
+
+import { ValidateUserForTenantCreationUseCase } from './application/use-cases/validate-user-for-tenant-creation.use-case';
+import { ListAllAdminUsersUseCase } from './application/use-cases/list-all-admin-users.use-case';
+import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
+import { UpdateUserBlockStatusUseCase } from './application/use-cases/update-user-block-status.use-case';
+import { ChangePasswordUseCase } from './application/use-cases/change-password.use-case';
+import { UpdateProfileImageUseCase } from './application/use-cases/update-profile-image.use-case';
 
 @Module({
   imports: [
@@ -61,7 +67,6 @@ import { SubscriptionModule } from '../subscription/subscription.module';
     JwtStrategy,
     RegisterUserUseCase,
     LoginUserUseCase,
-    AuthQueryService,
     RolesGuard,
     IsVerifiedGuard,
     {
@@ -129,12 +134,8 @@ import { SubscriptionModule } from '../subscription/subscription.module';
       useClass: RefreshTokenUseCase,
     },
     {
-      provide: 'IUpdateUserUseCase',
+      provide: 'IAuthUpdateUserUseCase',
       useClass: UpdateUserUseCase,
-    },
-    {
-      provide: 'IAuthQueryService',
-      useClass: AuthQueryService,
     },
     {
       provide: 'ICreateEmployeeUseCase',
@@ -160,13 +161,42 @@ import { SubscriptionModule } from '../subscription/subscription.module';
       provide: 'ISoftDeleteEmployeeUseCase',
       useClass: SoftDeleteEmployeeUseCase,
     },
+    {
+      provide: 'IAuthValidateUserForTenantCreationUseCase',
+      useClass: ValidateUserForTenantCreationUseCase,
+    },
+    {
+      provide: 'IAuthListAllAdminUsersUseCase',
+      useClass: ListAllAdminUsersUseCase,
+    },
+    {
+      provide: 'IAuthGetUserByIdUseCase',
+      useClass: GetUserByIdUseCase,
+    },
+    {
+      provide: 'IAuthUpdateUserBlockStatusUseCase',
+      useClass: UpdateUserBlockStatusUseCase,
+    },
+    {
+      provide: 'IAuthChangePasswordUseCase',
+      useClass: ChangePasswordUseCase,
+    },
+    {
+      provide: 'IAuthUpdateProfileImageUseCase',
+      useClass: UpdateProfileImageUseCase,
+    },
   ],
   exports: [
     AuthService,
-    AuthQueryService,
     RolesGuard,
     IsVerifiedGuard,
-    'IAuthQueryService',
+    'IAuthValidateUserForTenantCreationUseCase',
+    'IAuthListAllAdminUsersUseCase',
+    'IAuthGetUserByIdUseCase',
+    'IAuthUpdateUserBlockStatusUseCase',
+    'IAuthChangePasswordUseCase',
+    'IAuthUpdateProfileImageUseCase',
+    'IAuthUpdateUserUseCase',
   ],
 })
 export class AuthModule {}

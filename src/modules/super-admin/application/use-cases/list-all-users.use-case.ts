@@ -1,12 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { IListAllAdminUsersUseCase } from '../ports/use-cases/list-all-users.use-case.interface';
 import { User } from '@/modules/auth/domain/entities/user.entity';
-import { IAuthQueryService } from '@/modules/auth/application/ports/services/auth-query.service.interface';
+import { IListAllAdminUsersUseCase as IAuthListAllAdminUsersUseCase } from '@/modules/auth/application/ports/use-cases/list-all-admin-users.use-case.interface';
 
 export class ListAllAdminUsersUseCase implements IListAllAdminUsersUseCase {
   constructor(
-    @Inject('IAuthQueryService')
-    private readonly _authQueryService: IAuthQueryService,
+    @Inject('IAuthListAllAdminUsersUseCase')
+    private readonly _authListAllAdminUsersUseCase: IAuthListAllAdminUsersUseCase,
   ) {}
 
   async execute(query: {
@@ -15,6 +15,6 @@ export class ListAllAdminUsersUseCase implements IListAllAdminUsersUseCase {
     search?: string;
     status?: string;
   }): Promise<{ users: User[]; total: number }> {
-    return await this._authQueryService.findAllAdminUsers(query);
+    return await this._authListAllAdminUsersUseCase.execute(query);
   }
 }

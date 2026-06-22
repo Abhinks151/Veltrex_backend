@@ -60,7 +60,7 @@ export class AuthController {
     @Inject('IRefreshTokenUseCase')
     private readonly _refreshTokenUseCase: IRefreshTokenUseCase,
 
-    @Inject('IUpdateUserUseCase')
+    @Inject('IAuthUpdateUserUseCase')
     private readonly _updateUserUseCase: IUpdateUserUseCase,
   ) {}
 

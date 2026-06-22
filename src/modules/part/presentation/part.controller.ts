@@ -71,7 +71,9 @@ export class PartController {
         fileFilter: (req, file, callback) => {
           if (!file.mimetype.match(/\/pdf$/)) {
             return callback(
-              new BadRequestException('Only PDF files are allowed!'),
+              new BadRequestException(
+                MESSAGE_CONSTANTS.ERROR.ONLY_PDF_FILES_ALLOWED,
+              ),
               false,
             );
           }

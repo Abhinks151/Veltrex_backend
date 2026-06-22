@@ -7,7 +7,8 @@ import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 import { UnauthorizedError } from '../../../../shared/common/errors/domain-errors';
 
 import { IUserRepository } from '../ports/repositories/user-repository.interface';
-import { ITenantQueryService } from '@/modules/tenant/application/ports/services/tenant-query.service.interface';
+import { IGetTenantByIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-id.use-case.interface';
+import { IGetTenantByOwnerIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-owner-id.use-case.interface';
 import { Role } from '@/shared/enums/roles.enum';
 
 @Injectable()
@@ -21,8 +22,11 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     @Inject('IUserRepository')
     private readonly _userRepository: IUserRepository,
 
-    @Inject('ITenantQueryService')
-    private readonly _tenantQueryService: ITenantQueryService,
+    @Inject('ITenantGetByIdUseCase')
+    private readonly _getTenantByIdUseCase: IGetTenantByIdUseCase,
+
+    @Inject('ITenantGetByOwnerIdUseCase')
+    private readonly _getTenantByOwnerIdUseCase: IGetTenantByOwnerIdUseCase,
   ) {}
 
   async execute(refreshToken: string): Promise<{
@@ -51,9 +55,9 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 
       let tenant = null;
       if (user.tenantId) {
-        tenant = await this._tenantQueryService.getById(user.tenantId);
+        tenant = await this._getTenantByIdUseCase.execute(user.tenantId);
       } else {
-        tenant = await this._tenantQueryService.findByOwnerId(payload.userId);
+        tenant = await this._getTenantByOwnerIdUseCase.execute(payload.userId);
       }
 
       if (tenant) {

@@ -3,11 +3,12 @@ import { AuthModule } from '../auth/auth.module';
 import { SubscriptionController } from './presentation/subscription.controller';
 import { CreateSubscriptionUseCase } from './application/use-cases/create-subscription.use-case';
 import { SubscriptionRepository } from './infrastructure/repositories/subscription-repository';
-import { SubscriptionQueryService } from './subscription-query.service';
+
 import { TenantModule } from '../tenant/tenant.module';
 import { GetSubscriptionUseCase } from './application/use-cases/get-subscription.use-case';
 import { ToggleStatusUseCase } from './application/use-cases/toggle-status.use-case';
 import { SubscriptionGuard } from './presentation/guards/subscription.guard';
+import { GetSubscriptionByTenantIdUseCase } from './application/use-cases/get-subscription-by-tenant-id.use-case';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => TenantModule)],
@@ -15,30 +16,32 @@ import { SubscriptionGuard } from './presentation/guards/subscription.guard';
   providers: [
     SubscriptionGuard,
     {
-      provide: 'ICreateSubscriptionUseCase',
+      provide: 'ISubscriptionCreateUseCase',
       useClass: CreateSubscriptionUseCase,
     },
     {
-      provide: 'IGetSubscriptionUseCase',
+      provide: 'ISubscriptionGetUseCase',
       useClass: GetSubscriptionUseCase,
     },
     {
-      provide: 'IToggleStatusUseCase',
+      provide: 'ISubscriptionToggleStatusUseCase',
       useClass: ToggleStatusUseCase,
+    },
+    {
+      provide: 'ISubscriptionGetByTenantIdUseCase',
+      useClass: GetSubscriptionByTenantIdUseCase,
     },
 
     {
       provide: 'ISubscriptionRepository',
       useClass: SubscriptionRepository,
     },
-    {
-      provide: 'ISubscriptionQueryService',
-      useClass: SubscriptionQueryService,
-    },
   ],
   exports: [
-    'ISubscriptionQueryService',
-    'ISubscriptionRepository',
+    'ISubscriptionCreateUseCase',
+    'ISubscriptionGetUseCase',
+    'ISubscriptionToggleStatusUseCase',
+    'ISubscriptionGetByTenantIdUseCase',
     SubscriptionGuard,
   ],
 })

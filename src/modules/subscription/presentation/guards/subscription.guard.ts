@@ -5,7 +5,7 @@ import {
   ForbiddenException,
   Inject,
 } from '@nestjs/common';
-import { ISubscriptionRepository } from '../../application/ports/repositories/subscription-repository.interface';
+import { IGetSubscriptionByTenantIdUseCase } from '../../application/ports/use-cases/get-subscription-by-tenant-id.use-case.interface';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { Request } from 'express';
@@ -14,8 +14,8 @@ import { Role } from '@/shared/enums/roles.enum';
 @Injectable()
 export class SubscriptionGuard implements CanActivate {
   constructor(
-    @Inject('ISubscriptionRepository')
-    private readonly _subscriptionRepository: ISubscriptionRepository,
+    @Inject('ISubscriptionGetByTenantIdUseCase')
+    private readonly _getSubscriptionByTenantIdUseCase: IGetSubscriptionByTenantIdUseCase,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,7 +30,7 @@ export class SubscriptionGuard implements CanActivate {
       throw new ForbiddenException(MESSAGE_CONSTANTS.ERROR.TENANT_ID_MISSING);
     }
 
-    const subscription = await this._subscriptionRepository.findByTenantId(
+    const subscription = await this._getSubscriptionByTenantIdUseCase.execute(
       user.tenantId,
     );
 

@@ -5,7 +5,8 @@ import { ModuleRef } from '@nestjs/core';
 import { IUserRepository } from '../../application/ports/repositories/user-repository.interface';
 import { JwtPayload } from '../../application/ports/services/jwt-payload.interface';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
-import { ITenantQueryService } from '@/modules/tenant/application/ports/services/tenant-query.service.interface';
+import { IGetTenantByIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-id.use-case.interface';
+import { IGetTenantByOwnerIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-owner-id.use-case.interface';
 import { ValidatedUserDto } from '../../application/dto/jwt-strategy.dto';
 import { ConfigService } from '@nestjs/config';
 import { Role } from '@/shared/enums/roles.enum';
@@ -51,16 +52,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       };
     }
 
-    const tenantQueryService = this._moduleRef.get<ITenantQueryService>(
-      'ITenantQueryService',
+    const getTenantByIdUseCase = this._moduleRef.get<IGetTenantByIdUseCase>(
+      'ITenantGetByIdUseCase',
       { strict: false },
     );
 
+    const getTenantByOwnerIdUseCase =
+      this._moduleRef.get<IGetTenantByOwnerIdUseCase>(
+        'ITenantGetByOwnerIdUseCase',
+        { strict: false },
+      );
+
     let tenant = null;
     if (user.tenantId) {
-      tenant = await tenantQueryService.getById(user.tenantId);
+      tenant = await getTenantByIdUseCase.execute(user.tenantId);
     } else {
-      tenant = await tenantQueryService.findByOwnerId(payload.userId);
+      tenant = await getTenantByOwnerIdUseCase.execute(payload.userId);
     }
 
     if (tenant) {

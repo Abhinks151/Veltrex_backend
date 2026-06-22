@@ -9,10 +9,10 @@ import { CreatePaymentOrderRequestDto } from '../dto/create-order-payment-reques
 import { CreatePaymentOrderResponseDto } from '../dto/create-order-payment.reponse.dto';
 import { IPaymentGateway } from '../ports/services/payment-gateway.interface';
 import { IPaymentRepository } from '../ports/repositories/payment-repository.interface';
-import { IPlanRepository } from '@/modules/super-admin/application/ports/repositories/plan-repository.interface';
+import { IGetPlanByIdUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-id.use-case.interface';
 import { PaymentStatus, PaymentProvider } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
-import { ISubscriptionRepository } from '@/modules/subscription/application/ports/repositories/subscription-repository.interface';
+import { IGetSubscriptionByTenantIdUseCase } from '@/modules/subscription/application/ports/use-cases/get-subscription-by-tenant-id.use-case.interface';
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
@@ -23,21 +23,21 @@ export class CreatePaymentOrderUseCase implements ICreatePaymentOrderUseCase {
     private readonly _paymentGateway: IPaymentGateway,
     @Inject('IPaymentRepository')
     private readonly _paymentRepository: IPaymentRepository,
-    @Inject('IPlanRepository')
-    private readonly _planRepository: IPlanRepository,
-    @Inject('ISubscriptionRepository')
-    private readonly _subscriptionRepository: ISubscriptionRepository,
+    @Inject('ISuperAdminGetPlanByIdUseCase')
+    private readonly _getPlanByIdUseCase: IGetPlanByIdUseCase,
+    @Inject('ISubscriptionGetByTenantIdUseCase')
+    private readonly _getSubscriptionByTenantIdUseCase: IGetSubscriptionByTenantIdUseCase,
   ) {}
 
   async execute(
     data: CreatePaymentOrderRequestDto,
   ): Promise<CreatePaymentOrderResponseDto> {
-    const plan = await this._planRepository.findById(data.planId);
+    const plan = await this._getPlanByIdUseCase.execute(data.planId);
     if (!plan) {
       throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.PLAN_NOT_FOUND);
     }
 
-    const existingSub = await this._subscriptionRepository.findByTenantId(
+    const existingSub = await this._getSubscriptionByTenantIdUseCase.execute(
       data.tenantId,
     );
     if (existingSub && existingSub.status === SubscriptionStatus.ACTIVE) {

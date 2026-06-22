@@ -7,11 +7,12 @@ import {
 import { IActivateFreePlanUseCase } from '../ports/use-cases/activate-free-plan.use-case.interface';
 import { ActivateFreePlanDto } from '../dto/activate-free-plan.dto';
 import { ActivateFreePlanResponseDto } from '../dto/activate-free-plan-response.dto';
-import { IPlanRepository } from '@/modules/super-admin/application/ports/repositories/plan-repository.interface';
+import { IGetPlanByIdUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-id.use-case.interface';
 import { ISubscriptionRepository } from '@/modules/subscription/application/ports/repositories/subscription-repository.interface';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
 import { SubscriptionStatus } from '@prisma/client';
-import { ITenantRepository } from '@/modules/tenant/application/ports/repositories/tenant-repository.interface';
+import { IGetTenantByIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-id.use-case.interface';
+import { ITenantMarkTrialAsUsedUseCase } from '@/modules/tenant/application/ports/use-cases/mark-trial-as-used.use-case.interface';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
@@ -19,18 +20,20 @@ export class ActivateFreePlanUseCase implements IActivateFreePlanUseCase {
   constructor(
     @Inject('ITransactionManager')
     private readonly _txManager: ITransactionManager,
-    @Inject('IPlanRepository')
-    private readonly _planRepository: IPlanRepository,
+    @Inject('ISuperAdminGetPlanByIdUseCase')
+    private readonly _getPlanByIdUseCase: IGetPlanByIdUseCase,
     @Inject('ISubscriptionRepository')
     private readonly _subscriptionRepository: ISubscriptionRepository,
-    @Inject('ITenantRepository')
-    private readonly _tenantRepository: ITenantRepository,
+    @Inject('ITenantGetByIdUseCase')
+    private readonly _getTenantByIdUseCase: IGetTenantByIdUseCase,
+    @Inject('ITenantMarkTrialAsUsedUseCase')
+    private readonly _markTrialAsUsedUseCase: ITenantMarkTrialAsUsedUseCase,
   ) {}
 
   async execute(
     data: ActivateFreePlanDto,
   ): Promise<ActivateFreePlanResponseDto> {
-    const plan = await this._planRepository.findById(data.planId);
+    const plan = await this._getPlanByIdUseCase.execute(data.planId);
     if (!plan)
       throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.PLAN_NOT_FOUND);
 
@@ -38,7 +41,7 @@ export class ActivateFreePlanUseCase implements IActivateFreePlanUseCase {
       throw new BadRequestException(MESSAGE_CONSTANTS.ERROR.FREE_PLAN_ONLY);
     }
 
-    const tenant = await this._tenantRepository.findById(data.tenantId);
+    const tenant = await this._getTenantByIdUseCase.execute(data.tenantId);
     if (!tenant)
       throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
 
@@ -79,7 +82,7 @@ export class ActivateFreePlanUseCase implements IActivateFreePlanUseCase {
         );
       }
 
-      await this._tenantRepository.markTrialAsUsed(data.tenantId, ctx);
+      await this._markTrialAsUsedUseCase.execute(data.tenantId, ctx);
 
       const subscription = await this._subscriptionRepository.create(
         {
