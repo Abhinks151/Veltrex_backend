@@ -2,6 +2,7 @@ export interface RegisterUserOutputDto {
   id: string;
   email: string;
   name: string;
+  tenantId?: string;
 }
 
 export interface UpdateUserOutputDto {
@@ -9,6 +10,7 @@ export interface UpdateUserOutputDto {
   email: string;
   name: string;
   profileImage?: string;
+  tenantId?: string;
 }
 
 export interface LoginUserOutputDto {
@@ -16,6 +18,7 @@ export interface LoginUserOutputDto {
     id: string;
     email: string;
     name: string;
+    tenantId?: string;
   };
   access_token: string;
   refresh_token: string;

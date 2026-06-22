@@ -58,7 +58,7 @@ export class ProfileController {
   ) {
     const data = await this._updateProfileUseCase.execute(
       req.user!.userId,
-      dto.name!,
+      dto.name,
     );
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_UPDATED);
   }

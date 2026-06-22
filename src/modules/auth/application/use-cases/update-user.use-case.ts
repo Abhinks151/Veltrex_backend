@@ -31,7 +31,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
 
     Object.assign(user, reqDto);
 
-    const response = await this._userRepository.update(userId, user);
+    const response = await this._userRepository.update(userId, reqDto);
 
     if (!response) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.USER_NOT_UPDATED);
@@ -42,6 +42,7 @@ export class UpdateUserUseCase implements IUpdateUserUseCase {
       email: response.email,
       name: response.name,
       profileImage: response.profileImage,
+      tenantId: response.tenantId,
     };
   }
 }

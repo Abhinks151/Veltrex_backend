@@ -68,6 +68,7 @@ export class LoginUserUseCase implements IUserLoginUseCase {
         name: user.name,
         role: user.role,
         profileImage: user.profileImage,
+        tenantId: user.tenantId,
       },
     };
   }

@@ -7,5 +7,6 @@ export interface LoginUserResponseDto {
     name: string;
     role: string;
     profileImage?: string;
+    tenantId?: string;
   };
 }
