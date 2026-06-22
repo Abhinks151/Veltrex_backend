@@ -1,7 +1,7 @@
 import { OperationType } from '@/shared/enums/operation-type.enum';
 import { PartPriority } from '@/shared/enums/part-priority.enum';
 import { Prisma } from '@prisma/client';
-import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID, Matches } from 'class-validator';
 
 export class EditPartRequestDto {
   @IsOptional()
@@ -41,10 +41,16 @@ export class EditPartRequestDto {
 
   @IsOptional()
   @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
+    message: 'cycleTime must be in HH:MM:SS format',
+  })
   cycleTime?: string;
 
   @IsOptional()
   @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
+    message: 'setupTime must be in HH:MM:SS format',
+  })
   setupTime?: string;
 
   @IsOptional()

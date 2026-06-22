@@ -48,9 +48,47 @@ export class CreateJobUseCase implements ICreateJobUseCase {
     }
 
     try {
+      // Review code test
+      // // const maximum ={
+      // //   high:5,
+      // //   meduim:10,
+      // //   low:30
+      // // }
+
+      // let max = 30;
+
+      //   //either one
+      // if(dto.priority == 'HIGH'){
+      //   if(dto.quantity > 5){
+      //     throw new Error()
+      //   }
+      // }else if(dto.priority == "MEDIUM"){
+      //   if(dto.quantity > 10){
+      //     throw new Error()
+      //   }
+      // }else if(dto.priority == "LOW"){
+      //   if(dto.quantity > 30){
+      //     throw new Error()
+      //   }
+      // }
+      // max = dto.priority == "HIGH" ? max - dto.quantity * 6: dto.priority == "MEDIUM" ? max - dto.quantity * 3 : dto.quantity * 1;
+
+      // if(max < 0){
+      //   throw new Error()
+      // }
+
       return await this._jobRepository.create(dto);
     } catch {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_CREATE_JOB);
     }
   }
 }
+
+// review code test
+// 0 medium
+// 5 high
+// 30 low priority
+
+// 15:36
+// 6 medium 2 high
+// 10 medium=5 high=30 low
