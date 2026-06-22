@@ -11,8 +11,11 @@ import { ListMachinesUseCase } from './application/use-cases/list-machines.use-c
 
 import { SubscriptionModule } from '../subscription/subscription.module';
 
+import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
+import { PartModule } from '../part/part.module';
+
 @Module({
-  imports: [AuthModule, SubscriptionModule],
+  imports: [AuthModule, SubscriptionModule, PrismaModule, PartModule],
   controllers: [MachineController],
   providers: [
     {

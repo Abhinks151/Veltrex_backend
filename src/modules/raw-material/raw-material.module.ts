@@ -11,8 +11,11 @@ import { ListRawMaterialsUseCase } from './application/use-cases/list-raw-materi
 
 import { SubscriptionModule } from '../subscription/subscription.module';
 
+import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
+import { PartModule } from '../part/part.module';
+
 @Module({
-  imports: [AuthModule, SubscriptionModule],
+  imports: [AuthModule, SubscriptionModule, PrismaModule, PartModule],
   controllers: [RawMaterialController],
   providers: [
     {

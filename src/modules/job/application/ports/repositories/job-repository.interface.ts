@@ -15,4 +15,5 @@ export interface IJobRepository extends IBaseRepository<
   ): Promise<{ items: Job[]; total: number }>;
   findByTenantAndId(tenantId: string, id: string): Promise<Job | null>;
   softDelete(id: string): Promise<Job>;
+  countActiveByPartId(partId: string): Promise<number>;
 }

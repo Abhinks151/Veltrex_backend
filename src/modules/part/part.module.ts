@@ -11,8 +11,21 @@ import { ListPartsUseCase } from './application/use-cases/list-parts.use-case';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { StorageModule } from '@/shared/infrastructure/storage/storage.module';
 
+import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
+
+import { JobModule } from '../job/job.module';
+import { forwardRef } from '@nestjs/common';
+
+import { CheckResourceInUseUseCase } from './application/use-cases/check-resource-in-use.use-case';
+
 @Module({
-  imports: [AuthModule, SubscriptionModule, StorageModule],
+  imports: [
+    AuthModule,
+    SubscriptionModule,
+    StorageModule,
+    PrismaModule,
+    forwardRef(() => JobModule),
+  ],
   controllers: [PartController],
   providers: [
     {
@@ -43,7 +56,11 @@ import { StorageModule } from '@/shared/infrastructure/storage/storage.module';
       provide: 'IDeletePartUseCase',
       useClass: DeletePartUseCase,
     },
+    {
+      provide: 'ICheckResourceInUseUseCase',
+      useClass: CheckResourceInUseUseCase,
+    },
   ],
-  exports: ['IGetAllActivePartsUseCase'],
+  exports: ['IGetAllActivePartsUseCase', 'ICheckResourceInUseUseCase'],
 })
 export class PartModule {}

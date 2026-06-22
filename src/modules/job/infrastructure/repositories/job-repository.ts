@@ -110,4 +110,13 @@ export class JobRepository
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_JOB);
     }
   }
+
+  async countActiveByPartId(partId: string): Promise<number> {
+    return await this._prisma.job.count({
+      where: {
+        partId,
+        isDeleted: false,
+      },
+    });
+  }
 }

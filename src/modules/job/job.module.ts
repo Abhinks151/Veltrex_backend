@@ -7,6 +7,7 @@ import { DeleteJobUseCase } from './application/use-cases/delete-job.use-case';
 import { JobRepository } from './infrastructure/repositories/job-repository';
 import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
 import { SubscriptionModule } from '../subscription/subscription.module';
+import { CheckPartInUseUseCase } from './application/use-cases/check-part-in-use.use-case';
 
 @Module({
   imports: [PrismaModule, SubscriptionModule],
@@ -32,6 +33,11 @@ import { SubscriptionModule } from '../subscription/subscription.module';
       provide: 'IJobRepository',
       useClass: JobRepository,
     },
+    {
+      provide: 'ICheckPartInUseUseCase',
+      useClass: CheckPartInUseUseCase,
+    },
   ],
+  exports: ['ICheckPartInUseUseCase'],
 })
 export class JobModule {}
