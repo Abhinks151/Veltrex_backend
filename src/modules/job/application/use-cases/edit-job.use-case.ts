@@ -42,8 +42,12 @@ export class EditJobUseCase implements IEditJobUseCase {
     }
 
     try {
-      const { assignedToUserId, ...rest } = dto;
+      const { assignedToUserId, partId, ...rest } = dto;
       const updateData: Prisma.JobUpdateInput = { ...rest };
+
+      if (partId) {
+        updateData.part = { connect: { id: partId } };
+      }
 
       if (assignedToUserId !== undefined) {
         if (assignedToUserId === null) {

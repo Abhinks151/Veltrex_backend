@@ -97,6 +97,10 @@ export class JobRepository
     };
   }
 
+  async update(id: string, data: Prisma.JobUpdateInput): Promise<Job> {
+    return super.update(id, data, undefined, { part: true });
+  }
+
   async softDelete(id: string): Promise<Job> {
     try {
       return await super.delete(id);
