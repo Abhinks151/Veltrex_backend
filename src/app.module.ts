@@ -19,6 +19,7 @@ import { RawMaterialModule } from './modules/raw-material/raw-material.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { JobModule } from './modules/job/job.module';
 import { PartModule } from './modules/part/part.module';
+import { LookupModule } from './shared/lookup/lookup.module';
 import { WinstonModule } from 'nest-winston';
 import { createWinstonConfig } from './shared/common/logger/logger.config';
 import { MulterModule } from '@nestjs/platform-express';
@@ -39,6 +40,7 @@ import { memoryStorage } from 'multer';
     RawMaterialModule,
     JobModule,
     PartModule,
+    LookupModule,
 
     // Rate Limiting
     ThrottlerModule.forRoot([

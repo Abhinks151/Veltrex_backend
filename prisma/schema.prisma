@@ -340,3 +340,23 @@ enum JobStatus {
   COMPLETED
   CANCELLED
 }
+
+// lookup table
+model Lookup {
+  id          String   @id @default(uuid()) @db.Uuid
+  category    String
+  code        String
+  label       String
+  description String?
+  value       String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  metadata    Json?
+  isActive    Boolean  @default(true) @map("is_active")
+  tenantId    String?  @db.Uuid @map("tenant_id")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, code, tenantId])
+  @@map("lookups")
+}

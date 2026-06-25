@@ -11,4 +11,5 @@ export enum RepositoryModelNames {
   RAW_MATERIAL = 'rawMaterial',
   JOB = 'job',
   PART = 'part',
+  LOOKUP = 'lookup',
 }
