@@ -69,6 +69,7 @@ export class TenantRepository
       const response = await this._prisma.tenant.create({
         data: {
           name: tenant.name,
+          subdomain: tenant.subdomain,
           ownerId: tenant.ownerId,
         },
       });
@@ -126,6 +127,20 @@ export class TenantRepository
     const response = await this._prisma.tenant.findFirst({
       where: {
         name: { equals: name, mode: 'insensitive' },
+      },
+    });
+
+    if (!response) {
+      return null;
+    }
+
+    return this._mapper(response as unknown as Prisma.TenantGetPayload<object>);
+  }
+
+  async findBySubdomain(subdomain: string): Promise<Tenant | null> {
+    const response = await this._prisma.tenant.findFirst({
+      where: {
+        subdomain: { equals: subdomain, mode: 'insensitive' },
       },
     });
 

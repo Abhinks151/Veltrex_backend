@@ -8,5 +8,6 @@ export interface LoginUserResponseDto {
     role: string;
     profileImage?: string;
     tenantId?: string;
+    subdomain?: string;
   };
 }

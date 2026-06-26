@@ -44,6 +44,8 @@ model User {
 model Tenant {
   id   String @id @default(uuid()) @db.Uuid
   name String
+  subdomain String? @unique
+
 
   ownerId String @unique @db.Uuid
   owner   User   @relation("TenantOwner", fields: [ownerId], references: [id])

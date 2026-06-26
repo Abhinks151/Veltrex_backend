@@ -14,6 +14,8 @@ export interface ITenantRepository extends IBaseRepository<
   findById(id: string): Promise<Tenant | null>;
   updateBlockStatus(id: string, isBlocked: boolean): Promise<Tenant>;
   findByName(name: string): Promise<Tenant | null>;
+  findBySubdomain(subdomain: string): Promise<Tenant | null>;
+
   findAll(
     query: PaginationQueryDto,
     ctx?: ITransactionContext,
