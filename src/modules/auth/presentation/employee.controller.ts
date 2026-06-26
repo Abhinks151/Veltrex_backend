@@ -28,6 +28,8 @@ import { IToggleEmployeeBlockUseCase } from '../application/ports/use-cases/togg
 import { ISoftDeleteEmployeeUseCase } from '../application/ports/use-cases/delete-employee.use-case.interface';
 import { ApiResponse } from '@/shared/common/apiResponse/api-response';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { IBulkCreateEmployeeUseCase } from '../application/ports/use-cases/bulk-create-employee.use-case.interface';
+import { BulkCreateEmployeeRequestDto } from './dto/bulk-create-employee.request.dto';
 
 @UseGuards(RolesGuard, SubscriptionGuard)
 @Auth()
@@ -44,6 +46,8 @@ export class EmployeeController {
     private readonly _toggleEmployeeBlockUseCase: IToggleEmployeeBlockUseCase,
     @Inject('ISoftDeleteEmployeeUseCase')
     private readonly _softDeleteEmployeeUseCase: ISoftDeleteEmployeeUseCase,
+    @Inject('IBulkCreateEmployeeUseCase')
+    private readonly _bulkCreateEmployeeUseCase: IBulkCreateEmployeeUseCase,
   ) {}
 
   @Roles(Role.ADMIN)
@@ -58,6 +62,26 @@ export class EmployeeController {
       tenantId: user.tenantId as string,
     });
     return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_CREATED);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('bulk')
+  async bulkCreate(
+    @CurrentUser() user: ValidatedUserDto,
+    @Body() reqDto: BulkCreateEmployeeRequestDto,
+  ) {
+    const data = await this._bulkCreateEmployeeUseCase.execute({
+      employees: reqDto.employees.map((emp) => ({
+        ...emp,
+        role: emp.role as UserRole,
+        tenantId: user.tenantId as string,
+      })),
+    });
+    return new ApiResponse(
+      true,
+      data,
+      MESSAGE_CONSTANTS.SUCCESS.USER_CREATED, // Or a specific bulk message if available
+    );
   }
 
   @Roles(Role.ADMIN)

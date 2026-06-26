@@ -34,6 +34,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee.use-case';
 import { SendEmployeeInviteUseCase } from './application/use-cases/send-employee-invite.use-case';
 import { SubscriptionModule } from '../subscription/subscription.module';
+import { BulkCreateEmployeeUseCase } from './application/use-cases/bulk-create-employee.use-case';
 
 import { ValidateUserForTenantCreationUseCase } from './application/use-cases/validate-user-for-tenant-creation.use-case';
 import { ListAllAdminUsersUseCase } from './application/use-cases/list-all-admin-users.use-case';
@@ -161,6 +162,11 @@ import { UpdateProfileImageUseCase } from './application/use-cases/update-profil
       provide: 'ISoftDeleteEmployeeUseCase',
       useClass: SoftDeleteEmployeeUseCase,
     },
+    {
+      provide: 'IBulkCreateEmployeeUseCase',
+      useClass: BulkCreateEmployeeUseCase,
+    },
+
     {
       provide: 'IAuthValidateUserForTenantCreationUseCase',
       useClass: ValidateUserForTenantCreationUseCase,
