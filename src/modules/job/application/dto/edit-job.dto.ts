@@ -6,5 +6,4 @@ export class EditJobDto {
   priority?: JobPriority;
   repeat?: boolean;
   status?: JobStatus;
-  assignedToUserId?: string | null;
 }

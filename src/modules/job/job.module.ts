@@ -8,9 +8,10 @@ import { JobRepository } from './infrastructure/repositories/job-repository';
 import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { CheckPartInUseUseCase } from './application/use-cases/check-part-in-use.use-case';
+import { RawMaterialModule } from '../raw-material/raw-material.module';
 
 @Module({
-  imports: [PrismaModule, SubscriptionModule],
+  imports: [PrismaModule, SubscriptionModule, RawMaterialModule],
   controllers: [JobController],
   providers: [
     {

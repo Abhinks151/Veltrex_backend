@@ -88,6 +88,8 @@ export const MESSAGE_CONSTANTS = {
       'Cannot delete fixture: it is currently associated with active parts',
     RAW_MATERIAL_IN_USE:
       'Cannot delete raw material: it is currently associated with active parts',
+    INSUFFICIENT_RAW_MATERIAL:
+      'Insufficient raw material stock to fulfil this job quantity',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',

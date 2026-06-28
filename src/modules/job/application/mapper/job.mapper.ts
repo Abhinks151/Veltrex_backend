@@ -9,7 +9,6 @@ export interface RawJob {
   repeat: boolean;
   status: string;
   created_by: string;
-  assigned_to: string | null;
   is_deleted: boolean;
   created_at: Date;
   updated_at: Date;
@@ -24,7 +23,6 @@ export interface PrismaRawJob {
   repeat: boolean;
   status: string;
   createdByUserId: string;
-  assignedToUserId: string | null;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -44,7 +42,6 @@ export const toJobMapper = (raw: PrismaRawJob): Job => {
     raw.repeat,
     raw.status as JobStatus,
     raw.createdByUserId,
-    raw.assignedToUserId,
     raw.isDeleted,
     raw.createdAt,
     raw.updatedAt,

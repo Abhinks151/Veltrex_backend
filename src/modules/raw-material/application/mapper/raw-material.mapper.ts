@@ -7,6 +7,7 @@ export interface RawRawMaterial {
   dimensions: unknown;
   material: string;
   minQty: number;
+  currentQty: number;
   isBlocked: boolean;
   isDeleted: boolean;
   createdAt: Date;
@@ -23,6 +24,7 @@ export const toRawMaterialMapper = (
     rawMaterial.dimensions as object,
     rawMaterial.material,
     rawMaterial.minQty,
+    rawMaterial.currentQty,
     rawMaterial.isBlocked,
     rawMaterial.isDeleted,
     rawMaterial.createdAt,

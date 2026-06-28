@@ -32,9 +32,6 @@ export class JobRepository
         tenant: { connect: { id: data.tenantId } },
         part: { connect: { id: data.partId } },
         creator: { connect: { id: data.createdByUserId } },
-        assignee: data.assignedToUserId
-          ? { connect: { id: data.assignedToUserId } }
-          : undefined,
       };
 
       return await super.create(jobData as unknown as CreateJobDto);

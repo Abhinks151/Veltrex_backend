@@ -26,8 +26,4 @@ export class CreateJobRequest {
   @IsOptional()
   @IsBoolean()
   repeat?: boolean;
-
-  @IsOptional()
-  @IsUUID()
-  assignedToUserId?: string;
 }

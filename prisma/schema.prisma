@@ -32,7 +32,6 @@ model User {
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
   createdJobs            Job[]                    @relation("JobCreatedBy")
-  assignedJobs           Job[]                    @relation("JobAssignedTo")
   profileImage            String?                  @map("profile_image")
   profileImageKey         String?                  @map("profile_image_key")
   createdAt               DateTime                 @default(now()) @map("created_at")
@@ -242,6 +241,7 @@ model RawMaterial {
   dimensions Json
   material   String
   minQty     Int      @map("min_qty")
+  currentQty Int      @default(0) @map("current_qty")
   isBlocked  Boolean  @default(false) @map("is_blocked")
   isDeleted  Boolean  @default(false) @map("is_deleted")
   createdAt  DateTime @default(now()) @map("created_at")
@@ -322,9 +322,6 @@ model Job {
 
   createdByUserId String @map("created_by") @db.Uuid
   creator         User   @relation("JobCreatedBy", fields: [createdByUserId], references: [id])
-
-  assignedToUserId String? @map("assigned_to") @db.Uuid
-  assignee         User?   @relation("JobAssignedTo", fields: [assignedToUserId], references: [id])
 
   @@map("jobs")
 }
