@@ -26,4 +26,9 @@ export class EditRawMaterialRequest {
   @IsInt()
   @Min(0)
   minQty?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  currentQty?: number;
 }

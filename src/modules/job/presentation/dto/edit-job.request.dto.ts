@@ -29,8 +29,4 @@ export class EditJobRequest {
   @IsOptional()
   @IsEnum(JobStatus)
   status?: JobStatus;
-
-  @IsOptional()
-  @IsUUID()
-  assignedToUserId?: string | null;
 }

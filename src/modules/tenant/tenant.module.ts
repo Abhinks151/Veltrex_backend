@@ -15,6 +15,8 @@ import { GetTenantByIdUseCase } from './application/use-cases/get-tenant-by-id.u
 import { GetTenantByOwnerIdUseCase } from './application/use-cases/get-tenant-by-owner-id.use-case';
 import { CheckTenantBlockedUseCase } from './application/use-cases/check-tenant-blocked.use-case';
 import { MarkTrialAsUsedUseCase } from './application/use-cases/mark-trial-as-used.use-case';
+import { GetTenantBySubdomainUseCase } from './application/use-cases/get-tenant-by-subdomain.use-case';
+import { CheckTenantSubdomainUseCase } from './application/use-cases/check-tenant-subdomain.use-case';
 
 @Module({
   imports: [
@@ -72,9 +74,19 @@ import { MarkTrialAsUsedUseCase } from './application/use-cases/mark-trial-as-us
       provide: 'ITenantMarkTrialAsUsedUseCase',
       useClass: MarkTrialAsUsedUseCase,
     },
+    {
+      provide: 'ITenantGetBySubdomainUseCase',
+      useClass: GetTenantBySubdomainUseCase,
+    },
+    {
+      provide: 'ITenantCheckSubdomainUseCase',
+      useClass: CheckTenantSubdomainUseCase,
+    },
   ],
+
   exports: [
     'ITenantCreateUseCase',
+    'ITenantRepository',
     'ITenantGetUseCase',
     'ITenantGetAllUseCase',
     'ITenantUpdateUseCase',
@@ -85,6 +97,8 @@ import { MarkTrialAsUsedUseCase } from './application/use-cases/mark-trial-as-us
     'ITenantGetByOwnerIdUseCase',
     'ITenantCheckBlockedUseCase',
     'ITenantMarkTrialAsUsedUseCase',
+    'ITenantGetBySubdomainUseCase',
+    'ITenantCheckSubdomainUseCase',
   ],
 })
 export class TenantModule {}

@@ -7,5 +7,4 @@ export class CreateJobDto {
   priority!: JobPriority;
   repeat!: boolean;
   createdByUserId!: string;
-  assignedToUserId?: string;
 }

@@ -16,6 +16,8 @@ import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
 import { Role } from '@/shared/enums/roles.enum';
 import { SubscriptionGuard } from '@/modules/subscription/presentation/guards/subscription.guard';
+import { TenantValidationGuard } from '@/modules/tenant/presentation/guards/tenant-validation.guard';
+
 import { CurrentUser } from '@/shared/common/decorators/current-user.decorator';
 import { ValidatedUserDto } from '../application/dto/jwt-strategy.dto';
 import { CreateEmployeeRequestDto } from './dto/create-employee.request.dto';
@@ -31,7 +33,7 @@ import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { IBulkCreateEmployeeUseCase } from '../application/ports/use-cases/bulk-create-employee.use-case.interface';
 import { BulkCreateEmployeeRequestDto } from './dto/bulk-create-employee.request.dto';
 
-@UseGuards(RolesGuard, SubscriptionGuard)
+@UseGuards(RolesGuard, SubscriptionGuard, TenantValidationGuard)
 @Auth()
 @Controller('platform/employees')
 export class EmployeeController {

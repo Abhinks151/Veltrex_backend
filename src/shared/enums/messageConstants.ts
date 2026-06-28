@@ -5,6 +5,7 @@ export const MESSAGE_CONSTANTS = {
     USER_NOT_AUTHORIZED_CREATE_TENANT:
       'User is not authorized to create tenant',
     EMAIL_REQUIRED: 'Email is required',
+    USER_ROLE_MISSING: 'User role is missing',
     USER_ALREADY_VERIFIED: 'User is already verified',
     TOKEN_REQUIRED: 'Token is required',
     INVALID_EXPIRED_TOKEN: 'Invalid or expired token',
@@ -16,6 +17,10 @@ export const MESSAGE_CONSTANTS = {
     USER_EMAIL_NOT_VERIFIED: 'User email is not verified',
     INVALID_CREDENTIALS: 'Invalid credentials',
     TENANT_NOT_FOUND: 'Tenant not found',
+    ACCESS_DENIED_SUBDOMAIN:
+      'Access denied: You do not have permission to access this subdomain.',
+    NOT_ALLOWED_BY_CORS: 'Not allowed by CORS',
+    INVALID_ORIGIN: 'Invalid Origin',
     TENANT_NAME_TAKEN: 'Tenant name already taken',
     FAILED_TO_UPDATE_TENANT: 'Failed to update tenant',
     FAILED_TO_CREATE_TENANT: 'Failed to create tenant',
@@ -83,6 +88,8 @@ export const MESSAGE_CONSTANTS = {
       'Cannot delete fixture: it is currently associated with active parts',
     RAW_MATERIAL_IN_USE:
       'Cannot delete raw material: it is currently associated with active parts',
+    INSUFFICIENT_RAW_MATERIAL:
+      'Insufficient raw material stock to fulfil this job quantity',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',

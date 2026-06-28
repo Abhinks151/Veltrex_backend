@@ -10,6 +10,8 @@ import {
   BadRequestError,
   NotFoundError,
 } from '../../../../shared/common/errors/domain-errors';
+import { IGetTenantByIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-id.use-case.interface';
+import { IGetTenantByOwnerIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-owner-id.use-case.interface';
 
 @Injectable()
 export class LoginUserUseCase implements IUserLoginUseCase {
@@ -21,6 +23,12 @@ export class LoginUserUseCase implements IUserLoginUseCase {
 
     @Inject('IUserRepository')
     private readonly _userRepository: IUserRepository,
+
+    @Inject('ITenantGetByIdUseCase')
+    private readonly _getTenantByIdUseCase: IGetTenantByIdUseCase,
+
+    @Inject('ITenantGetByOwnerIdUseCase')
+    private readonly _getTenantByOwnerIdUseCase: IGetTenantByOwnerIdUseCase,
   ) {}
 
   async execute(
@@ -59,6 +67,24 @@ export class LoginUserUseCase implements IUserLoginUseCase {
       is_verified: user.isVerified,
     });
 
+    let subdomain: string | undefined;
+    let tenantId = user.tenantId;
+
+    if (tenantId) {
+      const tenant = await this._getTenantByIdUseCase.execute(tenantId);
+      if (tenant?.subdomain) {
+        subdomain = tenant.subdomain;
+      }
+    } else {
+      const ownedTenant = await this._getTenantByOwnerIdUseCase.execute(
+        user.uuid,
+      );
+      if (ownedTenant) {
+        subdomain = ownedTenant.subdomain || undefined;
+        tenantId = ownedTenant.id;
+      }
+    }
+
     return {
       access_token,
       refresh_token,
@@ -68,7 +94,8 @@ export class LoginUserUseCase implements IUserLoginUseCase {
         name: user.name,
         role: user.role,
         profileImage: user.profileImage,
-        tenantId: user.tenantId,
+        tenantId: tenantId,
+        subdomain,
       },
     };
   }

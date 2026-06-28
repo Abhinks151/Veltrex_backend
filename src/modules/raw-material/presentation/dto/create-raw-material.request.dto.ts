@@ -24,4 +24,8 @@ export class CreateRawMaterialRequest {
   @IsInt()
   @Min(0)
   minQty!: number;
+
+  @IsInt()
+  @Min(0)
+  currentQty!: number;
 }

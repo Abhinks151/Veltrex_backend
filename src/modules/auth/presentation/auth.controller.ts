@@ -191,7 +191,10 @@ export class AuthController {
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('refresh_token');
+    const baseDomain = this._configService.get<string>('BASE_DOMAIN');
+    res.clearCookie('refresh_token', {
+      domain: baseDomain ? `.${baseDomain}` : undefined,
+    });
     return new ApiResponse(
       true,
       null,

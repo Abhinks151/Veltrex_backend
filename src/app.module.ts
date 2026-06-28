@@ -5,6 +5,8 @@ import { LoggingInterceptor } from './shared/common/logger/logging.interceptor';
 import { RequestIdMiddleware } from './shared/common/logger/log-request-id.middleware';
 import { LoggerModule } from './shared/common/logger/logger.module';
 import { HttpExceptionFilter } from './error-handler';
+import { TenantInterceptor } from './modules/tenant/presentation/interceptors/tenant.interceptor';
+
 import { AuthModule } from './modules/auth/auth.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
@@ -75,9 +77,14 @@ import { memoryStorage } from 'multer';
       useClass: LoggingInterceptor,
     },
     {
+      provide: APP_INTERCEPTOR,
+      useClass: TenantInterceptor,
+    },
+    {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,

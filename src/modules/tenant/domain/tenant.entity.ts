@@ -1,6 +1,7 @@
 export class Tenant {
   id: string;
   name: string;
+  subdomain: string | null;
   ownerId: string;
   isBlocked: boolean;
   isDeleted: boolean;
@@ -11,6 +12,7 @@ export class Tenant {
   constructor(
     id: string,
     name: string,
+    subdomain: string | null,
     ownerId: string,
     isBlocked: boolean,
     isDeleted: boolean,
@@ -20,6 +22,7 @@ export class Tenant {
   ) {
     this.id = id;
     this.name = name;
+    this.subdomain = subdomain;
     this.ownerId = ownerId;
     this.isBlocked = isBlocked;
     this.isDeleted = isDeleted;

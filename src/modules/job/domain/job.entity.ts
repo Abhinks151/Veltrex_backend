@@ -22,7 +22,6 @@ export class Job {
     public readonly repeat: boolean,
     public readonly status: JobStatus,
     public readonly createdByUserId: string,
-    public readonly assignedToUserId: string | null,
     public readonly isDeleted: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,

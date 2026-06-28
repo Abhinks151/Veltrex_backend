@@ -4,4 +4,5 @@ export interface CreateRawMaterialDto {
   dimensions: object;
   material: string;
   minQty: number;
+  currentQty: number;
 }

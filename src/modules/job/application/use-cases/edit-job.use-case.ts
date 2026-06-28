@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { IEditJobUseCase } from '../ports/use-cases/edit-job.use-case.interface';
 import { IJobRepository } from '../ports/repositories/job-repository.interface';
+import { ICheckRawMaterialAvailabilityUseCase } from '@/modules/raw-material/application/ports/use-cases/check-raw-material-availability.use-case.interface';
 import { Job } from '../../domain/job.entity';
 import { EditJobDto } from '../dto/edit-job.dto';
 import {
@@ -10,13 +11,14 @@ import {
 } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
-import { Role } from '@/shared/enums/roles.enum';
 
 @Injectable()
 export class EditJobUseCase implements IEditJobUseCase {
   constructor(
     @Inject('IJobRepository')
     private readonly _jobRepository: IJobRepository,
+    @Inject('ICheckRawMaterialAvailabilityUseCase')
+    private readonly _checkRawMaterialAvailability: ICheckRawMaterialAvailabilityUseCase,
     private readonly _prisma: PrismaService,
   ) {}
 
@@ -26,35 +28,37 @@ export class EditJobUseCase implements IEditJobUseCase {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.JOB_NOT_FOUND);
     }
 
-    if (dto.assignedToUserId) {
-      const assignee = await this._prisma.user.findFirst({
-        where: {
-          id: dto.assignedToUserId,
-          tenantId: job.tenantId,
-          role: { in: [Role.MACHINIST, Role.MAINTENANCE] },
-          isDeleted: false,
-        },
-      });
+    // If the part or quantity is being changed, re-check raw material availability
+    const effectivePartId = dto.partId ?? job.partId;
+    const effectiveQuantity = dto.quantity ?? job.quantity;
 
-      if (!assignee) {
-        throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.INVALID_ASSIGNEE);
+    const part = await this._prisma.part.findFirst({
+      where: { id: effectivePartId, isDeleted: false },
+    });
+
+    if (!part) {
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.PART_NOT_FOUND);
+    }
+
+    if (part.rawMaterialId) {
+      const hasEnoughStock = await this._checkRawMaterialAvailability.execute(
+        part.rawMaterialId,
+        effectiveQuantity,
+      );
+
+      if (!hasEnoughStock) {
+        throw new BadRequestError(
+          MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
+        );
       }
     }
 
     try {
-      const { assignedToUserId, partId, ...rest } = dto;
+      const { partId, ...rest } = dto;
       const updateData: Prisma.JobUpdateInput = { ...rest };
 
       if (partId) {
         updateData.part = { connect: { id: partId } };
-      }
-
-      if (assignedToUserId !== undefined) {
-        if (assignedToUserId === null) {
-          updateData.assignee = { disconnect: true };
-        } else {
-          updateData.assignee = { connect: { id: assignedToUserId } };
-        }
       }
 
       return await this._jobRepository.update(id, updateData);

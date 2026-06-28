@@ -6,6 +6,7 @@ export class RawMaterial {
     public readonly dimensions: object,
     public readonly material: string,
     public readonly minQty: number,
+    public readonly currentQty: number,
     public readonly isBlocked: boolean,
     public readonly isDeleted: boolean,
     public readonly createdAt: Date,

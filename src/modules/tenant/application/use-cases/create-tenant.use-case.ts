@@ -9,7 +9,10 @@ import { ICreateSubscriptionUseCase } from '@/modules/subscription/application/p
 import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { CreateSubscriptionDto } from '@/modules/subscription/application/dto/create-subscription.dto';
 import { IGetPlanByCodeUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-code.use-case.interface';
+import { IUpdateUserUseCase } from '@/modules/auth/application/ports/use-cases/update-user.use-case.interface';
+
 import {
+  BadRequestError,
   ConflictError,
   NotFoundError,
 } from '../../../../shared/common/errors/domain-errors';
@@ -28,6 +31,9 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
 
     @Inject('ISuperAdminGetPlanByCodeUseCase')
     private readonly _getPlanByCodeUseCase: IGetPlanByCodeUseCase,
+
+    @Inject('IAuthUpdateUserUseCase')
+    private readonly _updateUserUseCase: IUpdateUserUseCase,
   ) {}
 
   async execute(
@@ -50,6 +56,17 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
       throw new ConflictError(MESSAGE_CONSTANTS.ERROR.TENANT_NAME_TAKEN);
     }
 
+    if (!reqDto.subdomain) {
+      throw new BadRequestError('Subdomain is required');
+    }
+
+    const subdomainTaken = await this._tenantRepository.findBySubdomain(
+      reqDto.subdomain,
+    );
+    if (subdomainTaken) {
+      throw new ConflictError('Subdomain is already taken');
+    }
+
     // Fetch the plan from database
     const planCode = reqDto.plan || 'TRIAL';
     const plan = await this._getPlanByCodeUseCase.execute(planCode);
@@ -59,10 +76,22 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
 
     const data = {
       name: reqDto.name,
+      subdomain: reqDto.subdomain,
       ownerId,
     };
 
     const response = await this._tenantRepository.create(data);
+
+    // Link the user to the tenant
+    try {
+      await this._updateUserUseCase.execute({ tenantId: response.id }, ownerId);
+    } catch (error) {
+      console.log(
+        'Failed to update user tenantId during tenant creation:',
+        error,
+      );
+    }
+
     try {
       let endDate: Date;
       if (plan.durationDays) {

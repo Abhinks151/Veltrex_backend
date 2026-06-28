@@ -23,6 +23,8 @@ import { IUpdateTenantUseCase } from '../application/ports/use-cases/update-tena
 import { IGetTenantUseCase } from '../application/ports/use-cases/get-tenant.use-case.interface';
 import { IGetAllTenantUseCase } from '../application/ports/use-cases/get-all-tenant.use-case.interface';
 import { ICheckTenantNameUseCase } from '../application/ports/use-cases/check-tenant-name.use-case.interface';
+import { ICheckTenantSubdomainUseCase } from '../application/ports/use-cases/check-tenant-subdomain.use-case.interface';
+
 import { MESSAGE_CONSTANTS } from '../../../shared/enums/messageConstants';
 import { Query } from '@nestjs/common';
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
@@ -42,12 +44,21 @@ export class TenantController {
     private readonly _getAllTenantUseCase: IGetAllTenantUseCase,
     @Inject('ITenantCheckNameUseCase')
     private readonly _checkTenantNameUseCase: ICheckTenantNameUseCase,
+    @Inject('ITenantCheckSubdomainUseCase')
+    private readonly _checkTenantSubdomainUseCase: ICheckTenantSubdomainUseCase,
   ) {}
 
   @Auth()
   @Get('check-name/:name')
   async checkName(@Param('name') name: string) {
     const isTaken = await this._checkTenantNameUseCase.execute(name);
+    return new ApiResponse(true, { isTaken }, 'Availability checked');
+  }
+
+  @Auth()
+  @Get('check-subdomain/:subdomain')
+  async checkSubdomain(@Param('subdomain') subdomain: string) {
+    const isTaken = await this._checkTenantSubdomainUseCase.execute(subdomain);
     return new ApiResponse(true, { isTaken }, 'Availability checked');
   }
 
@@ -100,9 +111,11 @@ export class TenantController {
     const reposnse = await this._createTenantUseCase.execute(
       {
         name: reqDto.name,
+        subdomain: reqDto.subdomain,
         plan: reqDto.plan,
         ownerId: req.user.userId,
       },
+
       req.user.userId,
     );
     return new ApiResponse(

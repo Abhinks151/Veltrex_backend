@@ -39,6 +39,7 @@ export class RawMaterialRepository
         dimensions: data.dimensions as Prisma.InputJsonValue,
         material: data.material,
         minQty: data.minQty,
+        currentQty: data.currentQty,
         tenant: { connect: { id: data.tenantId } },
       };
       return await super.create(

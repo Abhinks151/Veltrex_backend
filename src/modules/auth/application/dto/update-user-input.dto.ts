@@ -5,4 +5,5 @@ export interface UpdateUserInputDto {
   is_verified?: boolean;
   profileImage?: string;
   profileImageKey?: string;
+  tenantId?: string;
 }
