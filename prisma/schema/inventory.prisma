@@ -1,0 +1,117 @@
+model Machine {
+  id             String        @id @default(uuid()) @db.Uuid
+  tenantId       String        @map("tenant_id") @db.Uuid
+  tenant         Tenant        @relation(fields: [tenantId], references: [id])
+  name           String
+  brand          String
+  maxRpm         Int           @map("max_rpm")
+  axis           Int
+  type           MachineType
+  maxTravelSpeed Int           @map("max_travel_speed")
+  holdingSize    Int           @map("holding_size")
+  toolCount      Int           @map("tool_count")
+  status         MachineStatus
+  isBlocked      Boolean       @default(false) @map("is_blocked")
+  isDeleted      Boolean       @default(false) @map("is_deleted")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  parts          Part[]
+
+  @@map("machines")
+}
+
+model Fixture {
+  id         String      @id @default(uuid()) @db.Uuid
+  tenantId   String      @map("tenant_id") @db.Uuid
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  name       String
+  dimensions Json
+  type       FixtureType
+  isBlocked  Boolean     @default(false) @map("is_blocked")
+  isDeleted  Boolean     @default(false) @map("is_deleted")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  parts      Part[]
+
+  @@map("fixtures")
+}
+
+model RawMaterial {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  name       String
+  dimensions Json
+  material   String
+  minQty     Int      @map("min_qty")
+  currentQty Int      @default(0) @map("current_qty")
+  isBlocked  Boolean  @default(false) @map("is_blocked")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  parts      Part[]
+
+  @@map("raw_materials")
+}
+
+model Part {
+  id                 String   @id @default(uuid()) @db.Uuid
+  tenantId           String   @map("tenant_id") @db.Uuid
+  tenant             Tenant   @relation(fields: [tenantId], references: [id])
+  name               String
+  partNumber         String   @map("part_number")
+  description        String?
+  material           String?
+  operationType      OperationType? @map("operation_type")
+  
+  machineId          String?  @map("machine_id") @db.Uuid
+  machine            Machine? @relation(fields: [machineId], references: [id])
+
+  fixtureId          String?  @map("fixture_id") @db.Uuid
+  fixture            Fixture? @relation(fields: [fixtureId], references: [id])
+
+  rawMaterialId      String?  @map("raw_material_id") @db.Uuid
+  rawMaterial        RawMaterial? @relation(fields: [rawMaterialId], references: [id])
+
+  dimensions         Json?    @map("dimensions")
+  cycleTime          String?  @map("cycle_time")
+  setupTime          String?  @map("setup_time")
+
+  setupSheet         String?  @map("setup_sheet")
+  setupSheetKey      String?  @map("setup_sheet_key")
+  engineeringDrawing String?  @map("engineering_drawing")
+  engineeringDrawingKey String? @map("engineering_drawing_key")
+
+  priority           PartPriority @default(MEDIUM)
+  isBlocked          Boolean  @default(false) @map("is_blocked")
+  isDeleted          Boolean  @default(false) @map("is_deleted")
+  jobs               Job[]
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, partNumber])
+  @@map("parts")
+}
+
+model Job {
+  id         String      @id @default(uuid()) @db.Uuid
+  tenantId   String      @map("tenant_id") @db.Uuid
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  partId     String      @map("part_id") @db.Uuid
+  part       Part        @relation(fields: [partId], references: [id])
+  quantity   Int
+  priority   JobPriority
+  repeat     Boolean     @default(false)
+  status     JobStatus   @default(PENDING)
+  isDeleted  Boolean     @default(false) @map("is_deleted")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  createdByUserId String @map("created_by") @db.Uuid
+  creator         User   @relation("JobCreatedBy", fields: [createdByUserId], references: [id])
+
+  templateJobs     ShiftTemplateJob[]
+  shiftJobs        ShiftJob[]
+
+  @@map("jobs")
+}

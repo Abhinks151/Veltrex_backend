@@ -1,0 +1,99 @@
+model ShiftTemplate {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  employeeId String  @map("employee_id") @db.Uuid
+  employee   User    @relation("EmployeeShiftTemplates", fields: [employeeId], references: [id])
+
+  shiftType  ShiftType @map("shift_type")
+
+  repeatType ShiftRepeatType @map("repeat_type")
+
+  startDate  DateTime @db.Date @map("start_date")
+  endDate    DateTime? @db.Date @map("end_date")
+
+  createdByUserId String @map("created_by") @db.Uuid
+  creator         User   @relation("ShiftTemplateCreatedBy", fields: [createdByUserId], references: [id])
+
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  templateJobs ShiftTemplateJob[]
+  productionShifts ProductionShift[]
+
+  @@map("shift_templates")
+}
+
+model ShiftTemplateJob {
+  id              String        @id @default(uuid()) @db.Uuid
+  shiftTemplateId String        @map("shift_template_id") @db.Uuid
+  shiftTemplate   ShiftTemplate @relation(fields: [shiftTemplateId], references: [id], onDelete: Cascade)
+  
+  jobId           String        @map("job_id") @db.Uuid
+  job             Job           @relation(fields: [jobId], references: [id])
+
+  assignedQuantity Int          @map("assigned_quantity")
+  sequence         Int
+
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@map("shift_template_jobs")
+}
+
+model ProductionShift {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  shiftTemplateId String? @map("shift_template_id") @db.Uuid
+  shiftTemplate   ShiftTemplate? @relation(fields: [shiftTemplateId], references: [id], onDelete: SetNull)
+
+  employeeId String  @map("employee_id") @db.Uuid
+  employee   User    @relation("EmployeeProductionShifts", fields: [employeeId], references: [id])
+
+  date      DateTime @db.Date
+  shiftType ShiftType @map("shift_type")
+
+  status    ShiftStatus @default(PENDING)
+
+  createdByUserId String? @map("created_by") @db.Uuid
+  creator         User?   @relation("ProductionShiftCreatedBy", fields: [createdByUserId], references: [id])
+
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  shiftJobs  ShiftJob[]
+
+  @@unique([employeeId, date, shiftType])
+  @@map("production_shifts")
+}
+
+model ShiftJob {
+  id                String          @id @default(uuid()) @db.Uuid
+  tenantId          String          @map("tenant_id") @db.Uuid
+  tenant            Tenant          @relation(fields: [tenantId], references: [id])
+
+  productionShiftId String          @map("production_shift_id") @db.Uuid
+  productionShift   ProductionShift @relation(fields: [productionShiftId], references: [id], onDelete: Cascade)
+
+  jobId             String          @map("job_id") @db.Uuid
+  job               Job             @relation(fields: [jobId], references: [id])
+
+  assignedQuantity  Int             @map("assigned_quantity")
+  completedQuantity Int             @default(0) @map("completed_quantity")
+
+  sequence          Int
+
+  status            ShiftStatus @default(PENDING)
+
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  @@map("shift_jobs")
+}

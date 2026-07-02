@@ -1,0 +1,63 @@
+model Plan {
+  id          String  @id @default(uuid()) @db.Uuid
+  code        String  @unique
+  name        String
+  description String?
+
+  price    Decimal @db.Decimal(10, 2)
+  currency String
+
+  isBlocked Boolean @default(false) @map("is_blocked")
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  durationDays Int?
+  subscriptions Subscription[]
+  payments      Payment[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id String @id @default(uuid()) @db.Uuid
+
+  tenantId String @db.Uuid
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  planId String @db.Uuid
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status SubscriptionStatus
+
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+
+  razorpaySubscriptionId String?
+  payments               Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                String          @id @default(uuid()) @db.Uuid
+  tenantId          String          @db.Uuid
+  tenant            Tenant          @relation(fields: [tenantId], references: [id])
+  subscriptionId    String?         @db.Uuid
+  subscription      Subscription?   @relation(fields: [subscriptionId], references: [id])
+  planId            String?         @db.Uuid
+  plan              Plan?           @relation(fields: [planId], references: [id])
+  amount            Decimal         @db.Decimal(10, 2)
+  currency          String
+  provider          PaymentProvider
+  providerPaymentId String?
+  providerOrderId   String?
+  status            PaymentStatus
+  paidAt            DateTime?
+  createdAt         DateTime        @default(now())
+
+  @@map("payments")
+}
