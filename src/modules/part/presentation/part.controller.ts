@@ -22,6 +22,7 @@ import { IListPartsUseCase } from '../application/ports/use-cases/list-parts.use
 import { IBlockPartUseCase } from '../application/ports/use-cases/block-part.use-case.interface';
 import { IDeletePartUseCase } from '../application/ports/use-cases/delete-part.use-case.interface';
 import { IGetAllActivePartsUseCase } from '../application/ports/use-cases/get-all-active-parts.use-case.interface';
+import { IGetPartByIdUseCase } from '../application/ports/use-cases/get-part-by-id.use-case.interface';
 import { Auth } from '@/modules/auth/presentation/decorators/auth.decorator';
 import { CreatePartDto } from '../application/dto/create-part.dto';
 import { Prisma } from '@prisma/client';
@@ -54,6 +55,8 @@ export class PartController {
     private readonly _deletePartUseCase: IDeletePartUseCase,
     @Inject('IGetAllActivePartsUseCase')
     private readonly _getAllActivePartsUseCase: IGetAllActivePartsUseCase,
+    @Inject('IGetPartByIdUseCase')
+    private readonly _getPartByIdUseCase: IGetPartByIdUseCase,
     @Inject(FILE_STORAGE)
     private readonly _fileStorageService: IFileStorageService,
   ) {}
@@ -140,7 +143,7 @@ export class PartController {
   }
 
   @Get('active')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MACHINIST)
   async getActive(@Req() req: Request) {
     const parts = await this._getAllActivePartsUseCase.execute(
       req.user!.tenantId!,
@@ -150,6 +153,13 @@ export class PartController {
       parts,
       MESSAGE_CONSTANTS.SUCCESS.PARTS_FETCHED,
     );
+  }
+
+  @Get(':id')
+  @Roles(Role.ADMIN, Role.MACHINIST)
+  async getById(@Param('id') id: string) {
+    const part = await this._getPartByIdUseCase.execute(id);
+    return new ApiResponse(true, part, MESSAGE_CONSTANTS.SUCCESS.PARTS_FETCHED);
   }
 
   @Patch('edit/:id')

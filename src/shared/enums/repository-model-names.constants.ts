@@ -12,4 +12,8 @@ export enum RepositoryModelNames {
   JOB = 'job',
   PART = 'part',
   LOOKUP = 'lookup',
+  SHIFT_TEMPLATE = 'shiftTemplate',
+  SHIFT_TEMPLATE_JOB = 'shiftTemplateJob',
+  PRODUCTION_SHIFT = 'productionShift',
+  SHIFT_JOB = 'shiftJob',
 }

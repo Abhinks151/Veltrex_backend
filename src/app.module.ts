@@ -26,9 +26,12 @@ import { WinstonModule } from 'nest-winston';
 import { createWinstonConfig } from './shared/common/logger/logger.config';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ShiftModule } from './modules/shift/shift.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     AuthModule,
     PrismaModule,
     LoggerModule,
@@ -43,6 +46,7 @@ import { memoryStorage } from 'multer';
     JobModule,
     PartModule,
     LookupModule,
+    ShiftModule,
 
     // Rate Limiting
     ThrottlerModule.forRoot([
