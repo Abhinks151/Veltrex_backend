@@ -1,0 +1,86 @@
+model User {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  email      String   @unique
+  password   String
+  role       UserRole @default(ADMIN)
+  isVerified Boolean  @default(false) @map("is_verified")
+  isBlocked  Boolean  @default(false) @map("is_blocked")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+
+  // membership relation
+  tenantId String? @db.Uuid
+
+  tenant Tenant? @relation("TenantMembers", fields: [tenantId], references: [id])
+
+  // ownership relation
+  ownedTenant Tenant? @relation("TenantOwner")
+
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  createdJobs            Job[]                    @relation("JobCreatedBy")
+  profileImage            String?                  @map("profile_image")
+  profileImageKey         String?                  @map("profile_image_key")
+  createdAt               DateTime                 @default(now()) @map("created_at")
+  updatedAt               DateTime                 @updatedAt @map("updated_at")
+
+  employeeShiftTemplates   ShiftTemplate[]        @relation("EmployeeShiftTemplates")
+  employeeProductionShifts ProductionShift[]     @relation("EmployeeProductionShifts")
+  createdShiftTemplates   ShiftTemplate[]        @relation("ShiftTemplateCreatedBy")
+  createdProductionShifts ProductionShift[]     @relation("ProductionShiftCreatedBy")
+
+  @@map("users")
+}
+
+model Tenant {
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+  subdomain String? @unique
+
+  ownerId String @unique @db.Uuid
+  owner   User   @relation("TenantOwner", fields: [ownerId], references: [id])
+
+  // reverse membership relation
+  users User[] @relation("TenantMembers")
+
+  isBlocked     Boolean        @default(false) @map("is_blocked")
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  subscriptions Subscription[]
+  payments      Payment[]
+  trialUsed     Boolean        @default(false)
+  machines      Machine[]
+  fixtures      Fixture[]
+  rawMaterials  RawMaterial[]
+  parts         Part[]
+  jobs          Job[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  shiftTemplates   ShiftTemplate[]
+  productionShifts ProductionShift[]
+  shiftJobs        ShiftJob[]
+
+  @@map("tenants")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("password_reset_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("email_verification_tokens")
+}

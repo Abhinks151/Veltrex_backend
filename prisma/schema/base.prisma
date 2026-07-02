@@ -1,0 +1,111 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PAST_DUE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  RAZORPAY
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MACHINIST
+  MAINTENANCE
+}
+
+enum MachineType {
+  MILL
+  LATHE
+}
+
+enum MachineStatus {
+  IDLE
+  RUNNING
+  MAINTENANCE
+}
+
+enum FixtureType {
+  MILL
+  LATHE
+}
+
+enum OperationType {
+  MILL
+  LATHE
+}
+
+enum PartPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum JobPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ShiftType {
+  MORNING
+  EVENING
+  NIGHT
+}
+
+enum ShiftRepeatType {
+  NONE
+  DAILY
+}
+
+enum ShiftStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Lookup {
+  id          String   @id @default(uuid()) @db.Uuid
+  category    String
+  code        String
+  label       String
+  description String?
+  value       String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  metadata    Json?
+  isActive    Boolean  @default(true) @map("is_active")
+  tenantId    String?  @db.Uuid @map("tenant_id")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, code, tenantId])
+  @@map("lookups")
+}
