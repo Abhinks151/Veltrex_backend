@@ -1,0 +1,138 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { IEditShiftTemplateUseCase } from '../ports/use-cases/edit-shift-template.use-case.interface';
+import { IShiftTemplateRepository } from '../ports/repositories/shift-template-repository.interface';
+import { ShiftTemplate } from '../../domain/shift.entity';
+import { CreateShiftTemplateDto } from '../dto/create-shift-template.dto';
+import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
+import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
+import {
+  BadRequestError,
+  NotFoundError,
+} from '@/shared/common/errors/domain-errors';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
+
+@Injectable()
+export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
+  constructor(
+    @Inject('IShiftTemplateRepository')
+    private readonly _shiftTemplateRepository: IShiftTemplateRepository,
+    @Inject('ITransactionManager')
+    private readonly _txManager: ITransactionManager,
+    private readonly _prisma: PrismaService,
+  ) {}
+
+  async execute(
+    id: string,
+    tenantId: string,
+    dto: Partial<CreateShiftTemplateDto>,
+  ): Promise<ShiftTemplate> {
+    return this._txManager.run(async (ctx: ITransactionContext) => {
+      const client = resolvePrismaClient(this._prisma, ctx);
+
+      // Check if template exists
+      const existing = await client.shiftTemplate.findFirst({
+        where: { id, tenantId, isDeleted: false },
+      });
+      if (!existing) {
+        throw new NotFoundError('Shift template not found');
+      }
+
+      if (dto.employeeId || dto.startDate || dto.endDate !== undefined) {
+        const targetEmployeeId = dto.employeeId ?? existing.employeeId;
+        const targetStartDate = dto.startDate ?? existing.startDate;
+        const targetEndDate =
+          dto.endDate !== undefined ? dto.endDate : existing.endDate;
+
+        const overlapping = await client.shiftTemplate.findFirst({
+          where: {
+            id: { not: id },
+            employeeId: targetEmployeeId,
+            tenantId,
+            isDeleted: false,
+            startDate: targetEndDate ? { lte: targetEndDate } : undefined,
+            OR: [{ endDate: null }, { endDate: { gte: targetStartDate } }],
+          },
+        });
+
+        if (overlapping) {
+          throw new BadRequestError(
+            'This employee already has an active shift template in this date range',
+          );
+        }
+      }
+
+      if (dto.jobs) {
+        await client.shiftTemplateJob.deleteMany({
+          where: { shiftTemplateId: id },
+        });
+
+        for (const jobDto of dto.jobs) {
+          const job = await client.job.findFirst({
+            where: { id: jobDto.jobId, tenantId, isDeleted: false },
+          });
+          if (!job) {
+            throw new NotFoundError(`Job ${jobDto.jobId} not found`);
+          }
+          if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
+            throw new BadRequestError(
+              `Job ${jobDto.jobId} is completed or cancelled`,
+            );
+          }
+          if (jobDto.assignedQuantity <= 0) {
+            throw new BadRequestError(
+              'Assigned quantity must be greater than 0',
+            );
+          }
+        }
+
+        await client.shiftTemplateJob.createMany({
+          data: dto.jobs.map((jobDto) => ({
+            shiftTemplateId: id,
+            jobId: jobDto.jobId,
+            assignedQuantity: jobDto.assignedQuantity,
+            sequence: jobDto.sequence,
+          })),
+        });
+      }
+
+      const updateData: Prisma.ShiftTemplateUpdateInput = {};
+      if (dto.employeeId) {
+        const employee = await client.user.findFirst({
+          where: { id: dto.employeeId, tenantId, isDeleted: false },
+        });
+        if (!employee) throw new NotFoundError('Employee not found');
+        if (employee.isBlocked)
+          throw new BadRequestError('Employee is blocked');
+        updateData.employee = { connect: { id: dto.employeeId } };
+      }
+      if (dto.shiftType) {
+        updateData.shiftType = dto.shiftType;
+      }
+      if (dto.repeatType) {
+        updateData.repeatType = dto.repeatType;
+      }
+      if (dto.startDate) {
+        updateData.startDate = dto.startDate;
+      }
+      if (dto.endDate !== undefined) {
+        updateData.endDate = dto.endDate || null;
+      }
+
+      await client.shiftTemplate.update({
+        where: { id },
+        data: updateData,
+      });
+
+      const updatedTemplate =
+        await this._shiftTemplateRepository.findByTenantAndId(
+          tenantId,
+          id,
+          ctx,
+        );
+
+      return updatedTemplate!;
+    });
+  }
+}

@@ -17,6 +17,7 @@ import { JobModule } from '../job/job.module';
 import { forwardRef } from '@nestjs/common';
 
 import { CheckResourceInUseUseCase } from './application/use-cases/check-resource-in-use.use-case';
+import { GetPartByIdUseCase } from './application/use-cases/get-part-by-id.use-case';
 
 @Module({
   imports: [
@@ -60,7 +61,15 @@ import { CheckResourceInUseUseCase } from './application/use-cases/check-resourc
       provide: 'ICheckResourceInUseUseCase',
       useClass: CheckResourceInUseUseCase,
     },
+    {
+      provide: 'IGetPartByIdUseCase',
+      useClass: GetPartByIdUseCase,
+    },
   ],
-  exports: ['IGetAllActivePartsUseCase', 'ICheckResourceInUseUseCase'],
+  exports: [
+    'IGetAllActivePartsUseCase',
+    'ICheckResourceInUseUseCase',
+    'IGetPartByIdUseCase',
+  ],
 })
 export class PartModule {}

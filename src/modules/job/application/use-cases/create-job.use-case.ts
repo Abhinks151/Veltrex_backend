@@ -2,14 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ICreateJobUseCase } from '../ports/use-cases/create-job.use-case.interface';
 import { IJobRepository } from '../ports/repositories/job-repository.interface';
 import { ICheckRawMaterialAvailabilityUseCase } from '@/modules/raw-material/application/ports/use-cases/check-raw-material-availability.use-case.interface';
+import { IUpdateRawMaterialStockUseCase } from '@/modules/raw-material/application/ports/use-cases/update-raw-material-stock.use-case.interface';
+import { IGetPartByIdUseCase } from '@/modules/part/application/ports/use-cases/get-part-by-id.use-case.interface';
 import { Job } from '../../domain/job.entity';
 import { CreateJobDto } from '../dto/create-job.dto';
-import {
-  BadRequestError,
-  NotFoundError,
-} from '@/shared/common/errors/domain-errors';
+import { BadRequestError } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
-import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class CreateJobUseCase implements ICreateJobUseCase {
@@ -18,20 +16,17 @@ export class CreateJobUseCase implements ICreateJobUseCase {
     private readonly _jobRepository: IJobRepository,
     @Inject('ICheckRawMaterialAvailabilityUseCase')
     private readonly _checkRawMaterialAvailability: ICheckRawMaterialAvailabilityUseCase,
-    private readonly _prisma: PrismaService,
+    @Inject('IUpdateRawMaterialStockUseCase')
+    private readonly _updateRawMaterialStock: IUpdateRawMaterialStockUseCase,
+    @Inject('IGetPartByIdUseCase')
+    private readonly _getPartByIdUseCase: IGetPartByIdUseCase,
   ) {}
 
   async execute(dto: CreateJobDto): Promise<Job> {
-    const part = await this._prisma.part.findFirst({
-      where: {
-        id: dto.partId,
-        tenantId: dto.tenantId,
-        isDeleted: false,
-      },
-    });
+    const part = await this._getPartByIdUseCase.execute(dto.partId);
 
-    if (!part) {
-      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.PART_NOT_FOUND);
+    if (part.tenantId !== dto.tenantId) {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.PART_NOT_FOUND);
     }
 
     if (part.rawMaterialId) {
@@ -45,6 +40,11 @@ export class CreateJobUseCase implements ICreateJobUseCase {
           MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
         );
       }
+
+      await this._updateRawMaterialStock.execute(
+        part.rawMaterialId,
+        -dto.quantity,
+      );
     }
 
     try {

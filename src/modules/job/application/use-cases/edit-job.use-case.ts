@@ -3,14 +3,15 @@ import { Prisma } from '@prisma/client';
 import { IEditJobUseCase } from '../ports/use-cases/edit-job.use-case.interface';
 import { IJobRepository } from '../ports/repositories/job-repository.interface';
 import { ICheckRawMaterialAvailabilityUseCase } from '@/modules/raw-material/application/ports/use-cases/check-raw-material-availability.use-case.interface';
-import { Job } from '../../domain/job.entity';
+import { IUpdateRawMaterialStockUseCase } from '@/modules/raw-material/application/ports/use-cases/update-raw-material-stock.use-case.interface';
+import { IGetPartByIdUseCase } from '@/modules/part/application/ports/use-cases/get-part-by-id.use-case.interface';
+import { Job, JobStatus } from '../../domain/job.entity';
 import { EditJobDto } from '../dto/edit-job.dto';
 import {
   BadRequestError,
   NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
-import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class EditJobUseCase implements IEditJobUseCase {
@@ -19,7 +20,10 @@ export class EditJobUseCase implements IEditJobUseCase {
     private readonly _jobRepository: IJobRepository,
     @Inject('ICheckRawMaterialAvailabilityUseCase')
     private readonly _checkRawMaterialAvailability: ICheckRawMaterialAvailabilityUseCase,
-    private readonly _prisma: PrismaService,
+    @Inject('IUpdateRawMaterialStockUseCase')
+    private readonly _updateRawMaterialStock: IUpdateRawMaterialStockUseCase,
+    @Inject('IGetPartByIdUseCase')
+    private readonly _getPartByIdUseCase: IGetPartByIdUseCase,
   ) {}
 
   async execute(id: string, dto: EditJobDto): Promise<Job> {
@@ -28,27 +32,74 @@ export class EditJobUseCase implements IEditJobUseCase {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.JOB_NOT_FOUND);
     }
 
-    // If the part or quantity is being changed, re-check raw material availability
-    const effectivePartId = dto.partId ?? job.partId;
-    const effectiveQuantity = dto.quantity ?? job.quantity;
-
-    const part = await this._prisma.part.findFirst({
-      where: { id: effectivePartId, isDeleted: false },
-    });
-
-    if (!part) {
-      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.PART_NOT_FOUND);
+    if (
+      job.status === JobStatus.IN_PROGRESS ||
+      job.status === JobStatus.COMPLETED
+    ) {
+      if (dto.quantity !== undefined && dto.quantity !== job.quantity) {
+        throw new BadRequestError(
+          'Cannot update quantity when job is in progress or completed',
+        );
+      }
     }
 
-    if (part.rawMaterialId) {
-      const hasEnoughStock = await this._checkRawMaterialAvailability.execute(
-        part.rawMaterialId,
-        effectiveQuantity,
-      );
+    const oldPartId = job.partId;
+    const newPartId = dto.partId ?? job.partId;
+    const oldQuantity = job.quantity;
+    const newQuantity = dto.quantity ?? job.quantity;
 
-      if (!hasEnoughStock) {
-        throw new BadRequestError(
-          MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
+    const part = await this._getPartByIdUseCase.execute(newPartId);
+
+    if (oldPartId !== newPartId) {
+      try {
+        const oldPart = await this._getPartByIdUseCase.execute(oldPartId);
+        if (oldPart && oldPart.rawMaterialId) {
+          await this._updateRawMaterialStock.execute(
+            oldPart.rawMaterialId,
+            oldQuantity,
+          );
+        }
+      } catch {
+        // check for old part, if not skip
+      }
+
+      if (part.rawMaterialId) {
+        const hasEnoughStock = await this._checkRawMaterialAvailability.execute(
+          part.rawMaterialId,
+          newQuantity,
+        );
+
+        if (!hasEnoughStock) {
+          throw new BadRequestError(
+            MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
+          );
+        }
+
+        await this._updateRawMaterialStock.execute(
+          part.rawMaterialId,
+          -newQuantity,
+        );
+      }
+    } else {
+      const quantityDiff = newQuantity - oldQuantity;
+      if (part.rawMaterialId && quantityDiff !== 0) {
+        if (quantityDiff > 0) {
+          const hasEnoughStock =
+            await this._checkRawMaterialAvailability.execute(
+              part.rawMaterialId,
+              quantityDiff,
+            );
+
+          if (!hasEnoughStock) {
+            throw new BadRequestError(
+              MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
+            );
+          }
+        }
+
+        await this._updateRawMaterialStock.execute(
+          part.rawMaterialId,
+          -quantityDiff,
         );
       }
     }

@@ -9,6 +9,7 @@ import { BlockRawMaterialUseCase } from './application/use-cases/block-raw-mater
 import { DeleteRawMaterialUseCase } from './application/use-cases/delete-raw-material.use-case';
 import { ListRawMaterialsUseCase } from './application/use-cases/list-raw-materials.use-case';
 import { CheckRawMaterialAvailabilityUseCase } from './application/use-cases/check-raw-material-availability.use-case';
+import { UpdateRawMaterialStockUseCase } from './application/use-cases/update-raw-material-stock.use-case';
 
 import { SubscriptionModule } from '../subscription/subscription.module';
 
@@ -57,7 +58,14 @@ import { forwardRef } from '@nestjs/common';
       provide: 'ICheckRawMaterialAvailabilityUseCase',
       useClass: CheckRawMaterialAvailabilityUseCase,
     },
+    {
+      provide: 'IUpdateRawMaterialStockUseCase',
+      useClass: UpdateRawMaterialStockUseCase,
+    },
   ],
-  exports: ['ICheckRawMaterialAvailabilityUseCase'],
+  exports: [
+    'ICheckRawMaterialAvailabilityUseCase',
+    'IUpdateRawMaterialStockUseCase',
+  ],
 })
 export class RawMaterialModule {}

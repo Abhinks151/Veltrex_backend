@@ -186,7 +186,7 @@ export class UserRepository
       tenantId,
       isDeleted: false,
       role: {
-        not: 'SUPER_ADMIN',
+        notIn: ['SUPER_ADMIN', 'ADMIN'],
       },
     };
 

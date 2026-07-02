@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JobController } from './presentation/job.controller';
 import { CreateJobUseCase } from './application/use-cases/create-job.use-case';
 import { EditJobUseCase } from './application/use-cases/edit-job.use-case';
@@ -9,9 +9,15 @@ import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { CheckPartInUseUseCase } from './application/use-cases/check-part-in-use.use-case';
 import { RawMaterialModule } from '../raw-material/raw-material.module';
+import { PartModule } from '../part/part.module';
 
 @Module({
-  imports: [PrismaModule, SubscriptionModule, RawMaterialModule],
+  imports: [
+    PrismaModule,
+    SubscriptionModule,
+    RawMaterialModule,
+    forwardRef(() => PartModule),
+  ],
   controllers: [JobController],
   providers: [
     {
