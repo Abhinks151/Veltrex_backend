@@ -14,6 +14,7 @@ export class ShiftCronService implements IShiftCronService {
     private readonly _shiftTemplateRepository: IShiftTemplateRepository,
     @Inject('ITransactionManager')
     private readonly _txManager: ITransactionManager,
+    @Inject('IShiftGeneratorService')
     private readonly _shiftGenerator: IShiftGeneratorService,
   ) {}
 

@@ -13,6 +13,7 @@ export interface RawPart {
   machineId: string | null;
   fixtureId: string | null;
   rawMaterialId: string | null;
+  ncProgramId: string | null;
   dimensions: Record<string, unknown> | null;
   cycleTime: string | null;
   setupTime: string | null;
@@ -39,6 +40,7 @@ export const toPartMapper = (part: RawPart): Part => {
     part.machineId,
     part.fixtureId,
     part.rawMaterialId,
+    part.ncProgramId,
     part.dimensions,
     part.cycleTime,
     part.setupTime,

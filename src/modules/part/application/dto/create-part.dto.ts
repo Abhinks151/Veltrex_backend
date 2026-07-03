@@ -12,6 +12,7 @@ export class CreatePartDto {
   machineId?: string;
   fixtureId?: string;
   rawMaterialId?: string;
+  ncProgramId?: string;
   dimensions?: Prisma.InputJsonValue;
   cycleTime?: string;
   setupTime?: string;

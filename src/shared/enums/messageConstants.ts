@@ -90,6 +90,15 @@ export const MESSAGE_CONSTANTS = {
       'Cannot delete raw material: it is currently associated with active parts',
     INSUFFICIENT_RAW_MATERIAL:
       'Insufficient raw material stock to fulfil this job quantity',
+    NC_PROGRAM_NOT_FOUND: 'NC Program not found',
+    NC_PROGRAM_NAME_TAKEN: 'NC Program name already exists, try another one',
+    FAILED_TO_CREATE_NC_PROGRAM: 'Failed to create NC Program',
+    FAILED_TO_UPDATE_NC_PROGRAM: 'Failed to update NC Program',
+    INVALID_NC_FILE_TYPE:
+      'Invalid NC file type. Allowed: .nc, .cnc, .tap, .ngc, .txt, .mpf, .ptp',
+    VERSION_NOT_FOUND: 'Program version not found',
+    CANNOT_DELETE_LAST_VERSION:
+      'Cannot delete the final remaining valid version of a program',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
@@ -152,5 +161,11 @@ export const MESSAGE_CONSTANTS = {
     PARTS_FETCHED: 'Parts fetched successfully',
     PART_DELETED: 'Part deleted successfully',
     PART_BLOCK_TOGGLED: 'Part block status updated',
+    NC_PROGRAM_CREATED: 'NC Program created successfully',
+    NC_PROGRAM_UPDATED: 'NC Program updated successfully',
+    NC_PROGRAMS_FETCHED: 'NC Programs fetched successfully',
+    NC_VERSION_ADDED: 'NC Program version added successfully',
+    NC_VERSION_BLOCK_TOGGLED: 'NC Program version block status updated',
+    NC_VERSION_DELETED: 'NC Program version deleted successfully',
   },
 };
