@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { IShiftTemplateRepository } from '../../application/ports/repositories/shift-template-repository.interface';
-import { ShiftGeneratorService } from '../../application/services/shift-generator.service';
+// import { ShiftGeneratorService } from './shift-generator.service';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
 import { ShiftRepeatType } from '../../domain/shift.entity';
-import { IShiftCronService } from '../../application/ports/crons/shift-cron.interface';
+import { IShiftCronService } from '../../application/ports/services/shift-cron.interface';
+import { IShiftGeneratorService } from '../../application/ports/services/shift-generate.service.interface';
 
 @Injectable()
 export class ShiftCronService implements IShiftCronService {
@@ -13,7 +14,7 @@ export class ShiftCronService implements IShiftCronService {
     private readonly _shiftTemplateRepository: IShiftTemplateRepository,
     @Inject('ITransactionManager')
     private readonly _txManager: ITransactionManager,
-    private readonly _shiftGenerator: ShiftGeneratorService,
+    private readonly _shiftGenerator: IShiftGeneratorService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -51,10 +52,8 @@ export class ShiftCronService implements IShiftCronService {
             console.log(
               `Failed to generate Production Shift for template ID: ${template.id}. Error: ${err.message}`,
             );
-            throw new Error(
-              `Failed to generate Production Shift for template ID: ${template.id}. Error: ${err.message}`,
-            );
           }
+          continue;
         }
       }
 

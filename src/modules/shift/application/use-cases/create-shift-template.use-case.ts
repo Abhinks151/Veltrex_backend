@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ICreateShiftTemplateUseCase } from '../ports/use-cases/create-shift-template.use-case.interface';
 import { IShiftTemplateRepository } from '../ports/repositories/shift-template-repository.interface';
-import { ShiftGeneratorService } from '../services/shift-generator.service';
+import { ShiftGeneratorService } from '../../infrastructure/services/shift-generator.service';
 import { ShiftTemplate } from '../../domain/shift.entity';
 import { CreateShiftTemplateDto } from '../dto/create-shift-template.dto';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
@@ -38,7 +38,6 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
       throw new BadRequestError('Employee is currently blocked');
     }
 
-    // Check if there is already an active shift template for the same employee overlapping with this time range
     const overlapping = await this._prisma.shiftTemplate.findFirst({
       where: {
         employeeId: dto.employeeId,
