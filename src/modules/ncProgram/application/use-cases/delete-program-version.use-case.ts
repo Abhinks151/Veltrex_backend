@@ -1,12 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IProgramVersionRepository } from '../ports/repositories/program-version-repository.interface';
 import { INcProgramRepository } from '../ports/repositories/nc-program-repository.interface';
+import { IDeleteProgramVersionUseCase } from '../ports/use-cases/delete-program-version.use-case.interface';
 import { ProgramVersion } from '../../domain/program-version.entity';
 import { BadRequestError } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
-export class DeleteProgramVersionUseCase {
+export class DeleteProgramVersionUseCase implements IDeleteProgramVersionUseCase {
   constructor(
     @Inject('IProgramVersionRepository')
     private readonly programVersionRepository: IProgramVersionRepository,
