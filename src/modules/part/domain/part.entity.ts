@@ -13,6 +13,7 @@ export class Part {
     public readonly machineId: string | null,
     public readonly fixtureId: string | null,
     public readonly rawMaterialId: string | null,
+    public readonly ncProgramId: string | null,
     public readonly dimensions: Record<string, unknown> | null,
     public readonly cycleTime: string | null,
     public readonly setupTime: string | null,

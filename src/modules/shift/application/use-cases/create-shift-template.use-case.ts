@@ -19,6 +19,7 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
     private readonly _shiftTemplateRepository: IShiftTemplateRepository,
     @Inject('ITransactionManager')
     private readonly _txManager: ITransactionManager,
+    @Inject('IShiftGeneratorService')
     private readonly _shiftGenerator: ShiftGeneratorService,
     private readonly _prisma: PrismaService,
   ) {}

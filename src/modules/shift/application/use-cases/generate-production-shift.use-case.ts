@@ -16,6 +16,7 @@ export class GenerateProductionShiftUseCase implements IGenerateProductionShiftU
     private readonly _productionShiftRepository: IProductionShiftRepository,
     @Inject('ITransactionManager')
     private readonly _txManager: ITransactionManager,
+    @Inject('IShiftGeneratorService')
     private readonly _shiftGenerator: ShiftGeneratorService,
   ) {}
 

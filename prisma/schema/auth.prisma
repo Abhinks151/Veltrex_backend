@@ -28,6 +28,7 @@ model User {
   employeeProductionShifts ProductionShift[]     @relation("EmployeeProductionShifts")
   createdShiftTemplates   ShiftTemplate[]        @relation("ShiftTemplateCreatedBy")
   createdProductionShifts ProductionShift[]     @relation("ProductionShiftCreatedBy")
+  createdProgramVersions  ProgramVersion[]
 
   @@map("users")
 }
@@ -59,6 +60,8 @@ model Tenant {
   shiftTemplates   ShiftTemplate[]
   productionShifts ProductionShift[]
   shiftJobs        ShiftJob[]
+  ncPrograms       NcProgram[]
+  programVersions  ProgramVersion[]
 
   @@map("tenants")
 }

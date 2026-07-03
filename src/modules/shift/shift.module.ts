@@ -23,8 +23,11 @@ import { UpdateShiftJobProgressUseCase } from './application/use-cases/update-sh
   imports: [AuthModule, SubscriptionModule, PrismaModule],
   controllers: [ShiftController],
   providers: [
-    ShiftGeneratorService,
     ShiftCronService,
+    {
+      provide: 'IShiftGeneratorService',
+      useClass: ShiftGeneratorService,
+    },
     {
       provide: 'ITransactionManager',
       useClass: PrismaTransactionManager,

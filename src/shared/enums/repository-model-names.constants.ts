@@ -14,6 +14,8 @@ export enum RepositoryModelNames {
   LOOKUP = 'lookup',
   SHIFT_TEMPLATE = 'shiftTemplate',
   SHIFT_TEMPLATE_JOB = 'shiftTemplateJob',
-  PRODUCTION_SHIFT = 'productionShift',
   SHIFT_JOB = 'shiftJob',
+  PRODUCTION_SHIFT = 'productionShift',
+  NC_PROGRAM = 'ncProgram',
+  PROGRAM_VERSION = 'programVersion',
 }

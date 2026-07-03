@@ -37,6 +37,10 @@ export class EditPartRequestDto {
   rawMaterialId?: string;
 
   @IsOptional()
+  @IsUUID()
+  ncProgramId?: string;
+
+  @IsOptional()
   dimensions?: Prisma.InputJsonValue;
 
   @IsOptional()

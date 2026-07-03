@@ -49,6 +49,8 @@ export class PartRepository
         partData.fixture = { connect: { id: data.fixtureId } };
       if (data.rawMaterialId)
         partData.rawMaterial = { connect: { id: data.rawMaterialId } };
+      if (data.ncProgramId)
+        partData.ncProgram = { connect: { id: data.ncProgramId } };
 
       return await super.create(partData as unknown as CreatePartDto);
     } catch (error) {

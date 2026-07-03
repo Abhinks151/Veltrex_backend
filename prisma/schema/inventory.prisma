@@ -73,6 +73,9 @@ model Part {
   rawMaterialId      String?  @map("raw_material_id") @db.Uuid
   rawMaterial        RawMaterial? @relation(fields: [rawMaterialId], references: [id])
 
+  ncProgramId        String?  @map("nc_program_id") @db.Uuid
+  ncProgram          NcProgram? @relation(fields: [ncProgramId], references: [id])
+
   dimensions         Json?    @map("dimensions")
   cycleTime          String?  @map("cycle_time")
   setupTime          String?  @map("setup_time")
@@ -114,4 +117,42 @@ model Job {
   shiftJobs        ShiftJob[]
 
   @@map("jobs")
+}
+
+model NcProgram {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  parts     Part[]
+  versions  ProgramVersion[]
+
+  @@unique([tenantId, name])
+  @@map("nc_programs")
+}
+
+model ProgramVersion {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  programId      String   @map("program_id") @db.Uuid
+  program        NcProgram @relation(fields: [programId], references: [id])
+  versionNumber  Int      @map("version_number")
+  fileUrl        String   @map("file_url")
+  fileName       String?  @map("file_name")
+  fileSize       Int?     @map("file_size")
+  mimeType       String?  @map("mime_type")
+  description    String?
+  createdBy      String   @map("created_by") @db.Uuid
+  creator        User     @relation(fields: [createdBy], references: [id])
+  isBlocked      Boolean  @default(false) @map("is_blocked")
+  isDeleted      Boolean  @default(false) @map("is_deleted")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([programId, versionNumber])
+  @@map("program_versions")
 }
