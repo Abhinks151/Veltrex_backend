@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { INcProgramRepository } from '../ports/repositories/nc-program-repository.interface';
 import { IProgramVersionRepository } from '../ports/repositories/program-version-repository.interface';
+import { IUpdateNcProgramUseCase } from '../ports/use-cases/update-nc-program.use-case.interface';
 import { NcProgram } from '../../domain/nc-program.entity';
 import {
   ConflictError,
@@ -10,7 +11,7 @@ import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { UpdateNcProgramDto } from '../dto/update-program.dto';
 
 @Injectable()
-export class UpdateNcProgramUseCase {
+export class UpdateNcProgramUseCase implements IUpdateNcProgramUseCase {
   constructor(
     @Inject('INcProgramRepository')
     private readonly ncProgramRepository: INcProgramRepository,

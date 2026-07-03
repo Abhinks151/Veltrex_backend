@@ -1,10 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { INcProgramRepository } from '../ports/repositories/nc-program-repository.interface';
+import { IGetNcProgramListUseCase } from '../ports/use-cases/get-nc-program-list.use-case.interface';
 import { NcProgram } from '../../domain/nc-program.entity';
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 
 @Injectable()
-export class GetNcProgramListUseCase {
+export class GetNcProgramListUseCase implements IGetNcProgramListUseCase {
   constructor(
     @Inject('INcProgramRepository')
     private readonly ncProgramRepository: INcProgramRepository,
