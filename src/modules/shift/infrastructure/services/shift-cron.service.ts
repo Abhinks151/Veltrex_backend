@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { IShiftTemplateRepository } from '../../application/ports/repositories/shift-template-repository.interface';
-import { ShiftGeneratorService } from '../../application/services/shift-generator.service';
+import { ShiftGeneratorService } from './shift-generator.service';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
 import { ShiftRepeatType } from '../../domain/shift.entity';
-import { IShiftCronService } from '../../application/ports/crons/shift-cron.interface';
+import { IShiftCronService } from '../../application/ports/services/shift-cron.interface';
 
 @Injectable()
 export class ShiftCronService implements IShiftCronService {

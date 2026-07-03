@@ -8,7 +8,7 @@ import { ShiftController } from './presentation/shift.controller';
 import { ShiftTemplateRepository } from './infrastructure/repositories/shift-template.repository';
 import { ProductionShiftRepository } from './infrastructure/repositories/production-shift.repository';
 
-import { ShiftGeneratorService } from './application/services/shift-generator.service';
+import { ShiftGeneratorService } from './infrastructure/services/shift-generator.service';
 import { ShiftCronService } from './infrastructure/services/shift-cron.service';
 
 import { CreateShiftTemplateUseCase } from './application/use-cases/create-shift-template.use-case';

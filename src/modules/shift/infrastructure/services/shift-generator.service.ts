@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IShiftTemplateRepository } from '../ports/repositories/shift-template-repository.interface';
-import { IProductionShiftRepository } from '../ports/repositories/production-shift-repository.interface';
+import { IShiftTemplateRepository } from '../../application/ports/repositories/shift-template-repository.interface';
+import { IProductionShiftRepository } from '../../application/ports/repositories/production-shift-repository.interface';
 import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 import {
   BadRequestError,
@@ -14,9 +14,10 @@ import {
   ShiftStatus,
   ShiftType,
 } from '../../domain/shift.entity';
+import { IShiftGeneratorService } from '../../application/ports/services/shift-generate.service.interface';
 
 @Injectable()
-export class ShiftGeneratorService {
+export class ShiftGeneratorService implements IShiftGeneratorService {
   constructor(
     @Inject('IShiftTemplateRepository')
     private readonly _shiftTemplateRepository: IShiftTemplateRepository,

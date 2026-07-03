@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IGenerateProductionShiftUseCase } from '../ports/use-cases/generate-production-shift.use-case.interface';
 import { IShiftTemplateRepository } from '../ports/repositories/shift-template-repository.interface';
 import { IProductionShiftRepository } from '../ports/repositories/production-shift-repository.interface';
-import { ShiftGeneratorService } from '../services/shift-generator.service';
+import { ShiftGeneratorService } from '../../infrastructure/services/shift-generator.service';
 import { ProductionShift } from '../../domain/shift.entity';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
 import { NotFoundError } from '@/shared/common/errors/domain-errors';
