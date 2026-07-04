@@ -15,6 +15,7 @@ import { BaseRepository } from '@/shared/infrastructure/repository/base-reposito
 import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
 import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
+import { JobStatus } from '@/modules/job/domain/job.entity';
 
 @Injectable()
 export class ProductionShiftRepository
@@ -258,7 +259,7 @@ export class ProductionShiftRepository
         assignedQuantity: job.assignedQuantity,
         completedQuantity: 0,
         sequence: job.sequence,
-        status: 'PENDING',
+        status: JobStatus.PENDING,
       })),
     });
   }

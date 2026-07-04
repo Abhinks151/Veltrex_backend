@@ -11,6 +11,7 @@ import {
   NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
 export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
@@ -33,10 +34,10 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
       },
     });
     if (!employee) {
-      throw new NotFoundError('Employee not found or blocked');
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.EMPLOYEE_NOT_FOUND);
     }
     if (employee.isBlocked) {
-      throw new BadRequestError('Employee is currently blocked');
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.EMPLOYEE_BLOCKED);
     }
 
     const overlapping = await this._prisma.shiftTemplate.findFirst({
@@ -51,12 +52,14 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
 
     if (overlapping) {
       throw new BadRequestError(
-        'This employee already has an active shift template in this date range',
+        MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_ALREADY_EXISTS,
       );
     }
 
     if (!dto.jobs || dto.jobs.length === 0) {
-      throw new BadRequestError('At least one job must be assigned');
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.AT_LEAST_ONE_JOB_MUST_BE_ASSIGNED,
+      );
     }
     for (const jobDto of dto.jobs) {
       const job = await this._prisma.job.findFirst({
@@ -67,15 +70,17 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
         },
       });
       if (!job) {
-        throw new NotFoundError(`Job ${jobDto.jobId} not found`);
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.JOB_NOT_FOUND);
       }
       if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
         throw new BadRequestError(
-          `Job ${jobDto.jobId} is completed or cancelled`,
+          MESSAGE_CONSTANTS.ERROR.JOB_IS_COMPLETED_OR_CANCELLED,
         );
       }
       if (jobDto.assignedQuantity <= 0) {
-        throw new BadRequestError('Assigned quantity must be greater than 0');
+        throw new BadRequestError(
+          MESSAGE_CONSTANTS.ERROR.ASSIGNED_QUANTITY_MUST_BE_GREATER_THAN_0,
+        );
       }
     }
 
@@ -117,10 +122,12 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
     } catch (e) {
       if (e instanceof Error) {
         throw new BadRequestError(
-          e.message || 'Failed to create shift template',
+          e.message || MESSAGE_CONSTANTS.ERROR.FAILED_TO_CREATE_SHIFT_TEMPLATE,
         );
       } else {
-        throw new BadRequestError('Failed to create shift template');
+        throw new BadRequestError(
+          MESSAGE_CONSTANTS.ERROR.FAILED_TO_CREATE_SHIFT_TEMPLATE,
+        );
       }
     }
   }

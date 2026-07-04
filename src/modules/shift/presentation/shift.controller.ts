@@ -74,7 +74,11 @@ export class ShiftController {
       createdByUserId: req.user.userId,
     });
 
-    return new ApiResponse(true, result, 'Shift template created successfully');
+    return new ApiResponse(
+      true,
+      result,
+      MESSAGE_CONSTANTS.SUCCESS.SHIFT_TEMPLATE_CREATED,
+    );
   }
 
   @Roles(Role.ADMIN)
@@ -99,7 +103,11 @@ export class ShiftController {
       },
     );
 
-    return new ApiResponse(true, result, 'Shift template updated successfully');
+    return new ApiResponse(
+      true,
+      result,
+      MESSAGE_CONSTANTS.SUCCESS.SHIFT_TEMPLATE_UPDATED,
+    );
   }
 
   @Roles(Role.ADMIN)
@@ -118,7 +126,11 @@ export class ShiftController {
       req.user.tenantId,
     );
 
-    return new ApiResponse(true, result, 'Shift template deleted successfully');
+    return new ApiResponse(
+      true,
+      result,
+      MESSAGE_CONSTANTS.SUCCESS.SHIFT_TEMPLATE_DELETED,
+    );
   }
 
   @Roles(Role.ADMIN)
@@ -137,7 +149,7 @@ export class ShiftController {
     return new ApiResponse(
       true,
       result,
-      'Shift templates fetched successfully',
+      MESSAGE_CONSTANTS.SUCCESS.SHIFT_TEMPLATES_FETCHED,
     );
   }
 
@@ -163,7 +175,7 @@ export class ShiftController {
     return new ApiResponse(
       true,
       result,
-      'Production shift generated successfully',
+      MESSAGE_CONSTANTS.SUCCESS.PRODUCTION_SHIFT_GENERATED,
     );
   }
 
@@ -193,7 +205,7 @@ export class ShiftController {
     return new ApiResponse(
       true,
       result,
-      'Production shifts fetched successfully',
+      MESSAGE_CONSTANTS.SUCCESS.PRODUCTION_SHIFTS_FETCHED,
     );
   }
 
@@ -218,7 +230,7 @@ export class ShiftController {
     return new ApiResponse(
       true,
       result,
-      'Shift job progress updated successfully',
+      MESSAGE_CONSTANTS.SUCCESS.SHIFT_JOB_PROGRESS_UPDATED,
     );
   }
 }
