@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { PartController } from './presentation/part.controller';
 import { PartRepository } from './infrastructure/repositories/part-repository';
@@ -10,12 +10,9 @@ import { DeletePartUseCase } from './application/use-cases/delete-part.use-case'
 import { ListPartsUseCase } from './application/use-cases/list-parts.use-case';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { StorageModule } from '@/shared/infrastructure/storage/storage.module';
-
 import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
-
 import { JobModule } from '../job/job.module';
-import { forwardRef } from '@nestjs/common';
-
+import { NcProgramModule } from '../ncProgram/nc-program.module';
 import { CheckResourceInUseUseCase } from './application/use-cases/check-resource-in-use.use-case';
 import { GetPartByIdUseCase } from './application/use-cases/get-part-by-id.use-case';
 
@@ -26,6 +23,7 @@ import { GetPartByIdUseCase } from './application/use-cases/get-part-by-id.use-c
     StorageModule,
     PrismaModule,
     forwardRef(() => JobModule),
+    NcProgramModule,
   ],
   controllers: [PartController],
   providers: [

@@ -29,7 +29,7 @@ export class NcProgramRepository
   implements INcProgramRepository
 {
   constructor(prisma: PrismaService) {
-    super(prisma, RepositoryModelNames.NC_PROGRAM, toNcProgramMapper, false); // disabled softDelete for parent aggregate root
+    super(prisma, RepositoryModelNames.NC_PROGRAM, toNcProgramMapper, false);
   }
 
   async create(data: CreateNcProgramDto): Promise<NcProgram> {
