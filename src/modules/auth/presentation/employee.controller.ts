@@ -79,11 +79,7 @@ export class EmployeeController {
         tenantId: user.tenantId as string,
       })),
     });
-    return new ApiResponse(
-      true,
-      data,
-      MESSAGE_CONSTANTS.SUCCESS.USER_CREATED, // Or a specific bulk message if available
-    );
+    return new ApiResponse(true, data, MESSAGE_CONSTANTS.SUCCESS.USER_CREATED);
   }
 
   @Roles(Role.ADMIN)
