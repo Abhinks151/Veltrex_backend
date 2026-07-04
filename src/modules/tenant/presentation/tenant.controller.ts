@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TenantCreationRequestDto } from './dto/tenant-creation.request.dto';
+import { TenantUpdateRequestDto } from './dto/tenant-update.request.dto';
 import { ICreateTenantUseCase } from '../application/ports/use-cases/create-tenant.use-cases.interface';
 import { Roles } from '@/modules/auth/presentation/decorators/roles.decorator';
 import { Role } from '@/shared/enums/roles.enum';
@@ -131,7 +132,7 @@ export class TenantController {
   @Patch('update/:id')
   async updateTenant(
     @Req() req: Request,
-    @Body() reqDto: TenantCreationRequestDto,
+    @Body() reqDto: TenantUpdateRequestDto,
     @Param('id', new ParseUUIDPipe()) id: string,
   ) {
     if (!req.user) {
