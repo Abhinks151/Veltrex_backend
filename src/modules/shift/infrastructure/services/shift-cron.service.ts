@@ -6,6 +6,7 @@ import { ITransactionManager } from '@/shared/application/ports/transaction-mana
 import { ShiftRepeatType } from '../../domain/shift.entity';
 import { IShiftCronService } from '../../application/ports/services/shift-cron.interface';
 import { IShiftGeneratorService } from '../../application/ports/services/shift-generate.service.interface';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
 export class ShiftCronService implements IShiftCronService {
@@ -57,18 +58,21 @@ export class ShiftCronService implements IShiftCronService {
         } catch (err: unknown) {
           if (err instanceof Error) {
             console.log(
-              `Failed to generate Production Shift for template ID: ${template.id}. Error: ${err.message}`,
+              MESSAGE_CONSTANTS.ERROR.FAILED_TO_GENERATE_PRODUCTION_SHIFT,
             );
           }
           continue;
         }
       }
 
-      console.log('Daily Production Shift generation cron job completed.');
+      console.log(
+        MESSAGE_CONSTANTS.INFO
+          .DAILY_PRODUCTION_SHIFT_GENERATION_CRON_JOB_COMPLETED,
+      );
     } catch (err: unknown) {
       if (err instanceof Error) {
-        console.log(`Cron job failed: ${err.message}`);
-        throw new Error(`Cron job failed: ${err.message}`);
+        console.log(MESSAGE_CONSTANTS.ERROR.CRON_JOB_FAILED);
+        throw new Error(MESSAGE_CONSTANTS.ERROR.CRON_JOB_FAILED);
       }
     }
   }

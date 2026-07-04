@@ -3,6 +3,7 @@ import { IDeleteShiftTemplateUseCase } from '../ports/use-cases/delete-shift-tem
 import { IShiftTemplateRepository } from '../ports/repositories/shift-template-repository.interface';
 import { ShiftTemplate } from '../../domain/shift.entity';
 import { NotFoundError } from '@/shared/common/errors/domain-errors';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
 export class DeleteShiftTemplateUseCase implements IDeleteShiftTemplateUseCase {
@@ -17,7 +18,7 @@ export class DeleteShiftTemplateUseCase implements IDeleteShiftTemplateUseCase {
       id,
     );
     if (!existing) {
-      throw new NotFoundError('Shift template not found');
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_NOT_FOUND);
     }
 
     return await this._shiftTemplateRepository.delete(id);

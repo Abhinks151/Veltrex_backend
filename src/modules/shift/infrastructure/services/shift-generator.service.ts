@@ -15,6 +15,7 @@ import {
   ShiftType,
 } from '../../domain/shift.entity';
 import { IShiftGeneratorService } from '../../application/ports/services/shift-generate.service.interface';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
 export class ShiftGeneratorService implements IShiftGeneratorService {
@@ -47,7 +48,7 @@ export class ShiftGeneratorService implements IShiftGeneratorService {
     });
 
     if (!template) {
-      throw new NotFoundError('Shift template not found');
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_NOT_FOUND);
     }
 
     const startOfToday = new Date(date);
@@ -61,7 +62,8 @@ export class ShiftGeneratorService implements IShiftGeneratorService {
       );
     if (exists) {
       throw new ConflictError(
-        'Production shift already generated for this template and date',
+        MESSAGE_CONSTANTS.ERROR
+          .PRODUCTION_SHIFT_ALREADY_GENERATED_FOR_THIS_TEMPLATE_AND_DATE,
       );
     }
 
@@ -72,7 +74,9 @@ export class ShiftGeneratorService implements IShiftGeneratorService {
     }
 
     if (!template.templateJobs || template.templateJobs.length === 0) {
-      throw new BadRequestError('Shift template has no assigned jobs');
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_HAS_NO_ASSIGNED_JOBS,
+      );
     }
 
     for (const tj of template.templateJobs) {

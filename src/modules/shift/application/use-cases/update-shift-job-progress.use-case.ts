@@ -11,6 +11,7 @@ import {
   BadRequestError,
   NotFoundError,
 } from '@/shared/common/errors/domain-errors';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
 export class UpdateShiftJobProgressUseCase implements IUpdateShiftJobProgressUseCase {
@@ -32,12 +33,14 @@ export class UpdateShiftJobProgressUseCase implements IUpdateShiftJobProgressUse
         ctx,
       );
       if (!shiftJob || shiftJob.tenantId !== tenantId) {
-        throw new NotFoundError('Shift job not found');
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.SHIFT_JOB_NOT_FOUND);
       }
 
       const completed = dto.completedQuantity;
       if (completed < 0) {
-        throw new BadRequestError('Completed quantity cannot be negative');
+        throw new BadRequestError(
+          MESSAGE_CONSTANTS.ERROR.COMPLETED_QUANTITY_CANNOT_BE_NEGATIVE,
+        );
       }
 
       const parentShift =
@@ -48,7 +51,7 @@ export class UpdateShiftJobProgressUseCase implements IUpdateShiftJobProgressUse
         );
 
       if (!parentShift) {
-        throw new NotFoundError('Shift not found');
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.SHIFT_NOT_FOUND);
       }
 
       const today = new Date();
@@ -57,7 +60,9 @@ export class UpdateShiftJobProgressUseCase implements IUpdateShiftJobProgressUse
       shiftDate.setUTCHours(0, 0, 0, 0);
 
       if (shiftDate < today) {
-        throw new BadRequestError('Cannot update progress for past shifts');
+        throw new BadRequestError(
+          MESSAGE_CONSTANTS.ERROR.CANNOT_UPDATE_PROGRESS_FOR_PAST_SHIFTS,
+        );
       }
 
       // it will throw an lint errorso declare it first with type

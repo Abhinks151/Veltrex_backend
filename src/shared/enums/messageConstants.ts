@@ -99,6 +99,35 @@ export const MESSAGE_CONSTANTS = {
     VERSION_NOT_FOUND: 'Program version not found',
     CANNOT_DELETE_LAST_VERSION:
       'Cannot delete the final remaining valid version of a program',
+    EMPLOYEE_NOT_FOUND: 'Employee not found or blocked',
+    EMPLOYEE_BLOCKED: 'Employee is currently blocked',
+    SHIFT_TEMPLATE_ALREADY_EXISTS:
+      'Employee already has an active shift template in this date range',
+    AT_LEAST_ONE_JOB_MUST_BE_ASSIGNED: 'At least one job must be assigned',
+    JOB_IS_COMPLETED_OR_CANCELLED: 'Job is completed or cancelled',
+    ASSIGNED_QUANTITY_MUST_BE_GREATER_THAN_0:
+      'Assigned quantity must be greater than 0',
+    FAILED_TO_CREATE_SHIFT_TEMPLATE: 'Failed to create shift template',
+    SHIFT_TEMPLATE_NOT_FOUND: 'Shift template not found',
+    FAILED_TO_CREATE_SHIFT: 'Failed to create shift',
+    FAILED_TO_DELETE_SHIFT_TEMPLATE: 'Failed to delete shift template',
+    FAILED_TO_UPDATE_SHIFT_TEMPLATE: 'Failed to update shift template',
+    EMPLOYEE_IS_BLOCKED: 'Employee is blocked',
+    SHIFT_JOB_NOT_FOUND: 'Shift job not found',
+    COMPLETED_QUANTITY_CANNOT_BE_NEGATIVE:
+      'Completed quantity cannot be negative',
+    CANNOT_UPDATE_PROGRESS_FOR_PAST_SHIFTS:
+      'Cannot update progress for past shifts',
+    SHIFT_NOT_FOUND: 'Shift not found',
+    CRON_JOB_FAILED: 'Cron job failed',
+    FAILED_TO_GENERATE_PRODUCTION_SHIFT: 'Failed to generate production shift',
+    PRODUCTION_SHIFT_ALREADY_GENERATED_FOR_THIS_TEMPLATE_AND_DATE:
+      'Production shift already generated for this template and date',
+    SHIFT_TEMPLATE_HAS_NO_ASSIGNED_JOBS: 'Shift template has no assigned jobs',
+  },
+  INFO: {
+    DAILY_PRODUCTION_SHIFT_GENERATION_CRON_JOB_COMPLETED:
+      'Daily Production Shift generation cron job completed.',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
@@ -167,5 +196,12 @@ export const MESSAGE_CONSTANTS = {
     NC_VERSION_ADDED: 'NC Program version added successfully',
     NC_VERSION_BLOCK_TOGGLED: 'NC Program version block status updated',
     NC_VERSION_DELETED: 'NC Program version deleted successfully',
+    SHIFT_TEMPLATE_CREATED: 'Shift template created successfully',
+    SHIFT_TEMPLATE_UPDATED: 'Shift template updated successfully',
+    SHIFT_TEMPLATE_DELETED: 'Shift template deleted successfully',
+    SHIFT_TEMPLATES_FETCHED: 'Shift templates fetched successfully',
+    PRODUCTION_SHIFT_GENERATED: 'Production shift generated successfully',
+    PRODUCTION_SHIFTS_FETCHED: 'Production shifts fetched successfully',
+    SHIFT_JOB_PROGRESS_UPDATED: 'Shift job progress updated successfully',
   },
 };

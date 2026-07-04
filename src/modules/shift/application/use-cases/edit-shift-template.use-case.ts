@@ -12,6 +12,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
 export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
@@ -36,7 +37,9 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
         where: { id, tenantId, isDeleted: false },
       });
       if (!existing) {
-        throw new NotFoundError('Shift template not found');
+        throw new NotFoundError(
+          MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_NOT_FOUND,
+        );
       }
 
       if (dto.employeeId || dto.startDate || dto.endDate !== undefined) {
@@ -58,7 +61,7 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
 
         if (overlapping) {
           throw new BadRequestError(
-            'This employee already has an active shift template in this date range',
+            MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_ALREADY_EXISTS,
           );
         }
       }
@@ -73,16 +76,16 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
             where: { id: jobDto.jobId, tenantId, isDeleted: false },
           });
           if (!job) {
-            throw new NotFoundError(`Job ${jobDto.jobId} not found`);
+            throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.JOB_NOT_FOUND);
           }
           if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
             throw new BadRequestError(
-              `Job ${jobDto.jobId} is completed or cancelled`,
+              MESSAGE_CONSTANTS.ERROR.JOB_IS_COMPLETED_OR_CANCELLED,
             );
           }
           if (jobDto.assignedQuantity <= 0) {
             throw new BadRequestError(
-              'Assigned quantity must be greater than 0',
+              MESSAGE_CONSTANTS.ERROR.ASSIGNED_QUANTITY_MUST_BE_GREATER_THAN_0,
             );
           }
         }
@@ -102,9 +105,12 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
         const employee = await client.user.findFirst({
           where: { id: dto.employeeId, tenantId, isDeleted: false },
         });
-        if (!employee) throw new NotFoundError('Employee not found');
+        if (!employee)
+          throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.EMPLOYEE_NOT_FOUND);
         if (employee.isBlocked)
-          throw new BadRequestError('Employee is blocked');
+          throw new BadRequestError(
+            MESSAGE_CONSTANTS.ERROR.EMPLOYEE_IS_BLOCKED,
+          );
         updateData.employee = { connect: { id: dto.employeeId } };
       }
       if (dto.shiftType) {

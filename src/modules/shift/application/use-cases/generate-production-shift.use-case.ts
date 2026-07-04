@@ -6,6 +6,7 @@ import { ShiftGeneratorService } from '../../infrastructure/services/shift-gener
 import { ProductionShift } from '../../domain/shift.entity';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
 import { NotFoundError } from '@/shared/common/errors/domain-errors';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()
 export class GenerateProductionShiftUseCase implements IGenerateProductionShiftUseCase {
@@ -31,7 +32,7 @@ export class GenerateProductionShiftUseCase implements IGenerateProductionShiftU
       templateId,
     );
     if (!template) {
-      throw new NotFoundError('Shift template not found');
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_NOT_FOUND);
     }
 
     return this._txManager.run(async (ctx) => {
