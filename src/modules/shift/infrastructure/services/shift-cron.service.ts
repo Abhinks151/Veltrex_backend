@@ -18,6 +18,12 @@ export class ShiftCronService implements IShiftCronService {
     private readonly _shiftGenerator: IShiftGeneratorService,
   ) {}
 
+  // @Cron('0 0 * * 1-5', {
+  //   timeZone: 'Asia/Kolkata',
+  // })
+  // this is the normal way
+  // nestjs have some default options use that
+
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleDailyShiftGeneration() {
     const today = new Date();

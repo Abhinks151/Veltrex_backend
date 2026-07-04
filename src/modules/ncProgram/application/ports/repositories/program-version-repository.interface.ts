@@ -7,4 +7,7 @@ export interface IProgramVersionRepository {
   countActiveVersions(programId: string): Promise<number>;
   softDeleteVersion(id: string): Promise<ProgramVersion>;
   toggleBlockVersion(id: string): Promise<ProgramVersion>;
+  findLatestAvailableVersionByProgramId(
+    programId: string,
+  ): Promise<ProgramVersion | null>;
 }

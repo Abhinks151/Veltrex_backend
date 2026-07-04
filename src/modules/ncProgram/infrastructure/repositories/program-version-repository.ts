@@ -93,4 +93,14 @@ export class ProgramVersionRepository implements IProgramVersionRepository {
 
     return toVersionEntity(updated);
   }
+
+  async findLatestAvailableVersionByProgramId(
+    programId: string,
+  ): Promise<ProgramVersion | null> {
+    const version = await this.prisma.programVersion.findFirst({
+      where: { programId, isDeleted: false, isBlocked: false },
+      orderBy: { versionNumber: 'desc' },
+    });
+    return version ? toVersionEntity(version) : null;
+  }
 }
