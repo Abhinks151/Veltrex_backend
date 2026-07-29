@@ -29,6 +29,8 @@ import { IDeletePlanUseCase } from '../application/ports/use-cases/delete-plan.u
 import { IListAllPlansUseCase } from '../application/ports/use-cases/list-all-plans.use-case.interface';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
+import { GetDashboardQueryDto } from './dto/get-dashboard-query.dto';
+import { IGetSuperAdminDashboardStatsUseCase } from '../application/ports/use-cases/get-super-admin-dashboard-stats.use-case.interface';
 
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 
@@ -55,7 +57,22 @@ export class SuperAdminController {
     private readonly _deletePlanUseCase: IDeletePlanUseCase,
     @Inject('IListAllPlansUseCase')
     private readonly _listAllPlansUseCase: IListAllPlansUseCase,
+    @Inject('IGetSuperAdminDashboardStatsUseCase')
+    private readonly _getDashboardStatsUseCase: IGetSuperAdminDashboardStatsUseCase,
   ) {}
+
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Get('dashboard')
+  async getDashboardStats(@Query() query: GetDashboardQueryDto) {
+    const stats = await this._getDashboardStatsUseCase.execute(query);
+    return new ApiResponse(
+      true,
+      stats,
+      MESSAGE_CONSTANTS.SUCCESS.DASHBOARD_STATS_FETCHED,
+    );
+  }
 
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(RolesGuard)

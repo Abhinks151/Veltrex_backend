@@ -124,6 +124,18 @@ export const MESSAGE_CONSTANTS = {
     PRODUCTION_SHIFT_ALREADY_GENERATED_FOR_THIS_TEMPLATE_AND_DATE:
       'Production shift already generated for this template and date',
     SHIFT_TEMPLATE_HAS_NO_ASSIGNED_JOBS: 'Shift template has no assigned jobs',
+    DASHBOARD_STATS_FETCH_FAILED: 'Failed to retrieve dashboard statistics',
+    TOTAL_TENANTS_COUNT_FAILED: 'Failed to retrieve total tenants count',
+    TENANTS_CREATED_RANGE_FAILED: 'Failed to retrieve tenants created in range',
+    RECENT_TENANTS_FAILED: 'Failed to retrieve recent tenants',
+    TENANTS_INTERVAL_FAILED: 'Failed to retrieve tenants created by interval',
+    TOTAL_USERS_COUNT_FAILED: 'Failed to retrieve total users count',
+    TOTAL_REVENUE_FAILED: 'Failed to retrieve total revenue',
+    CUSTOM_RANGE_REQUIRED:
+      'Start date and end date are required for custom range',
+    INVALID_CUSTOM_RANGE: 'End date cannot be before start date',
+    INVALID_DATE_FORMAT: 'Invalid date format',
+    UNSUPPORTED_DATE_RANGE: 'Unsupported date range filter',
   },
   INFO: {
     DAILY_PRODUCTION_SHIFT_GENERATION_CRON_JOB_COMPLETED:
@@ -203,5 +215,6 @@ export const MESSAGE_CONSTANTS = {
     PRODUCTION_SHIFT_GENERATED: 'Production shift generated successfully',
     PRODUCTION_SHIFTS_FETCHED: 'Production shifts fetched successfully',
     SHIFT_JOB_PROGRESS_UPDATED: 'Shift job progress updated successfully',
+    DASHBOARD_STATS_FETCHED: 'Dashboard statistics fetched successfully',
   },
 };
