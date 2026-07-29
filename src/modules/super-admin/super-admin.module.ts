@@ -15,6 +15,8 @@ import { DeletePlanUseCase } from './application/use-cases/delete-plan.use-case'
 import { ListAllPlansUseCase } from './application/use-cases/list-all-plans.use-case';
 import { GetPlanByCodeUseCase } from './application/use-cases/get-plan-by-code.use-case';
 import { GetPlanByIdUseCase } from './application/use-cases/get-plan-by-id.use-case';
+import { SuperAdminDashboardRepository } from './infrastructure/repositories/super-admin-dashboard.repository';
+import { GetSuperAdminDashboardStatsUseCase } from './application/use-cases/get-super-admin-dashboard-stats.use-case';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => TenantModule)],
@@ -63,6 +65,14 @@ import { GetPlanByIdUseCase } from './application/use-cases/get-plan-by-id.use-c
     {
       provide: 'IListAllPlansUseCase',
       useClass: ListAllPlansUseCase,
+    },
+    {
+      provide: 'ISuperAdminDashboardRepository',
+      useClass: SuperAdminDashboardRepository,
+    },
+    {
+      provide: 'IGetSuperAdminDashboardStatsUseCase',
+      useClass: GetSuperAdminDashboardStatsUseCase,
     },
     {
       provide: 'ISuperAdminGetPlanByCodeUseCase',
