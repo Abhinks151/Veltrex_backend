@@ -31,6 +31,8 @@ import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { GetDashboardQueryDto } from './dto/get-dashboard-query.dto';
 import { IGetSuperAdminDashboardStatsUseCase } from '../application/ports/use-cases/get-super-admin-dashboard-stats.use-case.interface';
+import { GetRevenueQueryDto } from './dto/get-revenue-query.dto';
+import { IGetSuperAdminRevenueStatsUseCase } from '../application/ports/use-cases/get-super-admin-revenue-stats.use-case.interface';
 
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 
@@ -59,6 +61,8 @@ export class SuperAdminController {
     private readonly _listAllPlansUseCase: IListAllPlansUseCase,
     @Inject('IGetSuperAdminDashboardStatsUseCase')
     private readonly _getDashboardStatsUseCase: IGetSuperAdminDashboardStatsUseCase,
+    @Inject('IGetSuperAdminRevenueStatsUseCase')
+    private readonly _getRevenueStatsUseCase: IGetSuperAdminRevenueStatsUseCase,
   ) {}
 
   @Roles(Role.SUPER_ADMIN)
@@ -71,6 +75,19 @@ export class SuperAdminController {
       true,
       stats,
       MESSAGE_CONSTANTS.SUCCESS.DASHBOARD_STATS_FETCHED,
+    );
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Auth()
+  @Get('revenue')
+  async getRevenueStats(@Query() query: GetRevenueQueryDto) {
+    const stats = await this._getRevenueStatsUseCase.execute(query);
+    return new ApiResponse(
+      true,
+      stats,
+      MESSAGE_CONSTANTS.SUCCESS.REVENUE_STATS_FETCHED,
     );
   }
 
