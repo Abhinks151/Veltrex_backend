@@ -17,6 +17,7 @@ import { GetPlanByCodeUseCase } from './application/use-cases/get-plan-by-code.u
 import { GetPlanByIdUseCase } from './application/use-cases/get-plan-by-id.use-case';
 import { SuperAdminDashboardRepository } from './infrastructure/repositories/super-admin-dashboard.repository';
 import { GetSuperAdminDashboardStatsUseCase } from './application/use-cases/get-super-admin-dashboard-stats.use-case';
+import { GetSuperAdminRevenueStatsUseCase } from './application/use-cases/get-super-admin-revenue-stats.use-case';
 
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => TenantModule)],
@@ -73,6 +74,10 @@ import { GetSuperAdminDashboardStatsUseCase } from './application/use-cases/get-
     {
       provide: 'IGetSuperAdminDashboardStatsUseCase',
       useClass: GetSuperAdminDashboardStatsUseCase,
+    },
+    {
+      provide: 'IGetSuperAdminRevenueStatsUseCase',
+      useClass: GetSuperAdminRevenueStatsUseCase,
     },
     {
       provide: 'ISuperAdminGetPlanByCodeUseCase',

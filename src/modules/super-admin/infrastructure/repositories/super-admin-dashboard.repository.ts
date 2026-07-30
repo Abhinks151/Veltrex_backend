@@ -154,4 +154,119 @@ export class SuperAdminDashboardRepository implements ISuperAdminDashboardReposi
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.TOTAL_REVENUE_FAILED);
     }
   }
+
+  async getRevenueInRange(start: Date, end: Date): Promise<number> {
+    try {
+      const sum = await this.prisma.payment.aggregate({
+        _sum: {
+          amount: true,
+        },
+        where: {
+          status: 'SUCCESS',
+          createdAt: {
+            gte: start,
+            lte: end,
+          },
+        },
+      });
+      return Number(sum._sum.amount || 0);
+    } catch {
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.REVENUE_IN_RANGE_FAILED,
+      );
+    }
+  }
+
+  async getPaymentsInRange(start: Date, end: Date): Promise<any[]> {
+    try {
+      return await this.prisma.payment.findMany({
+        where: {
+          status: 'SUCCESS',
+          createdAt: {
+            gte: start,
+            lte: end,
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          amount: true,
+          currency: true,
+          provider: true,
+          providerPaymentId: true,
+          providerOrderId: true,
+          createdAt: true,
+          tenant: {
+            select: {
+              name: true,
+            },
+          },
+          plan: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+    } catch {
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.REVENUE_PAYMENTS_IN_RANGE_FAILED,
+      );
+    }
+  }
+
+  async getRecentSubscriptions(limit: number): Promise<any[]> {
+    try {
+      return await this.prisma.subscription.findMany({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: limit,
+        select: {
+          id: true,
+          status: true,
+          currentPeriodStart: true,
+          currentPeriodEnd: true,
+          createdAt: true,
+          plan: {
+            select: {
+              name: true,
+              price: true,
+              currency: true,
+            },
+          },
+          tenant: {
+            select: {
+              name: true,
+              owner: {
+                select: {
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    } catch {
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.REVENUE_RECENT_SUBSCRIPTIONS_FAILED,
+      );
+    }
+  }
+
+  async getActiveSubscriptionsCount(): Promise<number> {
+    try {
+      return await this.prisma.subscription.count({
+        where: {
+          status: 'ACTIVE',
+        },
+      });
+    } catch {
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.REVENUE_ACTIVE_SUBSCRIPTIONS_FAILED,
+      );
+    }
+  }
 }

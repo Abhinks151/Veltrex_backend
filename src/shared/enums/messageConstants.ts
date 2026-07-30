@@ -136,6 +136,12 @@ export const MESSAGE_CONSTANTS = {
     INVALID_CUSTOM_RANGE: 'End date cannot be before start date',
     INVALID_DATE_FORMAT: 'Invalid date format',
     UNSUPPORTED_DATE_RANGE: 'Unsupported date range filter',
+    REVENUE_IN_RANGE_FAILED: 'Failed to fetch revenue in range',
+    REVENUE_PAYMENTS_IN_RANGE_FAILED: 'Failed to retrieve payments in range',
+    REVENUE_RECENT_SUBSCRIPTIONS_FAILED:
+      'Failed to retrieve recent subscriptions',
+    REVENUE_ACTIVE_SUBSCRIPTIONS_FAILED:
+      'Failed to retrieve active subscriptions count',
   },
   INFO: {
     DAILY_PRODUCTION_SHIFT_GENERATION_CRON_JOB_COMPLETED:
@@ -216,5 +222,6 @@ export const MESSAGE_CONSTANTS = {
     PRODUCTION_SHIFTS_FETCHED: 'Production shifts fetched successfully',
     SHIFT_JOB_PROGRESS_UPDATED: 'Shift job progress updated successfully',
     DASHBOARD_STATS_FETCHED: 'Dashboard statistics fetched successfully',
+    REVENUE_STATS_FETCHED: 'Revenue statistics fetched successfully',
   },
 };
