@@ -149,6 +149,8 @@ export const MESSAGE_CONSTANTS = {
       'Failed to retrieve recent subscriptions',
     REVENUE_ACTIVE_SUBSCRIPTIONS_FAILED:
       'Failed to retrieve active subscriptions count',
+    MACHINIST_DASHBOARD_FETCH_FAILED:
+      'Failed to retrieve machinist dashboard statistics',
   },
   INFO: {
     DAILY_PRODUCTION_SHIFT_GENERATION_CRON_JOB_COMPLETED:
@@ -230,5 +232,7 @@ export const MESSAGE_CONSTANTS = {
     SHIFT_JOB_PROGRESS_UPDATED: 'Shift job progress updated successfully',
     DASHBOARD_STATS_FETCHED: 'Dashboard statistics fetched successfully',
     REVENUE_STATS_FETCHED: 'Revenue statistics fetched successfully',
+    MACHINIST_DASHBOARD_FETCHED:
+      'Machinist dashboard statistics fetched successfully',
   },
 };

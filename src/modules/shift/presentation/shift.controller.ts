@@ -31,6 +31,7 @@ import { IListShiftTemplatesUseCase } from '../application/ports/use-cases/list-
 import { IGenerateProductionShiftUseCase } from '../application/ports/use-cases/generate-production-shift.use-case.interface';
 import { IListProductionShiftsUseCase } from '../application/ports/use-cases/list-production-shifts.use-case.interface';
 import { IUpdateShiftJobProgressUseCase } from '../application/ports/use-cases/update-shift-job-progress.use-case.interface';
+import { IGetMachinistDashboardUseCase } from '../application/ports/use-cases/get-machinist-dashboard.use-case.interface';
 
 import { CreateShiftTemplateRequest } from './dto/create-shift-template.request.dto';
 import { EditShiftTemplateRequest } from './dto/edit-shift-template.request.dto';
@@ -53,6 +54,8 @@ export class ShiftController {
     private readonly _listProductionShiftsUseCase: IListProductionShiftsUseCase,
     @Inject('IUpdateShiftJobProgressUseCase')
     private readonly _updateShiftJobProgressUseCase: IUpdateShiftJobProgressUseCase,
+    @Inject('IGetMachinistDashboardUseCase')
+    private readonly _getMachinistDashboardUseCase: IGetMachinistDashboardUseCase,
   ) {}
 
   @Roles(Role.ADMIN)
@@ -231,6 +234,26 @@ export class ShiftController {
       true,
       result,
       MESSAGE_CONSTANTS.SUCCESS.SHIFT_JOB_PROGRESS_UPDATED,
+    );
+  }
+
+  @Roles(Role.MACHINIST)
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
+  @Get('machinist/dashboard')
+  async getMachinistDashboard(@Req() req: Request) {
+    if (!req.user || !req.user.tenantId) {
+      throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+    }
+
+    const result = await this._getMachinistDashboardUseCase.execute(
+      req.user.tenantId,
+      req.user.userId,
+    );
+
+    return new ApiResponse(
+      true,
+      result,
+      MESSAGE_CONSTANTS.SUCCESS.MACHINIST_DASHBOARD_FETCHED,
     );
   }
 }

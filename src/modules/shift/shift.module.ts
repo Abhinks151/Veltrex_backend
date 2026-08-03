@@ -18,6 +18,7 @@ import { ListShiftTemplatesUseCase } from './application/use-cases/list-shift-te
 import { GenerateProductionShiftUseCase } from './application/use-cases/generate-production-shift.use-case';
 import { ListProductionShiftsUseCase } from './application/use-cases/list-production-shifts.use-case';
 import { UpdateShiftJobProgressUseCase } from './application/use-cases/update-shift-job-progress.use-case';
+import { GetMachinistDashboardUseCase } from './application/use-cases/get-machinist-dashboard.use-case';
 
 @Module({
   imports: [AuthModule, SubscriptionModule, PrismaModule],
@@ -67,6 +68,10 @@ import { UpdateShiftJobProgressUseCase } from './application/use-cases/update-sh
     {
       provide: 'IUpdateShiftJobProgressUseCase',
       useClass: UpdateShiftJobProgressUseCase,
+    },
+    {
+      provide: 'IGetMachinistDashboardUseCase',
+      useClass: GetMachinistDashboardUseCase,
     },
   ],
   exports: ['IShiftTemplateRepository', 'IProductionShiftRepository'],
