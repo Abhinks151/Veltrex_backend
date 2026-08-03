@@ -4,6 +4,7 @@ import { CreateProductionShiftDto } from '../../dto/create-production-shift.dto'
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 import { Prisma } from '@prisma/client';
 import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
+import { MachinistDashboardStatsDto } from '../use-cases/get-machinist-dashboard.use-case.interface';
 
 export interface IProductionShiftRepository extends IBaseRepository<
   ProductionShift,
@@ -43,4 +44,9 @@ export interface IProductionShiftRepository extends IBaseRepository<
     jobs: Array<{ jobId: string; assignedQuantity: number; sequence: number }>,
     ctx?: ITransactionContext,
   ): Promise<void>;
+  getMachinistDashboardStats(
+    tenantId: string,
+    employeeId: string,
+    today: Date,
+  ): Promise<MachinistDashboardStatsDto>;
 }

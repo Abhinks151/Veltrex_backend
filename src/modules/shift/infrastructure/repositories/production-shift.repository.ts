@@ -16,6 +16,7 @@ import { RepositoryModelNames } from '@/shared/enums/repository-model-names.cons
 import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
 import { JobStatus } from '@/modules/job/domain/job.entity';
+import { MachinistDashboardStatsDto } from '../../application/ports/use-cases/get-machinist-dashboard.use-case.interface';
 
 @Injectable()
 export class ProductionShiftRepository
@@ -262,5 +263,97 @@ export class ProductionShiftRepository
         status: JobStatus.PENDING,
       })),
     });
+  }
+
+  async getMachinistDashboardStats(
+    tenantId: string,
+    employeeId: string,
+    today: Date,
+  ): Promise<MachinistDashboardStatsDto> {
+    const startOfToday = new Date(today);
+    startOfToday.setUTCHours(0, 0, 0, 0);
+    const endOfToday = new Date(today);
+    endOfToday.setUTCHours(23, 59, 59, 999);
+
+    const shift = await this._prisma.productionShift.findFirst({
+      where: {
+        tenantId,
+        employeeId,
+        isDeleted: false,
+        date: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+      },
+      include: {
+        shiftJobs: {
+          include: {
+            job: {
+              include: {
+                part: { select: { name: true, partNumber: true } },
+              },
+            },
+          },
+          orderBy: { sequence: 'asc' },
+        },
+      },
+    });
+
+    if (!shift) {
+      return {
+        todayShift: null,
+        totalAssignedParts: 0,
+        totalCompletedParts: 0,
+        totalRemainingParts: 0,
+        pendingJobsCount: 0,
+        inProgressJobsCount: 0,
+        completedJobsCount: 0,
+        jobs: [],
+      };
+    }
+
+    const jobs = shift.shiftJobs;
+
+    const totalAssignedParts = jobs.reduce(
+      (sum, j) => sum + j.assignedQuantity,
+      0,
+    );
+    const totalCompletedParts = jobs.reduce(
+      (sum, j) => sum + j.completedQuantity,
+      0,
+    );
+    const totalRemainingParts = totalAssignedParts - totalCompletedParts;
+
+    const pendingJobsCount = jobs.filter((j) => j.status === 'PENDING').length;
+    const inProgressJobsCount = jobs.filter(
+      (j) => j.status === 'IN_PROGRESS',
+    ).length;
+    const completedJobsCount = jobs.filter(
+      (j) => j.status === 'COMPLETED',
+    ).length;
+
+    return {
+      todayShift: {
+        id: shift.id,
+        shiftType: shift.shiftType,
+        status: shift.status,
+        date: shift.date.toISOString(),
+      },
+      totalAssignedParts,
+      totalCompletedParts,
+      totalRemainingParts,
+      pendingJobsCount,
+      inProgressJobsCount,
+      completedJobsCount,
+      jobs: jobs.map((j) => ({
+        id: j.id,
+        partName: j.job?.part?.name ?? 'Unknown Part',
+        partNumber: j.job?.part?.partNumber ?? '—',
+        assignedQuantity: j.assignedQuantity,
+        completedQuantity: j.completedQuantity,
+        status: j.status,
+        sequence: j.sequence,
+      })),
+    };
   }
 }
