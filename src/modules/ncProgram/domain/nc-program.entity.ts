@@ -5,6 +5,7 @@ export class NcProgram {
     public readonly id: string,
     public readonly tenantId: string,
     public readonly name: string,
+    public readonly isDeleted: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly versions: ProgramVersion[] = [],

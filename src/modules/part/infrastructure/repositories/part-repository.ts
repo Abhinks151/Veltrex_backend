@@ -176,4 +176,13 @@ export class PartRepository
       },
     });
   }
+
+  async countActiveByNcProgramId(ncProgramId: string): Promise<number> {
+    return await this._prisma.part.count({
+      where: {
+        ncProgramId,
+        isDeleted: false,
+      },
+    });
+  }
 }

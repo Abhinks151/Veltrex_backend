@@ -22,6 +22,7 @@ export type RawNcProgram = {
   id: string;
   tenantId: string;
   name: string;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
   versions?: RawProgramVersion[];
@@ -53,6 +54,7 @@ export const toNcProgramMapper = (raw: RawNcProgram): NcProgram => {
     raw.id,
     raw.tenantId,
     raw.name,
+    raw.isDeleted || false,
     raw.createdAt,
     raw.updatedAt,
     raw.versions ? raw.versions.map(toProgramVersionMapper) : [],

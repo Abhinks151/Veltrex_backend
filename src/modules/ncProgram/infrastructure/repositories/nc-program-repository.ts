@@ -11,6 +11,7 @@ import { Prisma } from '@prisma/client';
 import {
   BadRequestError,
   ConflictError,
+  NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
 import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
@@ -29,7 +30,7 @@ export class NcProgramRepository
   implements INcProgramRepository
 {
   constructor(prisma: PrismaService) {
-    super(prisma, RepositoryModelNames.NC_PROGRAM, toNcProgramMapper, false);
+    super(prisma, RepositoryModelNames.NC_PROGRAM, toNcProgramMapper);
   }
 
   async create(data: CreateNcProgramDto): Promise<NcProgram> {
@@ -77,7 +78,7 @@ export class NcProgramRepository
     include?: Record<string, unknown>,
   ): Promise<NcProgram | null> {
     const response = await this._prisma.ncProgram.findFirst({
-      where: { id },
+      where: { id, isDeleted: false },
       include: include || {
         versions: {
           orderBy: { versionNumber: 'asc' },
@@ -91,7 +92,11 @@ export class NcProgramRepository
 
   async findByName(name: string, tenantId: string): Promise<NcProgram | null> {
     const response = await this._prisma.ncProgram.findFirst({
-      where: { name: { equals: name, mode: 'insensitive' }, tenantId },
+      where: {
+        name: { equals: name, mode: 'insensitive' },
+        tenantId,
+        isDeleted: false,
+      },
     });
     return response
       ? toNcProgramMapper(response as unknown as RawNcProgram)
@@ -123,7 +128,7 @@ export class NcProgramRepository
     const { page = 1, limit = 10, search } = query;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.NcProgramWhereInput = { tenantId };
+    const where: Prisma.NcProgramWhereInput = { tenantId, isDeleted: false };
 
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
@@ -152,9 +157,25 @@ export class NcProgramRepository
 
   async findAllActive(tenantId: string): Promise<NcProgram[]> {
     const raw = await this._prisma.ncProgram.findMany({
-      where: { tenantId },
+      where: { tenantId, isDeleted: false },
       orderBy: { name: 'asc' },
     });
     return raw.map((r) => toNcProgramMapper(r as unknown as RawNcProgram));
+  }
+
+  async delete(id: string): Promise<NcProgram> {
+    try {
+      return await super.delete(id);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.NC_PROGRAM_NOT_FOUND);
+      }
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_NC_PROGRAM,
+      );
+    }
   }
 }

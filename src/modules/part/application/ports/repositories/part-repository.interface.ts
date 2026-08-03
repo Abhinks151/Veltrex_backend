@@ -24,4 +24,5 @@ export interface IPartRepository extends IBaseRepository<
   countActiveByMachineId(machineId: string): Promise<number>;
   countActiveByFixtureId(fixtureId: string): Promise<number>;
   countActiveByRawMaterialId(rawMaterialId: string): Promise<number>;
+  countActiveByNcProgramId(ncProgramId: string): Promise<number>;
 }

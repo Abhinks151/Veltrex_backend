@@ -28,10 +28,11 @@ import { IFileStorageService } from '@/shared/infrastructure/storage/interfaces/
 import { FILE_STORAGE } from '@/shared/infrastructure/storage/storage.constants';
 import { S3BucketFolderConstants } from '@/shared/enums/s3-bucket-folder.constants';
 
-import { CreateNcProgramUseCase } from '../application/use-cases/create-nc-program.use-case';
-import { UpdateNcProgramUseCase } from '../application/use-cases/update-nc-program.use-case';
-import { GetNcProgramListUseCase } from '../application/use-cases/get-nc-program-list.use-case';
-import { DeleteProgramVersionUseCase } from '../application/use-cases/delete-program-version.use-case';
+import { ICreateNcProgramUseCase } from '../application/ports/use-cases/create-nc-program.use-case.interface';
+import { IUpdateNcProgramUseCase } from '../application/ports/use-cases/update-nc-program.use-case.interface';
+import { IGetNcProgramListUseCase } from '../application/ports/use-cases/get-nc-program-list.use-case.interface';
+import { IDeleteProgramVersionUseCase } from '../application/ports/use-cases/delete-program-version.use-case.interface';
+import { IDeleteNcProgramUseCase } from '../application/ports/use-cases/delete-nc-program.use-case.interface';
 import { IProgramVersionRepository } from '../application/ports/repositories/program-version-repository.interface';
 import { INcProgramRepository } from '../application/ports/repositories/nc-program-repository.interface';
 
@@ -46,10 +47,16 @@ import { MAX_NC_FILE_SIZE, NC_FILE_EXTENSIONS } from '@/shared/enums/constants';
 @Auth()
 export class NcProgramController {
   constructor(
-    private readonly createNcProgramUseCase: CreateNcProgramUseCase,
-    private readonly updateNcProgramUseCase: UpdateNcProgramUseCase,
-    private readonly getNcProgramListUseCase: GetNcProgramListUseCase,
-    private readonly deleteProgramVersionUseCase: DeleteProgramVersionUseCase,
+    @Inject('ICreateNcProgramUseCase')
+    private readonly createNcProgramUseCase: ICreateNcProgramUseCase,
+    @Inject('IUpdateNcProgramUseCase')
+    private readonly updateNcProgramUseCase: IUpdateNcProgramUseCase,
+    @Inject('IGetNcProgramListUseCase')
+    private readonly getNcProgramListUseCase: IGetNcProgramListUseCase,
+    @Inject('IDeleteProgramVersionUseCase')
+    private readonly deleteProgramVersionUseCase: IDeleteProgramVersionUseCase,
+    @Inject('IDeleteNcProgramUseCase')
+    private readonly deleteNcProgramUseCase: IDeleteNcProgramUseCase,
 
     @Inject('INcProgramRepository')
     private readonly ncProgramRepository: INcProgramRepository,
@@ -399,5 +406,16 @@ export class NcProgramController {
     } catch {
       throw new Error(MESSAGE_CONSTANTS.ERROR.NC_VERSION_CONTENT_FETCH_FAILED);
     }
+  }
+
+  @Delete('delete/:id')
+  @Roles(Role.ADMIN)
+  async delete(@Req() req: Request, @Param('id') id: string) {
+    const deleted = await this.deleteNcProgramUseCase.execute(id);
+    return new ApiResponse(
+      true,
+      deleted,
+      MESSAGE_CONSTANTS.SUCCESS.NC_PROGRAM_DELETED,
+    );
   }
 }
