@@ -4,8 +4,10 @@ import {
   IsString,
   MinLength,
   ValidateNested,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 class CreateInitialVersionRequestDto {
   @IsString()
@@ -25,6 +27,9 @@ class CreateInitialVersionRequestDto {
 
   @IsOptional()
   @IsString()
+  @Matches(/^[a-zA-Z\s]*$/, {
+    message: MESSAGE_CONSTANTS.ERROR.NC_PROGRAM_DESCRIPTION_CHARACTERS_ONLY,
+  })
   description?: string;
 }
 
@@ -32,6 +37,9 @@ export class CreateNcProgramRequestDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
+  @Matches(/^[a-zA-Z\s]+$/, {
+    message: MESSAGE_CONSTANTS.ERROR.NC_PROGRAM_NAME_CHARACTERS_ONLY,
+  })
   name!: string;
 
   @ValidateNested()
