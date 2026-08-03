@@ -17,4 +17,5 @@ export interface INcProgramRepository {
     query: PaginationQueryDto,
   ): Promise<{ items: NcProgram[]; total: number }>;
   findAllActive(tenantId: string): Promise<NcProgram[]>;
+  delete(id: string): Promise<NcProgram>;
 }

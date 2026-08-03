@@ -106,6 +106,9 @@ export const MESSAGE_CONSTANTS = {
     NC_PROGRAM_CONTENT_REQUIRED: 'Program content cannot be empty',
     NC_VERSION_CONTENT_REQUIRED: 'Version content cannot be empty',
     NC_VERSION_CONTENT_FETCH_FAILED: 'Failed to fetch version content',
+    NC_PROGRAM_ALREADY_DELETED: 'NC Program is already deleted',
+    NC_PROGRAM_IN_USE:
+      'Cannot delete NC Program because it is currently assigned to one or more parts',
     EMPLOYEE_NOT_FOUND: 'Employee not found or blocked',
     EMPLOYEE_BLOCKED: 'Employee is currently blocked',
     SHIFT_TEMPLATE_ALREADY_EXISTS:
@@ -223,6 +226,7 @@ export const MESSAGE_CONSTANTS = {
     NC_VERSION_ADDED: 'NC Program version added successfully',
     NC_VERSION_BLOCK_TOGGLED: 'NC Program version block status updated',
     NC_VERSION_DELETED: 'NC Program version deleted successfully',
+    NC_PROGRAM_DELETED: 'NC Program deleted successfully',
     SHIFT_TEMPLATE_CREATED: 'Shift template created successfully',
     SHIFT_TEMPLATE_UPDATED: 'Shift template updated successfully',
     SHIFT_TEMPLATE_DELETED: 'Shift template deleted successfully',

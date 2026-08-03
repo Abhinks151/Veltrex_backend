@@ -24,4 +24,10 @@ export class CheckResourceInUseUseCase implements ICheckResourceInUseUseCase {
       await this._partRepository.countActiveByRawMaterialId(rawMaterialId);
     return count > 0;
   }
+
+  async isNcProgramInUse(ncProgramId: string): Promise<boolean> {
+    const count =
+      await this._partRepository.countActiveByNcProgramId(ncProgramId);
+    return count > 0;
+  }
 }
