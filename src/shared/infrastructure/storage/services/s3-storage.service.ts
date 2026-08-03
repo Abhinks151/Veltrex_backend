@@ -64,4 +64,27 @@ export class S3StorageService implements IFileStorageService {
       }),
     );
   }
+
+  async getFileContent(fileUrl: string): Promise<string> {
+    try {
+      const urlObject = new URL(fileUrl);
+      const key = decodeURIComponent(urlObject.pathname.substring(1));
+
+      const { GetObjectCommand } = await import('@aws-sdk/client-s3');
+      const response = await this._s3.send(
+        new GetObjectCommand({
+          Bucket: this._bucket,
+          Key: key,
+        }),
+      );
+
+      if (!response.Body) {
+        throw new Error('S3 response body is empty');
+      }
+
+      return await response.Body.transformToString('utf-8');
+    } catch {
+      throw new Error('Could not retrieve file content');
+    }
+  }
 }

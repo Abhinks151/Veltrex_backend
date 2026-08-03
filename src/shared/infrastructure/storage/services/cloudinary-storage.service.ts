@@ -49,4 +49,16 @@ export class CloudinaryStorageService implements IFileStorageService {
   async delete(key: string): Promise<void> {
     await cloudinary.uploader.destroy(key);
   }
+
+  async getFileContent(fileUrl: string): Promise<string> {
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error('Failed to fetch from url');
+      }
+      return await response.text();
+    } catch {
+      throw new Error('Could not retrieve file content');
+    }
+  }
 }
