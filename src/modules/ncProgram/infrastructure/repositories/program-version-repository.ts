@@ -30,8 +30,16 @@ export class ProgramVersionRepository implements IProgramVersionRepository {
   constructor(private readonly _prisma: PrismaService) {}
 
   async addVersion(data: AddVersionDto): Promise<ProgramVersion> {
+    const isProgramDeleted = await this._prisma.ncProgram.findFirst({
+      where: { id: data.programId, isDeleted: true },
+    });
+
+    if (isProgramDeleted) {
+      throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.PROGRAM_NOT_FOUND);
+    }
+
     const lastVersion = await this._prisma.programVersion.findFirst({
-      where: { programId: data.programId, isDeleted: false },
+      where: { programId: data.programId },
       orderBy: { versionNumber: 'desc' },
     });
 
