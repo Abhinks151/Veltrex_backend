@@ -154,6 +154,7 @@ export const MESSAGE_CONSTANTS = {
       'Failed to retrieve active subscriptions count',
     MACHINIST_DASHBOARD_FETCH_FAILED:
       'Failed to retrieve machinist dashboard statistics',
+    PROGRAM_NOT_FOUND: 'Program not found',
   },
   INFO: {
     DAILY_PRODUCTION_SHIFT_GENERATION_CRON_JOB_COMPLETED:
