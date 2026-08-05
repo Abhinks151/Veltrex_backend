@@ -109,7 +109,8 @@ export class SubscriptionRepository
       where: { id: subscriptionId },
       data: {
         status:
-          existing.status === SubscriptionStatus.ACTIVE
+          (existing.status as unknown as SubscriptionStatus) ===
+          SubscriptionStatus.ACTIVE
             ? SubscriptionStatus.CANCELLED
             : SubscriptionStatus.ACTIVE,
       },
