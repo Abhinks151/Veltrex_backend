@@ -30,11 +30,11 @@ export class UserResetPasswordUseCase implements IUserResetPasswordUseCase {
       await this._passwordResetTokenRepository.findToken(hasedToken);
 
     if (!tokenExist) {
-      throw new BadRequestError('Token not found');
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.INVALID_EXPIRED_TOKEN);
     }
 
     if (tokenExist.expiresAt < new Date()) {
-      throw new BadRequestError('Token expired');
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.TOKEN_EXPIRED);
     }
 
     const hashedPassowrd = await this._passwordService.hash(password);

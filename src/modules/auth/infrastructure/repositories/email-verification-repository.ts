@@ -1,79 +1,69 @@
 import { Injectable } from '@nestjs/common';
 import { IEmailVerificationTokenRepository } from '../../application/ports/repositories/email-verification-repository.interface';
 import { EmailVerificationToken } from '../../domain/entities/email-verification-token.entity';
-import { toDomainEmailVerificationToken } from '../../application/mapper/email-verification-token.mapper';
-import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
-import { BaseRepository } from '@/shared/infrastructure/repository/base-repository';
-import { RepositoryModelNames } from '@/shared/enums/repository-model-names.constants';
-import {
-  EmailVerificationToken as RawEmailVerificationToken,
-  Prisma,
-} from '@prisma/client';
+import { RedisService } from '@/shared/infrastructure/redis/redis.service';
+import { REDIS_KEYS } from '@/shared/enums/redis.constants';
 
 @Injectable()
-export class EmailVerificationTokenRepository
-  extends BaseRepository<
-    EmailVerificationToken,
-    Prisma.EmailVerificationTokenCreateInput,
-    Prisma.EmailVerificationTokenUpdateInput,
-    RawEmailVerificationToken
-  >
-  implements IEmailVerificationTokenRepository
-{
-  constructor(prisma: PrismaService) {
-    super(
-      prisma,
-      RepositoryModelNames.EMAIL_VERIFICATION_TOKEN,
-      toDomainEmailVerificationToken,
-      false,
-    );
-  }
+export class EmailVerificationTokenRepository implements IEmailVerificationTokenRepository {
+  private readonly TOKEN_KEY = REDIS_KEYS.AUTH.EMAIL_VERIFY.TOKEN;
+  private readonly USER_KEY = REDIS_KEYS.AUTH.EMAIL_VERIFY.USER;
+
+  constructor(private readonly _redis: RedisService) {}
 
   async createToken(
     userId: string,
     token: string,
     expiresAt: Date,
   ): Promise<EmailVerificationToken> {
-    const client = this._prisma;
-    await client.emailVerificationToken.deleteMany({
-      where: {
-        userId: userId,
-      },
-    });
+    const ttl = Math.max(
+      1,
+      Math.floor((expiresAt.getTime() - Date.now()) / 1000),
+    );
 
-    const newToken = await client.emailVerificationToken.create({
-      data: {
-        userId: userId,
-        token: token,
-        expiresAt: expiresAt,
-      },
-    });
+    const existingToken = await this._redis.get(this.USER_KEY + userId);
+    if (existingToken) {
+      await this._redis.del(this.TOKEN_KEY + existingToken);
+    }
 
-    return toDomainEmailVerificationToken(newToken);
+    await this._redis.set(this.TOKEN_KEY + token, userId, ttl);
+    await this._redis.set(this.USER_KEY + userId, token, ttl);
+
+    return new EmailVerificationToken(
+      token,
+      userId,
+      token,
+      expiresAt,
+      new Date(),
+    );
   }
 
   async findToken(token: string): Promise<EmailVerificationToken | null> {
-    const verificationToken =
-      await this._prisma.emailVerificationToken.findUnique({
-        where: { token: token },
-      });
+    const userId = await this._redis.get(this.TOKEN_KEY + token);
+    if (!userId) return null;
 
-    if (!verificationToken) {
-      return null;
-    }
-
-    return toDomainEmailVerificationToken(verificationToken);
+    return new EmailVerificationToken(
+      token,
+      userId,
+      token,
+      new Date(Date.now() + 3600_000),
+      new Date(),
+    );
   }
 
-  async deleteToken(tokenId: string): Promise<void> {
-    await this._prisma.emailVerificationToken.delete({
-      where: { id: tokenId },
-    });
+  async deleteToken(token: string): Promise<void> {
+    const userId = await this._redis.get(this.TOKEN_KEY + token);
+    await this._redis.del(this.TOKEN_KEY + token);
+    if (userId) {
+      await this._redis.del(this.USER_KEY + userId);
+    }
   }
 
   async deleteTokensByUserId(userId: string): Promise<void> {
-    await this._prisma.emailVerificationToken.deleteMany({
-      where: { userId: userId },
-    });
+    const token = await this._redis.get(this.USER_KEY + userId);
+    await this._redis.del(this.USER_KEY + userId);
+    if (token) {
+      await this._redis.del(this.TOKEN_KEY + token);
+    }
   }
 }

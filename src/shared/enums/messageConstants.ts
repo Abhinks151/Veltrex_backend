@@ -159,6 +159,8 @@ export const MESSAGE_CONSTANTS = {
   INFO: {
     DAILY_PRODUCTION_SHIFT_GENERATION_CRON_JOB_COMPLETED:
       'Daily Production Shift generation cron job completed.',
+    REDIS_CONNECTED: 'Redis connection established',
+    REDIS_CONNECTION_ERROR: 'Redis connection error',
   },
   VALIDATION: {
     EMAIL_INVALID: 'Please provide a valid email address',
