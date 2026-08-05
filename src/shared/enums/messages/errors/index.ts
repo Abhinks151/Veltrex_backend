@@ -12,6 +12,7 @@ import { SHIFT_ERRORS } from './shift.errors';
 import { SUPER_ADMIN_ERRORS } from './super-admin.errors';
 import { PROFILE_ERRORS } from './profile.errors';
 import { SHARED_ERRORS } from './shared.errors';
+import { STORAGE_ERRORS } from './storage.error';
 
 export const ERROR_MESSAGES = {
   ...AUTH_ERRORS,
@@ -28,6 +29,7 @@ export const ERROR_MESSAGES = {
   ...SUPER_ADMIN_ERRORS,
   ...PROFILE_ERRORS,
   ...SHARED_ERRORS,
+  ...STORAGE_ERRORS,
 } as const;
 
 export {
@@ -45,4 +47,5 @@ export {
   SUPER_ADMIN_ERRORS,
   PROFILE_ERRORS,
   SHARED_ERRORS,
+  STORAGE_ERRORS,
 };
