@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { MachineType } from '@/shared/enums/machining-type.enum';
-import { MachineStatus } from '@/shared/enums/machine-status.enum';
+import { MachineStatus } from '@/modules/machine/domain/machine-status.enum';
 import { MESSAGE_CONSTANTS } from '../../../../shared/enums/messageConstants';
 
 export class EditMachineRequest {

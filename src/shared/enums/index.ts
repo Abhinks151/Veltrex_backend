@@ -1,5 +1,4 @@
 export * from './machining-type.enum';
-export * from './machine-status.enum';
 export * from './part-priority.enum';
 export * from './roles.enum';
 export * from './subscription-status.enum';

@@ -1,5 +1,5 @@
 import { MachineType } from '@/shared/enums/machining-type.enum';
-import { MachineStatus } from '@/shared/enums/machine-status.enum';
+import { MachineStatus } from '@/modules/machine/domain/machine-status.enum';
 
 export interface CreateMachineDto {
   tenantId: string;
@@ -15,3 +15,6 @@ export interface CreateMachineDto {
 }
 
 export type MachineInputDto = Partial<CreateMachineDto>;
+export type UpdateMachineDto = Partial<CreateMachineDto> & {
+  isBlocked?: boolean;
+};
