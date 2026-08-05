@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IPasswordResetTokenRepository } from '../../application/ports/repositories/password-reset-repository.interface';
 import { PasswordResetToken } from '../../domain/entities/password-reset-token.entity';
 import { RedisService } from '@/shared/infrastructure/redis/redis.service';
-import { REDIS_KEYS } from '@/shared/enums/redis.constants';
+import { REDIS_KEYS } from '@/shared/infrastructure/redis/redis.constants';
 
 @Injectable()
 export class PasswordResetTokenRepository implements IPasswordResetTokenRepository {
