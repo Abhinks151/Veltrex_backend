@@ -3,6 +3,7 @@ import {
   Plan as PrismaPlan,
 } from '@prisma/client';
 import { Subscription } from '../../domain/subscription.entity';
+import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 
 export const toSubscriptionMapper = (
   subscription: PrismaSubscription & {
@@ -14,7 +15,7 @@ export const toSubscriptionMapper = (
     subscription.id,
     subscription.tenantId,
     subscription.planId,
-    subscription.status,
+    subscription.status as SubscriptionStatus,
     subscription.currentPeriodStart,
     subscription.currentPeriodEnd,
     subscription.razorpaySubscriptionId,

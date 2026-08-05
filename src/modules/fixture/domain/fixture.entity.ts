@@ -1,4 +1,4 @@
-import { FixtureType } from '@/shared/enums/fixture-type.enum';
+import { FixtureType } from '@/shared/enums/machining-type.enum';
 
 export class Fixture {
   constructor(

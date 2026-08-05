@@ -1,4 +1,4 @@
-import { MachineType } from '@/shared/enums/machine-type.enum';
+import { MachineType } from '@/shared/enums/machining-type.enum';
 import { MachineStatus } from '@/shared/enums/machine-status.enum';
 
 export class Machine {

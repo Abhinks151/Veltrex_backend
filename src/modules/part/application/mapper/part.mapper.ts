@@ -1,5 +1,5 @@
 import { Part } from '../../domain/part.entity';
-import { OperationType } from '@/shared/enums/operation-type.enum';
+import { OperationType } from '@/shared/enums/machining-type.enum';
 import { PartPriority } from '@/shared/enums/part-priority.enum';
 
 export interface RawPart {

@@ -21,5 +21,4 @@ export const REPOSITORY_MODEL_NAMES = {
 export type RepositoryModelName =
   (typeof REPOSITORY_MODEL_NAMES)[keyof typeof REPOSITORY_MODEL_NAMES];
 
-/** @deprecated Use REPOSITORY_MODEL_NAMES */
 export const RepositoryModelNames = REPOSITORY_MODEL_NAMES;
