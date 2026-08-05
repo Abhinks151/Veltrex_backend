@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IEmailVerificationTokenRepository } from '../../application/ports/repositories/email-verification-repository.interface';
 import { EmailVerificationToken } from '../../domain/entities/email-verification-token.entity';
 import { RedisService } from '@/shared/infrastructure/redis/redis.service';
-import { REDIS_KEYS } from '@/shared/enums/redis.constants';
+import { REDIS_KEYS } from '@/shared/infrastructure/redis/redis.constants';
 
 @Injectable()
 export class EmailVerificationTokenRepository implements IEmailVerificationTokenRepository {

@@ -12,7 +12,8 @@ import { IPaymentGateway } from '../ports/services/payment-gateway.interface';
 import { IPaymentRepository } from '../ports/repositories/payment-repository.interface';
 import { IGetPlanByIdUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-id.use-case.interface';
 import { ISubscriptionRepository } from '@/modules/subscription/application/ports/repositories/subscription-repository.interface';
-import { PaymentStatus, SubscriptionStatus } from '@prisma/client';
+import { PaymentStatus } from '@prisma/client';
+import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 @Injectable()

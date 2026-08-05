@@ -40,7 +40,7 @@ import { EditNcProgramRequestDto } from './dto/edit-nc-program.request.dto';
 import { CreateNcProgramFromEditorRequestDto } from './dto/create-nc-program-from-editor.request.dto';
 import { AddVersionFromEditorRequestDto } from './dto/add-version-from-editor.request.dto';
 import { Readable } from 'stream';
-import { MAX_NC_FILE_SIZE, NC_FILE_EXTENSIONS } from '@/shared/enums/constants';
+import { MAX_NC_FILE_SIZE, NC_FILE_EXTENSIONS } from '../nc-program.constants';
 
 @Controller('nc-program')
 @UseGuards(RolesGuard)

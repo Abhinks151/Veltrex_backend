@@ -1,4 +1,4 @@
-import { OperationType } from '@/shared/enums/operation-type.enum';
+import { OperationType } from '@/shared/enums/machining-type.enum';
 import { PartPriority } from '@/shared/enums/part-priority.enum';
 import { Prisma } from '@prisma/client';
 

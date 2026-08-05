@@ -1,5 +1,5 @@
 import { Fixture } from '../../domain/fixture.entity';
-import { FixtureType } from '@/shared/enums/fixture-type.enum';
+import { FixtureType } from '@/shared/enums/machining-type.enum';
 
 export interface RawFixture {
   id: string;

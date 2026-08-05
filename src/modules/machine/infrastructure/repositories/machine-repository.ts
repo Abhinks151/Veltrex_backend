@@ -3,7 +3,10 @@ import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { IMachineRepository } from '../../application/ports/repositories/machine-repository.interface';
 import { Machine } from '../../domain/machine.entity';
-import { CreateMachineDto } from '../../application/dto/create-machine.dto';
+import {
+  CreateMachineDto,
+  UpdateMachineDto,
+} from '../../application/dto/create-machine.dto';
 import {
   RawMachine,
   toMachineMapper,
@@ -23,7 +26,7 @@ export class MachineRepository
   extends BaseRepository<
     Machine,
     CreateMachineDto,
-    Prisma.MachineUpdateInput,
+    UpdateMachineDto,
     RawMachine
   >
   implements IMachineRepository

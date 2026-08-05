@@ -5,7 +5,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { FixtureType } from '@/shared/enums/fixture-type.enum';
+import { FixtureType } from '@/shared/enums/machining-type.enum';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
 export class CreateFixtureRequest {

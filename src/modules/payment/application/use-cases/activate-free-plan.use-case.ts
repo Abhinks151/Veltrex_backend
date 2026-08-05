@@ -10,7 +10,7 @@ import { ActivateFreePlanResponseDto } from '../dto/activate-free-plan-response.
 import { IGetPlanByIdUseCase } from '@/modules/super-admin/application/ports/use-cases/get-plan-by-id.use-case.interface';
 import { ISubscriptionRepository } from '@/modules/subscription/application/ports/repositories/subscription-repository.interface';
 import { ITransactionManager } from '@/shared/application/ports/transaction-manager.interface';
-import { SubscriptionStatus } from '@prisma/client';
+import { SubscriptionStatus } from '@/shared/enums/subscription-status.enum';
 import { IGetTenantByIdUseCase } from '@/modules/tenant/application/ports/use-cases/get-tenant-by-id.use-case.interface';
 import { ITenantMarkTrialAsUsedUseCase } from '@/modules/tenant/application/ports/use-cases/mark-trial-as-used.use-case.interface';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';

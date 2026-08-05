@@ -1,6 +1,6 @@
 import { Machine } from '../../domain/machine.entity';
-import { MachineType } from '@/shared/enums/machine-type.enum';
-import { MachineStatus } from '@/shared/enums/machine-status.enum';
+import { MachineType } from '@/shared/enums/machining-type.enum';
+import { MachineStatus } from '@/modules/machine/domain/machine-status.enum';
 
 export interface RawMachine {
   id: string;
