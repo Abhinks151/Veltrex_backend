@@ -16,8 +16,6 @@ model User {
   // ownership relation
   ownedTenant Tenant? @relation("TenantOwner")
 
-  passwordResetTokens     PasswordResetToken[]
-  emailVerificationTokens EmailVerificationToken[]
   createdJobs            Job[]                    @relation("JobCreatedBy")
   profileImage            String?                  @map("profile_image")
   profileImageKey         String?                  @map("profile_image_key")
@@ -66,24 +64,3 @@ model Tenant {
   @@map("tenants")
 }
 
-model PasswordResetToken {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@map("password_reset_tokens")
-}
-
-model EmailVerificationToken {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@map("email_verification_tokens")
-}

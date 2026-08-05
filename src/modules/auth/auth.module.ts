@@ -1,6 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { RedisModule } from '@/shared/infrastructure/redis/redis.module';
 import { TenantModule } from '../tenant/tenant.module';
 import { AuthController } from './presentation/auth.controller';
 import { EmployeeController } from './presentation/employee.controller';
@@ -46,6 +47,7 @@ import { UpdateProfileImageUseCase } from './application/use-cases/update-profil
 @Module({
   imports: [
     PassportModule,
+    RedisModule,
     forwardRef(() => TenantModule),
     forwardRef(() => SubscriptionModule),
     JwtModule.registerAsync({
