@@ -15,7 +15,7 @@ export class TenantValidationGuard implements CanActivate {
     const user = request.user;
     const resolvedTenantId = request.tenantId;
 
-    if ((user?.role as Role) === Role.SUPER_ADMIN) {
+    if (user?.role === Role.SUPER_ADMIN) {
       return true;
     }
 
