@@ -16,6 +16,7 @@ export const REPOSITORY_MODEL_NAMES = {
   PRODUCTION_SHIFT: 'productionShift',
   NC_PROGRAM: 'ncProgram',
   PROGRAM_VERSION: 'programVersion',
+  MAINTENANCE_TICKET: 'maintenanceTicket',
 } as const;
 
 export type RepositoryModelName =

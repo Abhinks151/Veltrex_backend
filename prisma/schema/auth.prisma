@@ -28,6 +28,10 @@ model User {
   createdProductionShifts ProductionShift[]     @relation("ProductionShiftCreatedBy")
   createdProgramVersions  ProgramVersion[]
 
+  createdMaintenanceTickets  MaintenanceTicket[] @relation("MaintenanceCreatedBy")
+  assignedMaintenanceTickets MaintenanceTicket[] @relation("MaintenanceAssignedTo")
+  resolvedMaintenanceTickets MaintenanceTicket[] @relation("MaintenanceResolvedBy")
+
   @@map("users")
 }
 
@@ -60,6 +64,7 @@ model Tenant {
   shiftJobs        ShiftJob[]
   ncPrograms       NcProgram[]
   programVersions  ProgramVersion[]
+  maintenanceTickets MaintenanceTicket[]
 
   @@map("tenants")
 }

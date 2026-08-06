@@ -11,6 +11,8 @@ import {
 } from '../interfaces/file-storage.interface';
 import { ConfigService } from '@nestjs/config';
 import { S3BucketFolderConstants } from '@/shared/enums/s3-bucket-folder.constants';
+import { BadRequestError } from '@/shared/common';
+import { MESSAGE_CONSTANTS } from '@/shared/enums';
 
 @Injectable()
 export class S3StorageService implements IFileStorageService {
@@ -79,12 +81,12 @@ export class S3StorageService implements IFileStorageService {
       );
 
       if (!response.Body) {
-        throw new Error('S3 response body is empty');
+        throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FILE_NOT_RETRIEVED);
       }
 
       return await response.Body.transformToString('utf-8');
     } catch {
-      throw new Error('Could not retrieve file content');
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FILE_NOT_RETRIEVED);
     }
   }
 }
