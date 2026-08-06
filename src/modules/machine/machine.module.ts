@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { MachineController } from './presentation/machine.controller';
 import { MachineRepository } from './infrastructure/repositories/machine-repository';
@@ -13,9 +13,16 @@ import { SubscriptionModule } from '../subscription/subscription.module';
 
 import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
 import { PartModule } from '../part/part.module';
+import { MaintenanceModule } from '../maintenance/maintenance.module';
 
 @Module({
-  imports: [AuthModule, SubscriptionModule, PrismaModule, PartModule],
+  imports: [
+    AuthModule,
+    SubscriptionModule,
+    PrismaModule,
+    PartModule,
+    forwardRef(() => MaintenanceModule),
+  ],
   controllers: [MachineController],
   providers: [
     {
@@ -47,5 +54,6 @@ import { PartModule } from '../part/part.module';
       useClass: DeleteMachineUseCase,
     },
   ],
+  exports: ['IMachineRepository'],
 })
 export class MachineModule {}

@@ -11,6 +11,7 @@ import { NC_PROGRAM_SUCCESS } from './nc-program.success';
 import { SHIFT_SUCCESS } from './shift.success';
 import { SUPER_ADMIN_SUCCESS } from './super-admin.success';
 import { PROFILE_SUCCESS } from './profile.success';
+import { MAINTENANCE_SUCCESS } from './maintenance.success';
 
 export const SUCCESS_MESSAGES = {
   ...AUTH_SUCCESS,
@@ -26,6 +27,7 @@ export const SUCCESS_MESSAGES = {
   ...SHIFT_SUCCESS,
   ...SUPER_ADMIN_SUCCESS,
   ...PROFILE_SUCCESS,
+  ...MAINTENANCE_SUCCESS,
 } as const;
 
 export {
@@ -42,4 +44,5 @@ export {
   SHIFT_SUCCESS,
   SUPER_ADMIN_SUCCESS,
   PROFILE_SUCCESS,
+  MAINTENANCE_SUCCESS,
 };

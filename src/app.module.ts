@@ -29,6 +29,7 @@ import { memoryStorage } from 'multer';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ShiftModule } from './modules/shift/shift.module';
 import { NcProgramModule } from './modules/ncProgram/nc-program.module';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { NcProgramModule } from './modules/ncProgram/nc-program.module';
     LookupModule,
     ShiftModule,
     NcProgramModule,
+    MaintenanceModule,
 
     // Rate Limiting
     ThrottlerModule.forRoot([

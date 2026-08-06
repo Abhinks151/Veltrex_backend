@@ -13,6 +13,7 @@ import { SUPER_ADMIN_ERRORS } from './super-admin.errors';
 import { PROFILE_ERRORS } from './profile.errors';
 import { SHARED_ERRORS } from './shared.errors';
 import { STORAGE_ERRORS } from './storage.error';
+import { MAINTENANCE_ERRORS } from './maintenance.errors';
 
 export const ERROR_MESSAGES = {
   ...AUTH_ERRORS,
@@ -30,6 +31,7 @@ export const ERROR_MESSAGES = {
   ...PROFILE_ERRORS,
   ...SHARED_ERRORS,
   ...STORAGE_ERRORS,
+  ...MAINTENANCE_ERRORS,
 } as const;
 
 export {
@@ -48,4 +50,5 @@ export {
   PROFILE_ERRORS,
   SHARED_ERRORS,
   STORAGE_ERRORS,
+  MAINTENANCE_ERRORS,
 };

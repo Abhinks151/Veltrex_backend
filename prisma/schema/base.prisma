@@ -91,6 +91,13 @@ enum ShiftStatus {
   COMPLETED
 }
 
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+
 model Lookup {
   id          String   @id @default(uuid()) @db.Uuid
   category    String
