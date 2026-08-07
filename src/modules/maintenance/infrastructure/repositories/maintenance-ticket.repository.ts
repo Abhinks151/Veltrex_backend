@@ -397,9 +397,13 @@ export class MaintenanceTicketRepository
         parts: {
           some: {
             isDeleted: false,
+            isBlocked: false,
             jobs: {
               some: {
                 isDeleted: false,
+                status: {
+                  notIn: ['COMPLETED', 'CANCELLED'],
+                },
                 shiftJobs: {
                   some: {
                     productionShift: {
