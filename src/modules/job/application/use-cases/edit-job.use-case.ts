@@ -5,6 +5,8 @@ import { IJobRepository } from '../ports/repositories/job-repository.interface';
 import { ICheckRawMaterialAvailabilityUseCase } from '@/modules/raw-material/application/ports/use-cases/check-raw-material-availability.use-case.interface';
 import { IUpdateRawMaterialStockUseCase } from '@/modules/raw-material/application/ports/use-cases/update-raw-material-stock.use-case.interface';
 import { IGetPartByIdUseCase } from '@/modules/part/application/ports/use-cases/get-part-by-id.use-case.interface';
+import { IMachineRepository } from '@/modules/machine/application/ports/repositories/machine-repository.interface';
+import { MachineStatus } from '@/modules/machine/domain/machine-status.enum';
 import { Job, JobStatus } from '../../domain/job.entity';
 import { EditJobDto } from '../dto/edit-job.dto';
 import {
@@ -24,6 +26,8 @@ export class EditJobUseCase implements IEditJobUseCase {
     private readonly _updateRawMaterialStock: IUpdateRawMaterialStockUseCase,
     @Inject('IGetPartByIdUseCase')
     private readonly _getPartByIdUseCase: IGetPartByIdUseCase,
+    @Inject('IMachineRepository')
+    private readonly _machineRepository: IMachineRepository,
   ) {}
 
   async execute(id: string, dto: EditJobDto): Promise<Job> {
@@ -38,7 +42,8 @@ export class EditJobUseCase implements IEditJobUseCase {
     ) {
       if (dto.quantity !== undefined && dto.quantity !== job.quantity) {
         throw new BadRequestError(
-          'Cannot update quantity when job is in progress or completed',
+          MESSAGE_CONSTANTS.ERROR
+            .CANNOT_UPDATE_QUANTITY_WHEN_JOB_IS_IN_PROGRESS_OR_COMPLETED,
         );
       }
     }
@@ -112,7 +117,25 @@ export class EditJobUseCase implements IEditJobUseCase {
         updateData.part = { connect: { id: partId } };
       }
 
-      return await this._jobRepository.update(id, updateData);
+      const updatedJob = await this._jobRepository.update(id, updateData);
+
+      if (
+        dto.status === JobStatus.COMPLETED &&
+        job.status !== JobStatus.COMPLETED
+      ) {
+        if (part.machineId) {
+          const machine = await this._machineRepository.findById(
+            part.machineId,
+          );
+          if (machine && machine.status !== MachineStatus.MAINTENANCE) {
+            await this._machineRepository.update(part.machineId, {
+              status: MachineStatus.IDLE,
+            });
+          }
+        }
+      }
+
+      return updatedJob;
     } catch {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_JOB);
     }
