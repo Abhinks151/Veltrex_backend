@@ -16,6 +16,7 @@ import { ListMachinistTicketsUseCase } from './application/use-cases/list-machin
 import { GetMachinistMachinesUseCase } from './application/use-cases/get-machinist-machines.use-case';
 import { CheckMachineMaintenanceUseCase } from './application/use-cases/check-machine-maintenance.use-case';
 import { PrismaTransactionManager } from '@/shared/infrastructure/prisma/prisma-transaction-manager';
+import { DeleteMaintenanceTicketUseCase } from './application/use-cases/delete-maintenance-ticket.use-case';
 
 @Module({
   imports: [
@@ -73,6 +74,10 @@ import { PrismaTransactionManager } from '@/shared/infrastructure/prisma/prisma-
     {
       provide: 'ICheckMachineMaintenanceUseCase',
       useClass: CheckMachineMaintenanceUseCase,
+    },
+    {
+      provide: 'IDeleteMaintenanceTicketUseCase',
+      useClass: DeleteMaintenanceTicketUseCase,
     },
   ],
   exports: ['IMaintenanceTicketRepository', 'ICheckMachineMaintenanceUseCase'],

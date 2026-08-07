@@ -95,6 +95,30 @@ export class JobRepository
   }
 
   async update(id: string, data: Prisma.JobUpdateInput): Promise<Job> {
+    // const machine = await this._prisma.job.findFirst({
+    //   where: {
+    //     id,
+    //     isDeleted: false,
+    //     part: {
+    //       machine: {
+    //         isDeleted: false,
+    //       }
+    //     }
+    //   },
+    // });
+
+    // if (!machine) {
+    //   throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.JOB_NOT_FOUND);
+    // }
+
+    // if (data.status === JobStatus.IN_PROGRESS) {
+    //   machine.status = MachineStatus.RUNNING
+    // }
+
+    // if (data.status === JobStatus.COMPLETED) {
+    //   machine.status = MachineStatus.IDLE
+    // }
+
     return super.update(id, data, undefined, { part: true });
   }
 

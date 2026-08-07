@@ -109,6 +109,7 @@ export class EditJobUseCase implements IEditJobUseCase {
       }
     }
 
+    let updatedJob: Job;
     try {
       const { partId, ...rest } = dto;
       const updateData: Prisma.JobUpdateInput = { ...rest };
@@ -117,27 +118,35 @@ export class EditJobUseCase implements IEditJobUseCase {
         updateData.part = { connect: { id: partId } };
       }
 
-      const updatedJob = await this._jobRepository.update(id, updateData);
-
-      if (
-        dto.status === JobStatus.COMPLETED &&
-        job.status !== JobStatus.COMPLETED
-      ) {
-        if (part.machineId) {
-          const machine = await this._machineRepository.findById(
-            part.machineId,
-          );
-          if (machine && machine.status !== MachineStatus.MAINTENANCE) {
-            await this._machineRepository.update(part.machineId, {
-              status: MachineStatus.IDLE,
-            });
-          }
-        }
-      }
-
-      return updatedJob;
+      updatedJob = await this._jobRepository.update(id, updateData);
     } catch {
       throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_JOB);
     }
+
+    if (
+      dto.status === JobStatus.COMPLETED &&
+      job.status !== JobStatus.COMPLETED
+    ) {
+      if (part.machineId) {
+        const machine = await this._machineRepository.findById(part.machineId);
+        if (machine && machine.status !== MachineStatus.MAINTENANCE) {
+          await this._machineRepository.update(part.machineId, {
+            status: MachineStatus.IDLE,
+          });
+        }
+      }
+    }
+
+    if (
+      dto.status === JobStatus.IN_PROGRESS &&
+      job.status !== JobStatus.IN_PROGRESS &&
+      part.machineId
+    ) {
+      await this._machineRepository.update(part.machineId, {
+        status: MachineStatus.RUNNING,
+      });
+    }
+
+    return updatedJob;
   }
 }
