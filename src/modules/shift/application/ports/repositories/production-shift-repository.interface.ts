@@ -5,6 +5,7 @@ import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 import { Prisma } from '@prisma/client';
 import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 import { MachinistDashboardStatsDto } from '../use-cases/get-machinist-dashboard.use-case.interface';
+import { AdminDashboardStatsDto } from '../use-cases/get-admin-dashboard.use-case.interface';
 
 export interface IProductionShiftRepository extends IBaseRepository<
   ProductionShift,
@@ -49,4 +50,5 @@ export interface IProductionShiftRepository extends IBaseRepository<
     employeeId: string,
     today: Date,
   ): Promise<MachinistDashboardStatsDto>;
+  getAdminDashboardStats(tenantId: string): Promise<AdminDashboardStatsDto>;
 }

@@ -6,4 +6,7 @@ export const SHIFT_SUCCESS = {
   PRODUCTION_SHIFT_GENERATED: 'Production shift generated successfully',
   PRODUCTION_SHIFTS_FETCHED: 'Production shifts fetched successfully',
   SHIFT_JOB_PROGRESS_UPDATED: 'Shift job progress updated successfully',
+  MACHINIST_DASHBOARD_FETCHED:
+    'Machinist dashboard statistics fetched successfully',
+  ADMIN_DASHBOARD_FETCHED: 'Admin dashboard statistics fetched successfully',
 } as const;
