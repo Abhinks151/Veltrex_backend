@@ -25,7 +25,7 @@ export class ShiftCronService implements IShiftCronService {
   // this is the normal way
   // nestjs have some default options use that
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_12PM)
   async handleDailyShiftGeneration() {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);

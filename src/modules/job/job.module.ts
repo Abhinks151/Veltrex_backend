@@ -10,6 +10,7 @@ import { SubscriptionModule } from '../subscription/subscription.module';
 import { CheckPartInUseUseCase } from './application/use-cases/check-part-in-use.use-case';
 import { RawMaterialModule } from '../raw-material/raw-material.module';
 import { PartModule } from '../part/part.module';
+import { MachineModule } from '../machine/machine.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PartModule } from '../part/part.module';
     SubscriptionModule,
     RawMaterialModule,
     forwardRef(() => PartModule),
+    forwardRef(() => MachineModule),
   ],
   controllers: [JobController],
   providers: [
