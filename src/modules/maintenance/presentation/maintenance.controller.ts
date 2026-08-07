@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -33,6 +34,7 @@ import { IListMyTicketsUseCase } from '../application/ports/use-cases/list-my-ti
 import { IListAllTicketsUseCase } from '../application/ports/use-cases/list-all-tickets.use-case.interface';
 import { IListMachinistTicketsUseCase } from '../application/ports/use-cases/list-machinist-tickets.use-case.interface';
 import { IGetMachinistMachinesUseCase } from '../application/ports/use-cases/get-machinist-machines.use-case.interface';
+import { IDeleteMaintenanceTicketUseCase } from '../application/ports/use-cases/delete-maintenance-ticket.use-case.interface';
 
 @Controller('maintenance')
 export class MaintenanceController {
@@ -55,6 +57,8 @@ export class MaintenanceController {
     private readonly _listMachinistUseCase: IListMachinistTicketsUseCase,
     @Inject('IGetMachinistMachinesUseCase')
     private readonly _getMachinesUseCase: IGetMachinistMachinesUseCase,
+    @Inject('IDeleteMaintenanceTicketUseCase')
+    private readonly _deleteUseCase: IDeleteMaintenanceTicketUseCase,
   ) {}
 
   @Roles(Role.MACHINIST)
@@ -260,6 +264,29 @@ export class MaintenanceController {
       true,
       result,
       MESSAGE_CONSTANTS.SUCCESS.ALL_TICKETS_FETCHED,
+    );
+  }
+
+  @Roles(Role.MACHINIST)
+  @UseGuards(JwtAuthGuard, IsVerifiedGuard, RolesGuard, SubscriptionGuard)
+  @Delete('tickets/:id/delete')
+  async deleteTicket(
+    @Req() req: Request,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    if (!req.user || !req.user.tenantId || !req.user.userId) {
+      throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+    }
+
+    const result = await this._deleteUseCase.execute(
+      id,
+      req.user.tenantId,
+      req.user.userId,
+    );
+    return new ApiResponse(
+      true,
+      result,
+      MESSAGE_CONSTANTS.SUCCESS.TICKET_DELETED,
     );
   }
 }

@@ -7,4 +7,5 @@ export const MAINTENANCE_SUCCESS = {
   MY_TICKETS_FETCHED: 'My tickets fetched successfully',
   ALL_TICKETS_FETCHED: 'Maintenance logs fetched successfully',
   MACHINES_FETCHED: 'Available machines fetched successfully',
+  TICKET_DELETED: 'Maintenance ticket deleted successfully',
 } as const;

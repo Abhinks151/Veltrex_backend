@@ -424,4 +424,21 @@ export class MaintenanceTicketRepository
 
     return machines.map((m) => m.id);
   }
+
+  async delete(
+    id: string,
+    ctx?: ITransactionContext,
+  ): Promise<MaintenanceTicket> {
+    const client = resolvePrismaClient(this._prisma, ctx);
+    const ticket = await client.maintenanceTicket.update({
+      where: {
+        id,
+        isDeleted: false,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+    return this._mapper(ticket as unknown as PrismaRawMaintenanceTicket);
+  }
 }

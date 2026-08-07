@@ -18,4 +18,7 @@ export const MAINTENANCE_ERRORS = {
   MAINTENANCE_CANNOT_DELETE_MACHINE:
     'Cannot delete machine: it currently has an active maintenance ticket.',
   END_DATE_BEFORE_START_DATE: 'End date cannot be before start date.',
+  TICKET_CANNOT_BE_DELETED: 'Only OPEN tickets can be deleted.',
+  TICKET_NOT_CREATED_BY_YOU: 'This ticket was not created by you.',
+  FAILED_TO_DELETE_TICKET: 'Failed to delete maintenance ticket.',
 } as const;
