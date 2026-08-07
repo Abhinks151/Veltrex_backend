@@ -17,6 +17,7 @@ import { ITransactionContext } from '@/shared/application/ports/transaction-cont
 import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
 import { JobStatus } from '@/modules/job/domain/job.entity';
 import { MachinistDashboardStatsDto } from '../../application/ports/use-cases/get-machinist-dashboard.use-case.interface';
+import { AdminDashboardStatsDto } from '../../application/ports/use-cases/get-admin-dashboard.use-case.interface';
 
 @Injectable()
 export class ProductionShiftRepository
@@ -353,6 +354,123 @@ export class ProductionShiftRepository
         completedQuantity: j.completedQuantity,
         status: j.status,
         sequence: j.sequence,
+      })),
+    };
+  }
+
+  async getAdminDashboardStats(
+    tenantId: string,
+  ): Promise<AdminDashboardStatsDto> {
+    const [
+      activeJobsCount,
+      completedJobsCount,
+      maintenanceMachinesCount,
+      recentShiftsRaw,
+      recentTicketsRaw,
+    ] = await Promise.all([
+      this._prisma.job.count({
+        where: {
+          tenantId,
+          isDeleted: false,
+          status: { in: ['PENDING', 'IN_PROGRESS'] },
+        },
+      }),
+
+      this._prisma.job.count({
+        where: {
+          tenantId,
+          isDeleted: false,
+          status: 'COMPLETED',
+        },
+      }),
+
+      this._prisma.machine.count({
+        where: {
+          tenantId,
+          isDeleted: false,
+          status: 'MAINTENANCE',
+        },
+      }),
+
+      this._prisma.productionShift.findMany({
+        where: {
+          tenantId,
+          isDeleted: false,
+        },
+        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+        take: 5,
+        include: {
+          employee: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+          shiftJobs: {
+            select: {
+              status: true,
+            },
+          },
+        },
+      }),
+
+      this._prisma.maintenanceTicket.findMany({
+        where: {
+          tenantId,
+          isDeleted: false,
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+        take: 5,
+        include: {
+          machine: {
+            select: {
+              name: true,
+              brand: true,
+            },
+          },
+          assignee: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      activeJobsCount,
+      completedJobsCount,
+      maintenanceMachinesCount,
+      recentShifts: recentShiftsRaw.map((shift) => ({
+        id: shift.id,
+        date: shift.date.toISOString(),
+        shiftType: shift.shiftType,
+        status: shift.status,
+        employeeName: shift.employee?.name ?? 'Unknown',
+        employeeEmail: shift.employee?.email ?? '',
+        jobsCount: shift.shiftJobs.length,
+        completedJobsCount: shift.shiftJobs.filter(
+          (j) => j.status === 'COMPLETED',
+        ).length,
+      })),
+      recentTickets: recentTicketsRaw.map((ticket) => ({
+        id: ticket.id,
+        issue: ticket.issue,
+        status: ticket.status,
+        updatedAt: ticket.updatedAt.toISOString(),
+        machine: ticket.machine
+          ? {
+              name: ticket.machine.name,
+              brand: ticket.machine.brand,
+            }
+          : null,
+        assignee: ticket.assignee
+          ? {
+              name: ticket.assignee.name,
+            }
+          : null,
       })),
     };
   }
