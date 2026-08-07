@@ -17,4 +17,5 @@ export const MAINTENANCE_ERRORS = {
   FAILED_TO_CLOSE_TICKET: 'Failed to close maintenance ticket.',
   MAINTENANCE_CANNOT_DELETE_MACHINE:
     'Cannot delete machine: it currently has an active maintenance ticket.',
+  END_DATE_BEFORE_START_DATE: 'End date cannot be before start date.',
 } as const;
