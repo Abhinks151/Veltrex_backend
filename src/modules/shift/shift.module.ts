@@ -20,9 +20,17 @@ import { ListProductionShiftsUseCase } from './application/use-cases/list-produc
 import { UpdateShiftJobProgressUseCase } from './application/use-cases/update-shift-job-progress.use-case';
 import { GetMachinistDashboardUseCase } from './application/use-cases/get-machinist-dashboard.use-case';
 import { GetAdminDashboardUseCase } from './application/use-cases/get-admin-dashboard.use-case';
+import { MachineModule } from '../machine/machine.module';
+import { PartModule } from '../part/part.module';
 
 @Module({
-  imports: [AuthModule, SubscriptionModule, PrismaModule],
+  imports: [
+    AuthModule,
+    SubscriptionModule,
+    MachineModule,
+    PartModule,
+    PrismaModule,
+  ],
   controllers: [ShiftController],
   providers: [
     ShiftCronService,

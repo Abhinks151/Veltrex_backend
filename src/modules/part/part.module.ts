@@ -68,6 +68,7 @@ import { GetPartByIdUseCase } from './application/use-cases/get-part-by-id.use-c
     'IGetAllActivePartsUseCase',
     'ICheckResourceInUseUseCase',
     'IGetPartByIdUseCase',
+    'IPartRepository',
   ],
 })
 export class PartModule {}
