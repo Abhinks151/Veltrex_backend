@@ -14,139 +14,166 @@ import {
   NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { Part } from '@/modules/part/domain/part.entity';
+import { StockChange } from '../../domain';
 
 @Injectable()
 export class EditJobUseCase implements IEditJobUseCase {
   constructor(
     @Inject('IJobRepository')
-    private readonly _jobRepository: IJobRepository,
+    private readonly jobRepository: IJobRepository,
+
     @Inject('ICheckRawMaterialAvailabilityUseCase')
-    private readonly _checkRawMaterialAvailability: ICheckRawMaterialAvailabilityUseCase,
+    private readonly checkRawMaterialAvailability: ICheckRawMaterialAvailabilityUseCase,
+
     @Inject('IUpdateRawMaterialStockUseCase')
-    private readonly _updateRawMaterialStock: IUpdateRawMaterialStockUseCase,
+    private readonly updateRawMaterialStock: IUpdateRawMaterialStockUseCase,
+
     @Inject('IGetPartByIdUseCase')
-    private readonly _getPartByIdUseCase: IGetPartByIdUseCase,
-    // @Inject('IMachineRepository')
-    // private readonly _machineRepository: IMachineRepository,
+    private readonly getPartByIdUseCase: IGetPartByIdUseCase,
   ) {}
 
   async execute(id: string, dto: EditJobDto): Promise<Job> {
-    const job = await this._jobRepository.findById(id);
+    const job = await this.getJob(id);
+
+    this.validateUpdate(job, dto);
+
+    const oldPart = await this.getPartByIdUseCase.execute(job.partId);
+
+    const newPartId = dto.partId ?? job.partId;
+
+    const newPart =
+      newPartId === job.partId
+        ? oldPart
+        : await this.getPartByIdUseCase.execute(newPartId);
+
+    const newQuantity = dto.quantity ?? job.quantity;
+
+    const stockChanges = this.calculateStockChanges(
+      oldPart,
+      job.quantity,
+      newPart,
+      newQuantity,
+    );
+
+    await this.validateStockChanges(stockChanges);
+
+    await this.applyStockChanges(stockChanges);
+
+    const updateData = this.buildUpdateData(dto);
+
+    try {
+      return await this.jobRepository.update(id, updateData);
+    } catch {
+      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_JOB);
+    }
+  }
+
+  private async getJob(id: string): Promise<Job> {
+    const job = await this.jobRepository.findById(id);
+
     if (!job) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.JOB_NOT_FOUND);
     }
 
-    if (
+    return job;
+  }
+
+  private validateUpdate(job: Job, dto: EditJobDto): void {
+    if (dto.quantity === undefined) {
+      return;
+    }
+
+    if (dto.quantity === job.quantity) {
+      return;
+    }
+
+    const lockedStatus =
       job.status === JobStatus.IN_PROGRESS ||
-      job.status === JobStatus.COMPLETED
-    ) {
-      if (dto.quantity !== undefined && dto.quantity !== job.quantity) {
+      job.status === JobStatus.COMPLETED;
+
+    if (lockedStatus) {
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR
+          .CANNOT_UPDATE_QUANTITY_WHEN_JOB_IS_IN_PROGRESS_OR_COMPLETED,
+      );
+    }
+  }
+
+  private calculateStockChanges(
+    oldPart: Part,
+    oldQuantity: number,
+    newPart: Part,
+    newQuantity: number,
+  ): StockChange[] {
+    const changes = new Map<string, number>();
+
+    if (oldPart.rawMaterialId) {
+      this.addStockChange(changes, oldPart.rawMaterialId, oldQuantity);
+    }
+
+    if (newPart.rawMaterialId) {
+      this.addStockChange(changes, newPart.rawMaterialId, -newQuantity);
+    }
+
+    return [...changes.entries()]
+      .filter(([, quantity]) => quantity !== 0)
+      .map(([rawMaterialId, quantity]) => ({
+        rawMaterialId,
+        quantity,
+      }));
+  }
+
+  private addStockChange(
+    changes: Map<string, number>,
+    rawMaterialId: string,
+    quantity: number,
+  ): void {
+    changes.set(rawMaterialId, (changes.get(rawMaterialId) ?? 0) + quantity);
+  }
+
+  private async validateStockChanges(changes: StockChange[]): Promise<void> {
+    for (const change of changes) {
+      if (change.quantity >= 0) {
+        continue;
+      }
+
+      const requiredQuantity = Math.abs(change.quantity);
+
+      const hasEnoughStock = await this.checkRawMaterialAvailability.execute(
+        change.rawMaterialId,
+        requiredQuantity,
+      );
+
+      if (!hasEnoughStock) {
         throw new BadRequestError(
-          MESSAGE_CONSTANTS.ERROR
-            .CANNOT_UPDATE_QUANTITY_WHEN_JOB_IS_IN_PROGRESS_OR_COMPLETED,
+          MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
         );
       }
     }
+  }
 
-    const oldPartId = job.partId;
-    const newPartId = dto.partId ?? job.partId;
-    const oldQuantity = job.quantity;
-    const newQuantity = dto.quantity ?? job.quantity;
-
-    const part = await this._getPartByIdUseCase.execute(newPartId);
-
-    if (oldPartId !== newPartId) {
-      try {
-        const oldPart = await this._getPartByIdUseCase.execute(oldPartId);
-        if (oldPart && oldPart.rawMaterialId) {
-          await this._updateRawMaterialStock.execute(
-            oldPart.rawMaterialId,
-            oldQuantity,
-          );
-        }
-      } catch {
-        // check for old part, if not skip
-      }
-
-      if (part.rawMaterialId) {
-        const hasEnoughStock = await this._checkRawMaterialAvailability.execute(
-          part.rawMaterialId,
-          newQuantity,
-        );
-
-        if (!hasEnoughStock) {
-          throw new BadRequestError(
-            MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
-          );
-        }
-
-        await this._updateRawMaterialStock.execute(
-          part.rawMaterialId,
-          -newQuantity,
-        );
-      }
-    } else {
-      const quantityDiff = newQuantity - oldQuantity;
-      if (part.rawMaterialId && quantityDiff !== 0) {
-        if (quantityDiff > 0) {
-          const hasEnoughStock =
-            await this._checkRawMaterialAvailability.execute(
-              part.rawMaterialId,
-              quantityDiff,
-            );
-
-          if (!hasEnoughStock) {
-            throw new BadRequestError(
-              MESSAGE_CONSTANTS.ERROR.INSUFFICIENT_RAW_MATERIAL,
-            );
-          }
-        }
-
-        await this._updateRawMaterialStock.execute(
-          part.rawMaterialId,
-          -quantityDiff,
-        );
-      }
+  private async applyStockChanges(changes: StockChange[]): Promise<void> {
+    for (const change of changes) {
+      await this.updateRawMaterialStock.execute(
+        change.rawMaterialId,
+        change.quantity,
+      );
     }
+  }
 
-    let updatedJob: Job;
-    try {
-      const { partId, ...rest } = dto;
-      const updateData: Prisma.JobUpdateInput = { ...rest };
+  private buildUpdateData(dto: EditJobDto): Prisma.JobUpdateInput {
+    const { partId, ...data } = dto;
 
-      if (partId) {
-        updateData.part = { connect: { id: partId } };
-      }
-
-      updatedJob = await this._jobRepository.update(id, updateData);
-    } catch {
-      throw new BadRequestError(MESSAGE_CONSTANTS.ERROR.FAILED_TO_UPDATE_JOB);
-    }
-
-    // if (
-    //   dto.status === JobStatus.COMPLETED &&
-    //   job.status !== JobStatus.COMPLETED
-    // ) {
-    //   if (part.machineId) {
-    //     const machine = await this._machineRepository.findById(part.machineId);
-    //     if (machine && machine.status !== MachineStatus.MAINTENANCE) {
-    //       await this._machineRepository.update(part.machineId, {
-    //         status: MachineStatus.IDLE,
-    //       });
-    //     }
-    //   }
-    // }
-
-    // if (
-    //   dto.status === JobStatus.IN_PROGRESS &&
-    //   job.status !== JobStatus.IN_PROGRESS &&
-    //   part.machineId
-    // ) {
-    //   await this._machineRepository.update(part.machineId, {
-    //     status: MachineStatus.RUNNING,
-    //   });
-    // }
-
-    return updatedJob;
+    return {
+      ...data,
+      ...(partId && {
+        part: {
+          connect: {
+            id: partId,
+          },
+        },
+      }),
+    };
   }
 }
