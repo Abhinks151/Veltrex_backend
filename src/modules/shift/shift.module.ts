@@ -22,6 +22,7 @@ import { GetMachinistDashboardUseCase } from './application/use-cases/get-machin
 import { GetAdminDashboardUseCase } from './application/use-cases/get-admin-dashboard.use-case';
 import { MachineModule } from '../machine/machine.module';
 import { PartModule } from '../part/part.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PartModule } from '../part/part.module';
     MachineModule,
     PartModule,
     PrismaModule,
+    NotificationModule,
   ],
   controllers: [ShiftController],
   providers: [

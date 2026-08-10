@@ -3,6 +3,9 @@ enum NotificationType {
   INFO
   ALERT
   RAW_MATERIAL_LOW_STOCK
+  SHIFT_CREATED
+  SHIFT_EDITED
+  SHIFT_DELETED
 }
 
 model Notification {

@@ -13,6 +13,9 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { ICreateNotificationUseCase } from '@/modules/notification/application/ports/use-cases/create-notification.use-case.interface';
+import { NotificationType } from '@/modules/notification/domain/notification-type.enum';
+import { SHIFT_NOTIFICATION } from '../constants/shift-notification.constants';
 
 @Injectable()
 export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
@@ -22,6 +25,8 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
     @Inject('ITransactionManager')
     private readonly _txManager: ITransactionManager,
     private readonly _prisma: PrismaService,
+    @Inject('ICreateNotificationUseCase')
+    private readonly _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
   async execute(
@@ -137,6 +142,14 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
           id,
           ctx,
         );
+
+      await this._createNotificationUseCase.execute({
+        tenantId: dto.tenantId,
+        userId: dto.employeeId,
+        type: NotificationType.SHIFT_EDITED,
+        title: SHIFT_NOTIFICATION.EDITED.title,
+        message: SHIFT_NOTIFICATION.EDITED.message,
+      });
 
       return updatedTemplate!;
     });

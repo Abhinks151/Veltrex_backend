@@ -12,6 +12,9 @@ import {
 } from '@/shared/common/errors/domain-errors';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { ICreateNotificationUseCase } from '@/modules/notification/application/ports/use-cases/create-notification.use-case.interface';
+import { NotificationType } from '@/modules/notification/domain/notification-type.enum';
+import { SHIFT_NOTIFICATION } from '../constants/shift-notification.constants';
 
 @Injectable()
 export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
@@ -23,6 +26,9 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
     @Inject('IShiftGeneratorService')
     private readonly _shiftGenerator: ShiftGeneratorService,
     private readonly _prisma: PrismaService,
+
+    @Inject('ICreateNotificationUseCase')
+    private readonly _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
   async execute(dto: CreateShiftTemplateDto): Promise<ShiftTemplate> {
@@ -109,6 +115,14 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
           template.id,
           ctx,
         );
+
+      await this._createNotificationUseCase.execute({
+        tenantId: dto.tenantId,
+        userId: dto.employeeId,
+        type: NotificationType.SHIFT_CREATED,
+        title: SHIFT_NOTIFICATION.CREATED.title,
+        message: SHIFT_NOTIFICATION.CREATED.message,
+      });
       return finalTemplate!;
     });
   }
@@ -118,7 +132,9 @@ export class CreateShiftTemplateUseCase implements ICreateShiftTemplateUseCase {
     ctx: ITransactionContext,
   ): Promise<ShiftTemplate> {
     try {
-      return await this._shiftTemplateRepository.create(dto, ctx);
+      const shift = await this._shiftTemplateRepository.create(dto, ctx);
+
+      return shift;
     } catch (e) {
       if (e instanceof Error) {
         throw new BadRequestError(
