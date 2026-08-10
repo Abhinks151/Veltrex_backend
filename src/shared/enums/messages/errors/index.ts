@@ -14,6 +14,7 @@ import { PROFILE_ERRORS } from './profile.errors';
 import { SHARED_ERRORS } from './shared.errors';
 import { STORAGE_ERRORS } from './storage.error';
 import { MAINTENANCE_ERRORS } from './maintenance.errors';
+import { NOTIFICATION_ERRORS } from './notification.errors';
 
 export const ERROR_MESSAGES = {
   ...AUTH_ERRORS,
@@ -32,6 +33,7 @@ export const ERROR_MESSAGES = {
   ...SHARED_ERRORS,
   ...STORAGE_ERRORS,
   ...MAINTENANCE_ERRORS,
+  ...NOTIFICATION_ERRORS,
 } as const;
 
 export {
@@ -51,4 +53,5 @@ export {
   SHARED_ERRORS,
   STORAGE_ERRORS,
   MAINTENANCE_ERRORS,
+  NOTIFICATION_ERRORS,
 };

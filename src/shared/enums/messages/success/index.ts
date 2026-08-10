@@ -12,6 +12,7 @@ import { SHIFT_SUCCESS } from './shift.success';
 import { SUPER_ADMIN_SUCCESS } from './super-admin.success';
 import { PROFILE_SUCCESS } from './profile.success';
 import { MAINTENANCE_SUCCESS } from './maintenance.success';
+import { NOTIFICATION_SUCCESS } from './notification.success';
 
 export const SUCCESS_MESSAGES = {
   ...AUTH_SUCCESS,
@@ -28,6 +29,7 @@ export const SUCCESS_MESSAGES = {
   ...SUPER_ADMIN_SUCCESS,
   ...PROFILE_SUCCESS,
   ...MAINTENANCE_SUCCESS,
+  ...NOTIFICATION_SUCCESS,
 } as const;
 
 export {
@@ -45,4 +47,5 @@ export {
   SUPER_ADMIN_SUCCESS,
   PROFILE_SUCCESS,
   MAINTENANCE_SUCCESS,
+  NOTIFICATION_SUCCESS,
 };

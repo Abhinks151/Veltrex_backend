@@ -17,6 +17,7 @@ export const REPOSITORY_MODEL_NAMES = {
   NC_PROGRAM: 'ncProgram',
   PROGRAM_VERSION: 'programVersion',
   MAINTENANCE_TICKET: 'maintenanceTicket',
+  NOTIFICATION: 'notification',
 } as const;
 
 export type RepositoryModelName =

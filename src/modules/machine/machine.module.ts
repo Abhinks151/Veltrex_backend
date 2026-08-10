@@ -14,6 +14,7 @@ import { SubscriptionModule } from '../subscription/subscription.module';
 import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
 import { PartModule } from '../part/part.module';
 import { MaintenanceModule } from '../maintenance/maintenance.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MaintenanceModule } from '../maintenance/maintenance.module';
     PrismaModule,
     PartModule,
     forwardRef(() => MaintenanceModule),
+    NotificationModule,
   ],
   controllers: [MachineController],
   providers: [
