@@ -9,6 +9,10 @@ import { BadRequestError } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { MachineStatus } from '@/modules/machine/domain/machine-status.enum';
 import { CreateMaintenanceTicketDto } from '../dto/create-maintenance-ticket.dto';
+import { ICreateNotificationUseCase } from '@/modules/notification/application/ports/use-cases/create-notification.use-case.interface';
+import { Role } from '@/shared/enums';
+import { NotificationType } from '@/modules/notification/domain/notification-type.enum';
+import { MAINTENANCE_TICKET_NOTIFICATION } from '../constants/maintenance_ticket.notification';
 
 @Injectable()
 export class CreateMaintenanceTicketUseCase implements ICreateMaintenanceTicketUseCase {
@@ -19,6 +23,9 @@ export class CreateMaintenanceTicketUseCase implements ICreateMaintenanceTicketU
     private readonly _machineRepository: IMachineRepository,
     @Inject('ITransactionManager')
     private readonly _transactionManager: ITransactionManager,
+
+    @Inject('ICreateNotificationUseCase')
+    private readonly _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
   async execute(dto: CreateMaintenanceTicketDto): Promise<MaintenanceTicket> {
@@ -52,6 +59,14 @@ export class CreateMaintenanceTicketUseCase implements ICreateMaintenanceTicketU
           { status: MachineStatus.MAINTENANCE },
           ctx,
         );
+
+        await this._createNotificationUseCase.execute({
+          tenantId: dto.tenantId,
+          roles: [Role.ADMIN, Role.MAINTENANCE],
+          type: NotificationType.MAINTENANCE_TICKET_CREATED,
+          title: MAINTENANCE_TICKET_NOTIFICATION.CREATED.title,
+          message: MAINTENANCE_TICKET_NOTIFICATION.CREATED.message,
+        });
 
         return ticket;
       },

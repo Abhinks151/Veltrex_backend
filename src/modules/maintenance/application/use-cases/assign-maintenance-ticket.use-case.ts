@@ -8,12 +8,18 @@ import {
   NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
+import { ICreateNotificationUseCase } from '@/modules/notification/application/ports/use-cases/create-notification.use-case.interface';
+import { Role } from '@/shared/enums';
+import { NotificationType } from '@/modules/notification/domain/notification-type.enum';
+import { MAINTENANCE_TICKET_NOTIFICATION } from '../constants/maintenance_ticket.notification';
 
 @Injectable()
 export class AssignMaintenanceTicketUseCase implements IAssignMaintenanceTicketUseCase {
   constructor(
     @Inject('IMaintenanceTicketRepository')
     private readonly _maintenanceRepository: IMaintenanceTicketRepository,
+    @Inject('ICreateNotificationUseCase')
+    private readonly _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
   async execute(
@@ -45,6 +51,14 @@ export class AssignMaintenanceTicketUseCase implements IAssignMaintenanceTicketU
     if (!updated) {
       throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.TICKET_NOT_FOUND);
     }
+
+    await this._createNotificationUseCase.execute({
+      tenantId: tenantId,
+      roles: [Role.ADMIN],
+      type: NotificationType.MAINTENANCE_TICKET_UPDATED,
+      title: MAINTENANCE_TICKET_NOTIFICATION.UPDATED.title,
+      message: `${MAINTENANCE_TICKET_NOTIFICATION.UPDATED.message} (Assigned)`,
+    });
 
     return updated;
   }

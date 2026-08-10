@@ -14,6 +14,10 @@ import {
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { MaintenanceStatus } from '../../domain/maintenance-status.enum';
 import { MachineStatus } from '@/modules/machine/domain/machine-status.enum';
+import { ICreateNotificationUseCase } from '@/modules/notification/application/ports/use-cases/create-notification.use-case.interface';
+import { Role } from '@/shared/enums';
+import { NotificationType } from '@/modules/notification/domain/notification-type.enum';
+import { MAINTENANCE_TICKET_NOTIFICATION } from '../constants/maintenance_ticket.notification';
 
 @Injectable()
 export class CloseMaintenanceTicketUseCase implements ICloseMaintenanceTicketUseCase {
@@ -24,6 +28,8 @@ export class CloseMaintenanceTicketUseCase implements ICloseMaintenanceTicketUse
     private readonly _machineRepository: IMachineRepository,
     @Inject('ITransactionManager')
     private readonly _transactionManager: ITransactionManager,
+    @Inject('ICreateNotificationUseCase')
+    private readonly _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
   async execute(
@@ -95,6 +101,24 @@ export class CloseMaintenanceTicketUseCase implements ICloseMaintenanceTicketUse
         );
         if (!updated) {
           throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.TICKET_NOT_FOUND);
+        }
+
+        await this._createNotificationUseCase.execute({
+          tenantId: tenantId,
+          roles: [Role.ADMIN],
+          type: NotificationType.MAINTENANCE_TICKET_CLOSED,
+          title: MAINTENANCE_TICKET_NOTIFICATION.CLOSED.title,
+          message: MAINTENANCE_TICKET_NOTIFICATION.CLOSED.message,
+        });
+
+        if (existing.createdBy) {
+          await this._createNotificationUseCase.execute({
+            tenantId: tenantId,
+            userId: existing.createdBy,
+            type: NotificationType.MAINTENANCE_TICKET_CLOSED,
+            title: MAINTENANCE_TICKET_NOTIFICATION.CLOSED.title,
+            message: MAINTENANCE_TICKET_NOTIFICATION.CLOSED.message,
+          });
         }
 
         return updated;
