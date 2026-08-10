@@ -12,6 +12,10 @@ import { MaintenanceStatus } from '../../domain/maintenance-status.enum';
 import { IDeleteMaintenanceTicketUseCase } from '../ports/use-cases/delete-maintenance-ticket.use-case.interface';
 import { IMachineRepository } from '@/modules/machine/application/ports/repositories/machine-repository.interface';
 import { MachineStatus } from '@/modules/machine/domain/machine-status.enum';
+import { ICreateNotificationUseCase } from '@/modules/notification/application/ports/use-cases/create-notification.use-case.interface';
+import { Role } from '@/shared/enums';
+import { NotificationType } from '@/modules/notification/domain/notification-type.enum';
+import { MAINTENANCE_TICKET_NOTIFICATION } from '../constants/maintenance_ticket.notification';
 
 @Injectable()
 export class DeleteMaintenanceTicketUseCase implements IDeleteMaintenanceTicketUseCase {
@@ -22,6 +26,8 @@ export class DeleteMaintenanceTicketUseCase implements IDeleteMaintenanceTicketU
     private readonly _machineRepository: IMachineRepository,
     @Inject('ITransactionManager')
     private readonly _transactionManager: ITransactionManager,
+    @Inject('ICreateNotificationUseCase')
+    private readonly _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
   async execute(
@@ -57,6 +63,15 @@ export class DeleteMaintenanceTicketUseCase implements IDeleteMaintenanceTicketU
           { status: MachineStatus.IDLE },
           ctx,
         );
+
+        await this._createNotificationUseCase.execute({
+          tenantId: tenantId,
+          roles: [Role.ADMIN],
+          type: NotificationType.MAINTENANCE_TICKET_DELETED,
+          title: MAINTENANCE_TICKET_NOTIFICATION.DELETED.title,
+          message: MAINTENANCE_TICKET_NOTIFICATION.DELETED.message,
+        });
+
         return ticket;
       },
     );

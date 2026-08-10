@@ -17,6 +17,7 @@ import { GetMachinistMachinesUseCase } from './application/use-cases/get-machini
 import { CheckMachineMaintenanceUseCase } from './application/use-cases/check-machine-maintenance.use-case';
 import { PrismaTransactionManager } from '@/shared/infrastructure/prisma/prisma-transaction-manager';
 import { DeleteMaintenanceTicketUseCase } from './application/use-cases/delete-maintenance-ticket.use-case';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DeleteMaintenanceTicketUseCase } from './application/use-cases/delete-m
     SubscriptionModule,
     PrismaModule,
     forwardRef(() => MachineModule),
+    NotificationModule,
   ],
   controllers: [MaintenanceController],
   providers: [
