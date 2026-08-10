@@ -12,6 +12,7 @@ import { CheckRawMaterialAvailabilityUseCase } from './application/use-cases/che
 import { UpdateRawMaterialStockUseCase } from './application/use-cases/update-raw-material-stock.use-case';
 
 import { SubscriptionModule } from '../subscription/subscription.module';
+import { NotificationModule } from '../notification/notification.module';
 
 import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
 import { PartModule } from '../part/part.module';
@@ -23,6 +24,7 @@ import { forwardRef } from '@nestjs/common';
     SubscriptionModule,
     PrismaModule,
     forwardRef(() => PartModule),
+    NotificationModule,
   ],
   controllers: [RawMaterialController],
   providers: [
