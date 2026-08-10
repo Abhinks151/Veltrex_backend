@@ -10,6 +10,7 @@ import { IGetTenantByOwnerIdUseCase } from '@/modules/tenant/application/ports/u
 import { ValidatedUserDto } from '../../application/dto/jwt-strategy.dto';
 import { ConfigService } from '@nestjs/config';
 import { Role } from '@/shared/enums/roles.enum';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -20,12 +21,20 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private readonly _configService: ConfigService,
     private readonly _moduleRef: ModuleRef,
   ) {
+    const jwtSecret = _configService.get<string>('JWT_SECRET_KEY');
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET_KEY is not configured');
+    }
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: Request) => {
+          return req?.query?.token as string;
+        },
+      ]),
       ignoreExpiration: false,
-      secretOrKey:
-        _configService.get<string>('JWT_SECRET_KEY') ||
-        'this is a super hard secret',
+      secretOrKey: jwtSecret,
     });
   }
 
@@ -37,6 +46,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     if (user.isBlocked) {
       throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_IS_BLOCKED);
+    }
+
+    if (user.isDeleted) {
+      throw new UnauthorizedException(MESSAGE_CONSTANTS.ERROR.USER_IS_DELETED);
     }
 
     if ((payload.role as Role) === Role.SUPER_ADMIN) {

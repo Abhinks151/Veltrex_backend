@@ -1,0 +1,6 @@
+export enum NotificationType {
+  MACHINE_CREATED = 'MACHINE_CREATED',
+  INFO = 'INFO',
+  ALERT = 'ALERT',
+  RAW_MATERIAL_LOW_STOCK = 'RAW_MATERIAL_LOW_STOCK',
+}
