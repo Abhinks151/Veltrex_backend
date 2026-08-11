@@ -23,6 +23,7 @@ import { GetAdminDashboardUseCase } from './application/use-cases/get-admin-dash
 import { MachineModule } from '../machine/machine.module';
 import { PartModule } from '../part/part.module';
 import { NotificationModule } from '../notification/notification.module';
+import { RawMaterialModule } from '../raw-material/raw-material.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { NotificationModule } from '../notification/notification.module';
     PartModule,
     PrismaModule,
     NotificationModule,
+    RawMaterialModule,
   ],
   controllers: [ShiftController],
   providers: [
