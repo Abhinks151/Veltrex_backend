@@ -3,6 +3,7 @@ import { IEmailVerificationTokenRepository } from '../../application/ports/repos
 import { EmailVerificationToken } from '../../domain/entities/email-verification-token.entity';
 import { RedisService } from '@/shared/infrastructure/redis/redis.service';
 import { REDIS_KEYS } from '@/shared/infrastructure/redis/redis.constants';
+import { toDomainEmailVerificationToken } from '../../application/mapper/email-verification-token.mapper';
 
 @Injectable()
 export class EmailVerificationTokenRepository implements IEmailVerificationTokenRepository {
@@ -29,26 +30,34 @@ export class EmailVerificationTokenRepository implements IEmailVerificationToken
     await this._redis.set(this.TOKEN_KEY + token, userId, ttl);
     await this._redis.set(this.USER_KEY + userId, token, ttl);
 
-    return new EmailVerificationToken(
-      token,
+    // return new EmailVerificationToken(
+    //   token,
+    //   userId,
+    //   token,
+    //   expiresAt,
+    //   new Date(),
+    // );
+
+    return toDomainEmailVerificationToken({
+      id: token,
       userId,
       token,
       expiresAt,
-      new Date(),
-    );
+      createdAt: new Date(),
+    });
   }
 
   async findToken(token: string): Promise<EmailVerificationToken | null> {
     const userId = await this._redis.get(this.TOKEN_KEY + token);
     if (!userId) return null;
 
-    return new EmailVerificationToken(
-      token,
+    return toDomainEmailVerificationToken({
+      id: token,
       userId,
       token,
-      new Date(Date.now() + 3600_000),
-      new Date(),
-    );
+      expiresAt: new Date(Date.now() + 3600_000),
+      createdAt: new Date(),
+    });
   }
 
   async deleteToken(token: string): Promise<void> {

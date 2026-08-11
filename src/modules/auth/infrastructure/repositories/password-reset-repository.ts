@@ -3,6 +3,7 @@ import { IPasswordResetTokenRepository } from '../../application/ports/repositor
 import { PasswordResetToken } from '../../domain/entities/password-reset-token.entity';
 import { RedisService } from '@/shared/infrastructure/redis/redis.service';
 import { REDIS_KEYS } from '@/shared/infrastructure/redis/redis.constants';
+import { toDomainPasswordResetToken } from '../../application/mapper/password-reset-token.mapper';
 
 @Injectable()
 export class PasswordResetTokenRepository implements IPasswordResetTokenRepository {
@@ -37,13 +38,21 @@ export class PasswordResetTokenRepository implements IPasswordResetTokenReposito
     const userId = await this._redis.get(this.TOKEN_KEY + token);
     if (!userId) return null;
 
-    return new PasswordResetToken(
-      token,
+    // return new PasswordResetToken(
+    //   token,
+    //   userId,
+    //   token,
+    //   new Date(Date.now() + 3600_000),
+    //   new Date(),
+    // );
+
+    return toDomainPasswordResetToken({
+      id: token,
       userId,
       token,
-      new Date(Date.now() + 3600_000),
-      new Date(),
-    );
+      expiresAt: new Date(Date.now() + 3600_000),
+      createdAt: new Date(),
+    });
   }
 
   async deleteToken(token: string): Promise<void> {
