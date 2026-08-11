@@ -368,18 +368,22 @@ export class ProductionShiftRepository
       recentShiftsRaw,
       recentTicketsRaw,
     ] = await Promise.all([
-      this._prisma.job.count({
+      this._prisma.shiftJob.count({
         where: {
           tenantId,
-          isDeleted: false,
+          productionShift: {
+            isDeleted: false,
+          },
           status: { in: ['PENDING', 'IN_PROGRESS'] },
         },
       }),
 
-      this._prisma.job.count({
+      this._prisma.shiftJob.count({
         where: {
           tenantId,
-          isDeleted: false,
+          productionShift: {
+            isDeleted: false,
+          },
           status: 'COMPLETED',
         },
       }),

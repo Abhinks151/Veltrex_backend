@@ -425,6 +425,50 @@ export class MaintenanceTicketRepository
     return machines.map((m) => m.id);
   }
 
+  async hasCompletedShiftJobForMachine(
+    tenantId: string,
+    machinistId: string,
+    machineId: string,
+  ): Promise<boolean> {
+    const [totalCount, completedCount] = await Promise.all([
+      this._prisma.shiftJob.count({
+        where: {
+          tenantId,
+          productionShift: {
+            employeeId: machinistId,
+            isDeleted: false,
+          },
+          job: {
+            isDeleted: false,
+            part: {
+              machineId,
+              isDeleted: false,
+            },
+          },
+        },
+      }),
+      this._prisma.shiftJob.count({
+        where: {
+          tenantId,
+          status: 'COMPLETED',
+          productionShift: {
+            employeeId: machinistId,
+            isDeleted: false,
+          },
+          job: {
+            isDeleted: false,
+            part: {
+              machineId,
+              isDeleted: false,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return totalCount > 0 && totalCount === completedCount;
+  }
+
   async delete(
     id: string,
     ctx?: ITransactionContext,

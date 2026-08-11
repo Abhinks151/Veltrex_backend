@@ -50,6 +50,18 @@ export class CreateMaintenanceTicketUseCase implements ICreateMaintenanceTicketU
       );
     }
 
+    const isShiftJobCompleted =
+      await this._maintenanceRepository.hasCompletedShiftJobForMachine(
+        dto.tenantId,
+        dto.createdBy,
+        dto.machineId,
+      );
+    if (isShiftJobCompleted) {
+      throw new BadRequestError(
+        MESSAGE_CONSTANTS.ERROR.SHIFT_JOB_COMPLETED_CANNOT_REPORT,
+      );
+    }
+
     return await this._transactionManager.run(
       async (ctx: ITransactionContext) => {
         const ticket = await this._maintenanceRepository.create(dto, ctx);
