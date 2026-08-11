@@ -3,6 +3,7 @@ export interface MachinistMachineDto {
   name: string;
   brand: string;
   status: string;
+  shiftJobCompleted: boolean;
 }
 
 export interface IGetMachinistMachinesUseCase {

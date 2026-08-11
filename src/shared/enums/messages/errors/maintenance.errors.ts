@@ -21,4 +21,6 @@ export const MAINTENANCE_ERRORS = {
   TICKET_CANNOT_BE_DELETED: 'Only OPEN tickets can be deleted.',
   TICKET_NOT_CREATED_BY_YOU: 'This ticket was not created by you.',
   FAILED_TO_DELETE_TICKET: 'Failed to delete maintenance ticket.',
+  SHIFT_JOB_COMPLETED_CANNOT_REPORT:
+    'Cannot report a maintenance ticket: the shift job for this machine is already completed.',
 } as const;

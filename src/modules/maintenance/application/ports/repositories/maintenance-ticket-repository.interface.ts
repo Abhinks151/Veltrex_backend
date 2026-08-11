@@ -74,4 +74,9 @@ export interface IMaintenanceTicketRepository extends IBaseRepository<
     tenantId: string,
     machinistId: string,
   ): Promise<string[]>;
+  hasCompletedShiftJobForMachine(
+    tenantId: string,
+    machinistId: string,
+    machineId: string,
+  ): Promise<boolean>;
 }

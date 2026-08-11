@@ -35,11 +35,19 @@ export class GetMachinistMachinesUseCase implements IGetMachinistMachinesUseCase
       allowedMachineIds.includes(machine.id),
     );
 
-    return machinistMachines.map((m) => ({
-      id: m.id,
-      name: m.name,
-      brand: m.brand,
-      status: m.status,
-    }));
+    return await Promise.all(
+      machinistMachines.map(async (m) => ({
+        id: m.id,
+        name: m.name,
+        brand: m.brand,
+        status: m.status,
+        shiftJobCompleted:
+          await this._maintenanceRepository.hasCompletedShiftJobForMachine(
+            tenantId,
+            machinistId,
+            m.id,
+          ),
+      })),
+    );
   }
 }
