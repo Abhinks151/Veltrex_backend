@@ -2,10 +2,9 @@ import { OperationType } from '@/shared/enums/machining-type.enum';
 import { PartPriority } from '@/shared/enums/part-priority.enum';
 import { Prisma } from '@prisma/client';
 
-export class CreatePartDto {
-  tenantId!: string;
-  name!: string;
-  partNumber!: string;
+export class EditPartDto {
+  name?: string;
+  partNumber?: string;
   description?: string;
   material?: string;
   operationType?: OperationType;
@@ -17,10 +16,6 @@ export class CreatePartDto {
   cycleTime?: string;
   setupTime?: string;
   priority?: PartPriority;
-  setupSheet?: string;
-  setupSheetKey?: string;
-  engineeringDrawing?: string;
-  engineeringDrawingKey?: string;
   setupSheetFile?: Express.Multer.File;
   engineeringDrawingFile?: Express.Multer.File;
 }
