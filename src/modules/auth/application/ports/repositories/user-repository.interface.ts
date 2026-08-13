@@ -5,6 +5,7 @@ import { User } from '../../../domain/entities/user.entity';
 import { RegisterUserInput } from '../../dto/register-user-input.dto';
 import { UpdateUserInputDto } from '../../dto/update-user-input.dto';
 import { IBaseRepository } from '@/shared/infrastructure/repository/base-repository.interface';
+import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
 
 export interface IUserRepository extends IBaseRepository<
   User,
@@ -13,7 +14,7 @@ export interface IUserRepository extends IBaseRepository<
 > {
   findByEmail(email: string): Promise<User | null>;
   findByUuid(uuid: string): Promise<User | null>;
-  findById(id: string): Promise<User | null>;
+  findById(id: string, ctx?: ITransactionContext): Promise<User | null>;
   findAllEmployees(
     tenantId: string,
     query: {

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { IJobRepository } from '../../application/ports/repositories/job-repository.interface';
+import { ITransactionContext } from '@/shared/application/ports/transaction-context.interface';
+import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
 import { Job, JobStatus, JobPriority } from '../../domain/job.entity';
 import { CreateJobDto } from '../../application/dto/create-job.dto';
 import { PrismaRawJob, toJobMapper } from '../../application/mapper/job.mapper';
@@ -40,8 +42,13 @@ export class JobRepository
     }
   }
 
-  async findByTenantAndId(tenantId: string, id: string): Promise<Job | null> {
-    const response = await this._prisma.job.findFirst({
+  async findByTenantAndId(
+    tenantId: string,
+    id: string,
+    ctx?: ITransactionContext,
+  ): Promise<Job | null> {
+    const client = resolvePrismaClient(this._prisma, ctx);
+    const response = await client.job.findFirst({
       where: {
         id,
         tenantId,

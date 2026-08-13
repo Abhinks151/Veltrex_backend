@@ -24,6 +24,7 @@ import { MachineModule } from '../machine/machine.module';
 import { PartModule } from '../part/part.module';
 import { NotificationModule } from '../notification/notification.module';
 import { RawMaterialModule } from '../raw-material/raw-material.module';
+import { JobModule } from '../job/job.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { RawMaterialModule } from '../raw-material/raw-material.module';
     PrismaModule,
     NotificationModule,
     RawMaterialModule,
+    JobModule,
   ],
   controllers: [ShiftController],
   providers: [
