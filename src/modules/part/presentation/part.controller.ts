@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -25,6 +24,7 @@ import { IGetAllActivePartsUseCase } from '../application/ports/use-cases/get-al
 import { IGetPartByIdUseCase } from '../application/ports/use-cases/get-part-by-id.use-case.interface';
 import { Auth } from '@/modules/auth/presentation/decorators/auth.decorator';
 import { CreatePartDto } from '../application/dto/create-part.dto';
+import { EditPartDto } from '../application/dto/edit-part.dto';
 import { Prisma } from '@prisma/client';
 import { RolesGuard } from '@/modules/auth/presentation/guards/roles.guard';
 import { Roles } from '@/modules/auth/presentation/decorators/roles.decorator';
@@ -34,9 +34,7 @@ import { EditPartRequestDto } from './dto/edit-part.request.dto';
 import { PaginationQueryDto } from '@/shared/common/dto/pagination-query.dto';
 import { ApiResponse } from '@/shared/common/apiResponse/api-response';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
-import { IFileStorageService } from '@/shared/infrastructure/storage/interfaces/file-storage.interface';
-import { FILE_STORAGE } from '@/shared/infrastructure/storage/storage.constants';
-import { S3BucketFolderConstants } from '@/shared/enums/s3-bucket-folder.constants';
+import { pdfFileFilter } from '@/shared/utils/file.utils';
 
 @Controller('part')
 @UseGuards(RolesGuard)
@@ -57,8 +55,6 @@ export class PartController {
     private readonly _getAllActivePartsUseCase: IGetAllActivePartsUseCase,
     @Inject('IGetPartByIdUseCase')
     private readonly _getPartByIdUseCase: IGetPartByIdUseCase,
-    @Inject(FILE_STORAGE)
-    private readonly _fileStorageService: IFileStorageService,
   ) {}
 
   @Post('create')
@@ -71,17 +67,7 @@ export class PartController {
       ],
       {
         limits: { fileSize: 5 * 1024 * 1024 },
-        fileFilter: (req, file, callback) => {
-          if (!file.mimetype.match(/\/pdf$/)) {
-            return callback(
-              new BadRequestException(
-                MESSAGE_CONSTANTS.ERROR.ONLY_PDF_FILES_ALLOWED,
-              ),
-              false,
-            );
-          }
-          callback(null, true);
-        },
+        fileFilter: pdfFileFilter,
       },
     ),
   )
@@ -97,33 +83,13 @@ export class PartController {
     const createData: CreatePartDto = {
       ...dto,
       tenantId: req.user!.tenantId!,
+      dimensions:
+        typeof dto.dimensions === 'string'
+          ? (JSON.parse(dto.dimensions) as Prisma.InputJsonValue)
+          : dto.dimensions,
+      setupSheetFile: files.setupSheet?.[0],
+      engineeringDrawingFile: files.engineeringDrawing?.[0],
     };
-
-    if (files.setupSheet?.[0]) {
-      const result = await this._fileStorageService.upload(
-        files.setupSheet[0],
-        S3BucketFolderConstants.UPLOADS,
-      );
-      createData.setupSheet = result.url;
-      createData.setupSheetKey = result.key;
-    }
-
-    if (files.engineeringDrawing?.[0]) {
-      const result = await this._fileStorageService.upload(
-        files.engineeringDrawing[0],
-        S3BucketFolderConstants.UPLOADS,
-      );
-      createData.engineeringDrawing = result.url;
-      createData.engineeringDrawingKey = result.key;
-    }
-
-    if (typeof dto.dimensions === 'string') {
-      createData.dimensions = JSON.parse(
-        dto.dimensions,
-      ) as Prisma.InputJsonValue;
-    } else {
-      createData.dimensions = dto.dimensions;
-    }
 
     const part = await this._createPartUseCase.execute(createData);
     return new ApiResponse(true, part, MESSAGE_CONSTANTS.SUCCESS.PART_CREATED);
@@ -172,17 +138,7 @@ export class PartController {
       ],
       {
         limits: { fileSize: 5 * 1024 * 1024 },
-        fileFilter: (req, file, callback) => {
-          if (!file.mimetype.match(/\/pdf$/)) {
-            return callback(
-              new BadRequestException(
-                MESSAGE_CONSTANTS.ERROR.ONLY_PDF_FILES_ALLOWED,
-              ),
-              false,
-            );
-          }
-          callback(null, true);
-        },
+        fileFilter: pdfFileFilter,
       },
     ),
   )
@@ -195,34 +151,15 @@ export class PartController {
       engineeringDrawing?: Express.Multer.File[];
     },
   ) {
-    const editData: Prisma.PartUpdateInput = {
+    const editData: EditPartDto = {
       ...dto,
-      dimensions: undefined,
+      dimensions:
+        typeof dto.dimensions === 'string'
+          ? (JSON.parse(dto.dimensions) as Prisma.InputJsonValue)
+          : dto.dimensions,
+      setupSheetFile: files.setupSheet?.[0],
+      engineeringDrawingFile: files.engineeringDrawing?.[0],
     };
-
-    if (files.setupSheet?.[0]) {
-      const result = await this._fileStorageService.upload(
-        files.setupSheet[0],
-        S3BucketFolderConstants.UPLOADS,
-      );
-      editData.setupSheet = result.url;
-      editData.setupSheetKey = result.key;
-    }
-
-    if (files.engineeringDrawing?.[0]) {
-      const result = await this._fileStorageService.upload(
-        files.engineeringDrawing[0],
-        S3BucketFolderConstants.UPLOADS,
-      );
-      editData.engineeringDrawing = result.url;
-      editData.engineeringDrawingKey = result.key;
-    }
-
-    if (typeof dto.dimensions === 'string') {
-      editData.dimensions = JSON.parse(dto.dimensions) as Prisma.InputJsonValue;
-    } else {
-      editData.dimensions = dto.dimensions;
-    }
 
     const part = await this._editPartUseCase.execute(id, editData);
     return new ApiResponse(true, part, MESSAGE_CONSTANTS.SUCCESS.PART_UPDATED);
