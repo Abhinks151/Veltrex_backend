@@ -1,84 +1,42 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ICreateNotificationUseCase } from '../ports/use-cases/create-notification.use-case.interface';
 import { INotificationRepository } from '../ports/repositories/notification-repository.interface';
-import { NotificationSseService } from '../../infrastructure/services/notification-sse.service';
+import { IRealtimeNotificationService } from '../ports/services/realtime-notification.service.interface';
+import { INotificationUserQueryService } from '../ports/services/notification-user-query.service.interface';
 import { CreateNotificationDto } from '../dto/create-notification.dto';
-import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
-import { Role } from '@/shared/enums';
 
 @Injectable()
 export class CreateNotificationUseCase implements ICreateNotificationUseCase {
   constructor(
     @Inject('INotificationRepository')
     private readonly _notificationRepository: INotificationRepository,
-    private readonly _sseService: NotificationSseService,
-    private readonly _prisma: PrismaService,
+    @Inject('IRealtimeNotificationService')
+    private readonly _realtimeService: IRealtimeNotificationService,
+    @Inject('INotificationUserQueryService')
+    private readonly _userQueryService: INotificationUserQueryService,
   ) {}
 
   async execute(dto: CreateNotificationDto): Promise<void> {
     let targetUserIds: string[] = [];
 
-    // 1. Resolve targeted Users
     if (dto.userId) {
+      /**
+       * This is important other wise we dont have
+       * server to one targeted client notification
+       */
       targetUserIds.push(dto.userId);
     } else if (dto.tenantId) {
-      let rolesFilter: string[] = [];
-      if (dto.roles && dto.roles.length > 0) {
-        rolesFilter = dto.roles;
-      } else if (dto.role) {
-        rolesFilter = [dto.role];
-      }
+      const rolesFilter: string[] =
+        dto.roles && dto.roles.length > 0
+          ? dto.roles
+          : dto.role
+            ? [dto.role]
+            : [];
 
-      const rolesFilterAsEnum = rolesFilter as Role[];
-
-      // const targetUsers = await this._prisma.user.findMany({
-      //   where: {
-      //     isDeleted: false,
-      //     isBlocked: false,
-      //     OR: [
-      //       {
-      //         tenantId: dto.tenantId,
-      //         ...(rolesFilterAsEnum.length > 0
-      //           ? { role: { in: rolesFilterAsEnum } }
-      //           : {}),
-      //       },
-      //       {
-      //         ownedTenant: { id: dto.tenantId },
-      //         ...(rolesFilterAsEnum.length > 0
-      //           ? { role: { in: rolesFilterAsEnum } }
-      //           : {}),
-      //       },
-      //     ],
-      //   },
-      //   select: { id: true },
-      // });
-
-      const roleFilter =
-        rolesFilter.length > 0 ? { role: { in: rolesFilterAsEnum } } : {};
-
-      const tenantMemberFilter = {
-        tenantId: dto.tenantId,
-        ...roleFilter,
-      };
-
-      const tenantOwnerFilter = {
-        ownedTenant: {
-          id: dto.tenantId,
-        },
-        ...roleFilter,
-      };
-
-      const targetUsers = await this._prisma.user.findMany({
-        where: {
-          isDeleted: false,
-          isBlocked: false,
-          OR: [tenantMemberFilter, tenantOwnerFilter],
-        },
-        select: {
-          id: true,
-        },
-      });
-      targetUserIds = targetUsers.map((u) => u.id);
+      targetUserIds = await this._userQueryService.findUserIdsByTenantAndRoles(
+        dto.tenantId,
+        rolesFilter,
+      );
     }
 
     const createdNotifications = await Promise.all(
@@ -96,7 +54,7 @@ export class CreateNotificationUseCase implements ICreateNotificationUseCase {
     );
 
     for (const { userId, notification } of createdNotifications) {
-      this._sseService.emitToUser(userId, {
+      this._realtimeService.emitToUser(userId, {
         id: notification.id,
         title: notification.title,
         message: notification.message,
