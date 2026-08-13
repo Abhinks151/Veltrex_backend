@@ -176,4 +176,75 @@ export class ShiftTemplateRepository
       this._mapper(item as unknown as PrismaRawShiftTemplate),
     );
   }
+
+  async findOverlapping(
+    tenantId: string,
+    employeeId: string,
+    startDate: Date,
+    endDate?: Date | null,
+    excludeId?: string,
+    ctx?: ITransactionContext,
+  ): Promise<ShiftTemplate | null> {
+    const client = resolvePrismaClient(this._prisma, ctx);
+    const startOfToday = new Date(startDate);
+    startOfToday.setUTCHours(0, 0, 0, 0);
+
+    const endOfRange = endDate ? new Date(endDate) : null;
+    if (endOfRange) {
+      endOfRange.setUTCHours(0, 0, 0, 0);
+    }
+
+    const where: Prisma.ShiftTemplateWhereInput = {
+      employeeId,
+      tenantId,
+      isDeleted: false,
+      startDate: endOfRange ? { lte: endOfRange } : undefined,
+      OR: [{ endDate: null }, { endDate: { gte: startOfToday } }],
+    };
+
+    if (excludeId) {
+      where.id = { not: excludeId };
+    }
+
+    const result = await client.shiftTemplate.findFirst({
+      where,
+      include: {
+        employee: { select: { name: true, email: true } },
+        templateJobs: {
+          include: {
+            job: {
+              include: {
+                part: { select: { name: true, partNumber: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return result
+      ? this._mapper(result as unknown as PrismaRawShiftTemplate)
+      : null;
+  }
+
+  async updateTemplateJobs(
+    id: string,
+    jobs: Array<{ jobId: string; assignedQuantity: number; sequence: number }>,
+    ctx?: ITransactionContext,
+  ): Promise<void> {
+    const client = resolvePrismaClient(this._prisma, ctx);
+
+    await client.shiftTemplateJob.deleteMany({
+      where: { shiftTemplateId: id },
+    });
+
+    await client.shiftTemplateJob.createMany({
+      data: jobs.map((jobDto) => ({
+        shiftTemplateId: id,
+        jobId: jobDto.jobId,
+        assignedQuantity: jobDto.assignedQuantity,
+        sequence: jobDto.sequence,
+      })),
+    });
+  }
 }

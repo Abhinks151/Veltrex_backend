@@ -23,4 +23,17 @@ export interface IShiftTemplateRepository extends IBaseRepository<
     date: Date,
     ctx?: ITransactionContext,
   ): Promise<ShiftTemplate[]>;
+  findOverlapping(
+    tenantId: string,
+    employeeId: string,
+    startDate: Date,
+    endDate?: Date | null,
+    excludeId?: string,
+    ctx?: ITransactionContext,
+  ): Promise<ShiftTemplate | null>;
+  updateTemplateJobs(
+    id: string,
+    jobs: Array<{ jobId: string; assignedQuantity: number; sequence: number }>,
+    ctx?: ITransactionContext,
+  ): Promise<void>;
 }

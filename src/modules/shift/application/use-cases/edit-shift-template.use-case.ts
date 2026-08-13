@@ -10,12 +10,13 @@ import {
   NotFoundError,
 } from '@/shared/common/errors/domain-errors';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '@/shared/infrastructure/prisma/prisma.service';
-import { resolvePrismaClient } from '@/shared/infrastructure/prisma/resolve-prisma-client';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 import { ICreateNotificationUseCase } from '@/modules/notification/application/ports/use-cases/create-notification.use-case.interface';
 import { NotificationType } from '@/modules/notification/domain/notification-type.enum';
 import { SHIFT_NOTIFICATION } from '../constants/shift-notification.constants';
+import { IUserRepository } from '../../../auth/application/ports/repositories/user-repository.interface';
+import { IJobRepository } from '../../../job/application/ports/repositories/job-repository.interface';
+import { JobStatus } from '@/modules/job/domain/job.entity';
 
 @Injectable()
 export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
@@ -24,7 +25,10 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
     private readonly _shiftTemplateRepository: IShiftTemplateRepository,
     @Inject('ITransactionManager')
     private readonly _txManager: ITransactionManager,
-    private readonly _prisma: PrismaService,
+    @Inject('IUserRepository')
+    private readonly _userRepository: IUserRepository,
+    @Inject('IJobRepository')
+    private readonly _jobRepository: IJobRepository,
     @Inject('ICreateNotificationUseCase')
     private readonly _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
@@ -35,12 +39,12 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
     dto: Partial<CreateShiftTemplateDto>,
   ): Promise<ShiftTemplate> {
     return this._txManager.run(async (ctx: ITransactionContext) => {
-      const client = resolvePrismaClient(this._prisma, ctx);
-
       // Check if template exists
-      const existing = await client.shiftTemplate.findFirst({
-        where: { id, tenantId, isDeleted: false },
-      });
+      const existing = await this._shiftTemplateRepository.findByTenantAndId(
+        tenantId,
+        id,
+        ctx,
+      );
       if (!existing) {
         throw new NotFoundError(
           MESSAGE_CONSTANTS.ERROR.SHIFT_TEMPLATE_NOT_FOUND,
@@ -53,16 +57,14 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
         const targetEndDate =
           dto.endDate !== undefined ? dto.endDate : existing.endDate;
 
-        const overlapping = await client.shiftTemplate.findFirst({
-          where: {
-            id: { not: id },
-            employeeId: targetEmployeeId,
-            tenantId,
-            isDeleted: false,
-            startDate: targetEndDate ? { lte: targetEndDate } : undefined,
-            OR: [{ endDate: null }, { endDate: { gte: targetStartDate } }],
-          },
-        });
+        const overlapping = await this._shiftTemplateRepository.findOverlapping(
+          tenantId,
+          targetEmployeeId,
+          targetStartDate,
+          targetEndDate,
+          id,
+          ctx,
+        );
 
         if (overlapping) {
           throw new BadRequestError(
@@ -72,18 +74,19 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
       }
 
       if (dto.jobs) {
-        await client.shiftTemplateJob.deleteMany({
-          where: { shiftTemplateId: id },
-        });
-
         for (const jobDto of dto.jobs) {
-          const job = await client.job.findFirst({
-            where: { id: jobDto.jobId, tenantId, isDeleted: false },
-          });
+          const job = await this._jobRepository.findByTenantAndId(
+            tenantId,
+            jobDto.jobId,
+            ctx,
+          );
           if (!job) {
             throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.JOB_NOT_FOUND);
           }
-          if (job.status === 'COMPLETED' || job.status === 'CANCELLED') {
+          if (
+            job.status === JobStatus.COMPLETED ||
+            job.status === JobStatus.CANCELLED
+          ) {
             throw new BadRequestError(
               MESSAGE_CONSTANTS.ERROR.JOB_IS_COMPLETED_OR_CANCELLED,
             );
@@ -95,27 +98,27 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
           }
         }
 
-        await client.shiftTemplateJob.createMany({
-          data: dto.jobs.map((jobDto) => ({
-            shiftTemplateId: id,
-            jobId: jobDto.jobId,
-            assignedQuantity: jobDto.assignedQuantity,
-            sequence: jobDto.sequence,
-          })),
-        });
+        await this._shiftTemplateRepository.updateTemplateJobs(
+          id,
+          dto.jobs,
+          ctx,
+        );
       }
 
       const updateData: Prisma.ShiftTemplateUpdateInput = {};
       if (dto.employeeId) {
-        const employee = await client.user.findFirst({
-          where: { id: dto.employeeId, tenantId, isDeleted: false },
-        });
-        if (!employee)
+        const employee = await this._userRepository.findById(
+          dto.employeeId,
+          ctx,
+        );
+        if (!employee || employee.tenantId !== tenantId) {
           throw new NotFoundError(MESSAGE_CONSTANTS.ERROR.EMPLOYEE_NOT_FOUND);
-        if (employee.isBlocked)
+        }
+        if (employee.isBlocked) {
           throw new BadRequestError(
             MESSAGE_CONSTANTS.ERROR.EMPLOYEE_IS_BLOCKED,
           );
+        }
         updateData.employee = { connect: { id: dto.employeeId } };
       }
       if (dto.shiftType) {
@@ -131,10 +134,7 @@ export class EditShiftTemplateUseCase implements IEditShiftTemplateUseCase {
         updateData.endDate = dto.endDate || null;
       }
 
-      await client.shiftTemplate.update({
-        where: { id },
-        data: updateData,
-      });
+      await this._shiftTemplateRepository.update(id, updateData, ctx);
 
       const updatedTemplate =
         await this._shiftTemplateRepository.findByTenantAndId(

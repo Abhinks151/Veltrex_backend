@@ -205,6 +205,7 @@ import { UpdateProfileImageUseCase } from './application/use-cases/update-profil
     'IAuthChangePasswordUseCase',
     'IAuthUpdateProfileImageUseCase',
     'IAuthUpdateUserUseCase',
+    'IUserRepository',
   ],
 })
 export class AuthModule {}

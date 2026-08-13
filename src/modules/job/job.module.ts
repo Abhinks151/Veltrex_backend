@@ -47,6 +47,6 @@ import { MachineModule } from '../machine/machine.module';
       useClass: CheckPartInUseUseCase,
     },
   ],
-  exports: ['ICheckPartInUseUseCase'],
+  exports: ['ICheckPartInUseUseCase', 'IJobRepository'],
 })
 export class JobModule {}
