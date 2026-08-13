@@ -3,21 +3,30 @@ import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '@/shared/infrastructure/prisma/prisma.module';
 import { NotificationController } from './presentation/notification.controller';
 import { NotificationRepository } from './infrastructure/repositories/notification-repository';
+import { NotificationSseService } from './infrastructure/services/notification-sse.service';
+import { PrismaNotificationUserQueryService } from './infrastructure/services/prisma-notification-user-query.service';
 import { CreateNotificationUseCase } from './application/use-cases/create-notification.use-case';
 import { GetMyNotificationsUseCase } from './application/use-cases/get-my-notifications.use-case';
 import { MarkNotificationAsReadUseCase } from './application/use-cases/mark-notification-as-read.use-case';
 import { MarkAllNotificationsAsReadUseCase } from './application/use-cases/mark-all-notifications-as-read.use-case';
-import { NotificationSseService } from './infrastructure/services/notification-sse.service';
 
 @Module({
   imports: [AuthModule, PrismaModule],
   controllers: [NotificationController],
   providers: [
-    NotificationSseService,
     {
       provide: 'INotificationRepository',
       useClass: NotificationRepository,
     },
+    {
+      provide: 'IRealtimeNotificationService',
+      useClass: NotificationSseService,
+    },
+    {
+      provide: 'INotificationUserQueryService',
+      useClass: PrismaNotificationUserQueryService,
+    },
+
     {
       provide: 'ICreateNotificationUseCase',
       useClass: CreateNotificationUseCase,
@@ -35,6 +44,6 @@ import { NotificationSseService } from './infrastructure/services/notification-s
       useClass: MarkAllNotificationsAsReadUseCase,
     },
   ],
-  exports: ['ICreateNotificationUseCase', NotificationSseService],
+  exports: ['ICreateNotificationUseCase', 'IRealtimeNotificationService'],
 })
 export class NotificationModule {}

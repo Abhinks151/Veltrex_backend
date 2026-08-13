@@ -15,7 +15,7 @@ import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { JwtAuthGuard } from '@/modules/auth/presentation/guards/jwt-auth.guard';
 import { IsVerifiedGuard } from '@/modules/auth/presentation/guards/is-verified.guard';
-import { NotificationSseService } from '../infrastructure/services/notification-sse.service';
+import { IRealtimeNotificationService } from '../application/ports/services/realtime-notification.service.interface';
 import { IGetMyNotificationsUseCase } from '../application/ports/use-cases/get-my-notifications.use-case.interface';
 import { IMarkNotificationAsReadUseCase } from '../application/ports/use-cases/mark-notification-as-read.use-case.interface';
 import { IMarkAllNotificationsAsReadUseCase } from '../application/ports/use-cases/mark-all-notifications-as-read.use-case.interface';
@@ -25,7 +25,8 @@ import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 @Controller('notifications')
 export class NotificationController {
   constructor(
-    private readonly _sseService: NotificationSseService,
+    @Inject('IRealtimeNotificationService')
+    private readonly _realtimeService: IRealtimeNotificationService,
     @Inject('IGetMyNotificationsUseCase')
     private readonly _getMyNotificationsUseCase: IGetMyNotificationsUseCase,
     @Inject('IMarkNotificationAsReadUseCase')
@@ -40,7 +41,7 @@ export class NotificationController {
     if (!req.user || !req.user.userId) {
       throw new UnauthorizedException();
     }
-    return this._sseService.registerClient(req.user.userId);
+    return this._realtimeService.registerClient(req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard, IsVerifiedGuard)

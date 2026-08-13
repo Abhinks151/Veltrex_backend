@@ -3,9 +3,11 @@ import { MESSAGE_CONSTANTS } from '@/shared/enums';
 import { Injectable, MessageEvent } from '@nestjs/common';
 import { Subject, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { IRealtimeNotificationService } from '../../application/ports/services/realtime-notification.service.interface';
+import { NotificationPayload } from '../../application/dto/notification-payload.dto';
 
 @Injectable()
-export class NotificationSseService {
+export class NotificationSseService implements IRealtimeNotificationService {
   private clients = new Map<string, Subject<MessageEvent>[]>();
 
   registerClient(userId: string): Observable<MessageEvent> {
@@ -32,11 +34,11 @@ export class NotificationSseService {
     );
   }
 
-  emitToUser(userId: string, data: any): void {
+  emitToUser(userId: string, payload: NotificationPayload): void {
     const connections = this.clients.get(userId);
     if (connections && connections.length > 0) {
       const event: MessageEvent = {
-        data: JSON.stringify(data),
+        data: JSON.stringify(payload),
       };
       connections.forEach((subject) => {
         try {
