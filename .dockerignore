@@ -1,20 +1,35 @@
-# Dependency directories
+# Dependency directories & logs
 node_modules/
-npm-debug.log
+npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Git and dev setups
+# Git & GitHub
 .git
 .gitignore
-.dockerignore
 .github
-.env
 
-# Build output
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build output & coverage
 dist/
+coverage/
+.nyc_output/
 
 # Docker config
-Dockerfile
-docker-compose.yml
+Dockerfile*
+docker-compose*.yml
+
+# IDEs & Editors
+.vscode/
+.idea/
+
+# Development ignore files
+.dockerignore
+
+# Documentation
+*.md
