@@ -1,294 +1,69 @@
-# services:
-#   backend:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#       target: dependencies # Use the dependencies stage for development
-#     container_name: veltrex-backend
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       - NODE_ENV=development
-#       - CI=true
-#     volumes:
-#       - .:/app
-#       - /app/node_modules
-#     command: >
-#       sh -c "pnpm config set confirm-modules-purge false && pnpm install && pnpm run start:dev"
-#     restart: unless-stopped
-
-# services:
-#   db:
-#     image: postgres:17-alpine
-#     container_name: veltrex-db
-#     restart: always
-#     environment:
-#       POSTGRES_USER: abhin
-#       POSTGRES_PASSWORD: valtrex151%
-#       POSTGRES_DB: veltrex
-#     ports:
-#       - "5433:5432"
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
-
-#   backend:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#       target: dependencies
-#     container_name: veltrex-backend
-#     depends_on:
-#       - db
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       - NODE_ENV=development
-#       - DATABASE_URL=postgresql://abhin:veltrex151%@db:5433/veltrex?schema=public
-#     volumes:
-#       - .:/app
-#       - /app/node_modules
-#     # Added 'prisma generate' to the command so the client is ready on start
-#     command: >
-#       sh -c "pnpm install && pnpm exec prisma generate && pnpm run start:dev"
-#     restart: unless-stopped
-
-# volumes:
-#   postgres_data:
-
-# services:
-#   db:
-#     image: postgres:17-alpine
-#     container_name: veltrex-db
-#     restart: always
-#     environment:
-#       POSTGRES_USER: abhin
-#       POSTGRES_PASSWORD: "valtrex151%"
-#       POSTGRES_DB: veltrex
-#     ports:
-#       - "5433:5432"
-#     volumes:
-#       - veltrex_postgres_data:/var/lib/postgresql/data
-
-#   backend:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#       target: dependencies
-#     container_name: veltrex-backend
-#     depends_on:
-#       - db
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       - NODE_ENV=development
-#       - CI=true
-#       # Internal connection: uses service name 'db' and internal port 5432
-#       # Password '%' is encoded to '%25' for the URI
-#       - DATABASE_URL=postgresql://abhin:valtrex151%25@db:5432/veltrex?schema=public
-#     volumes:
-#       - .:/app
-#       - /app/node_modules
-#     command: >
-#       sh -c "pnpm install --yes && pnpm exec prisma generate && pnpm run start:dev"
-#     restart: unless-stopped
-
-# volumes:
-#   veltrex_postgres_data:
-
-# services:
-#   veltrex_db:
-#     image: postgres:17-alpine
-#     container_name: veltrex-db-v17 # New name to avoid conflicts
-#     restart: always
-#     environment:
-#       POSTGRES_USER: abhin
-#       POSTGRES_PASSWORD: "valtrex151%"
-#       POSTGRES_DB: veltrex
-#     ports:
-#       - "5433:5432" # Use 5433 for your Ubuntu host
-#     volumes:
-#       - veltrex_v17_data:/var/lib/postgresql/data
-
-# backend:
-#   build:
-#     context: .
-#     dockerfile: Dockerfile
-#     target: dependencies
-#   container_name: veltrex-backend-app
-#   depends_on:
-#     - veltrex_db
-#   ports:
-#     - "3000:3000"
-#   environment:
-#     - NODE_ENV=development
-#     - CI=true
-#     - DATABASE_URL=postgresql://abhin:valtrex151%25@veltrex_db:5432/veltrex?schema=public
-#   volumes:
-#     - .:/app
-#     - /app/node_modules
-#   # REMOVED '--yes' BELOW - THIS FIXES THE CRASH
-#   command: >
-#     sh -c "pnpm install && pnpm exec prisma generate && pnpm run start:dev"
-#   restart: unless-stopped
-
-# volumes:
-#   veltrex_v17_data:
-
-# services:
-#   veltrex_db:
-#     image: postgres:17-alpine
-#     container_name: veltrex-db-v17
-#     restart: always
-#     environment:
-#       POSTGRES_USER: abhin
-#       POSTGRES_PASSWORD: "valtrex151%"
-#       POSTGRES_DB: veltrex
-#     ports:
-#       - "5433:5432"
-#     volumes:
-#       - veltrex_v17_data:/var/lib/postgresql/data
-
-#   backend:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     container_name: veltrex-backend-app
-#     depends_on:
-#       - veltrex-db-v17
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       - NODE_ENV=development
-#       - DATABASE_URL=postgresql://abhin:valtrex151%25@veltrex-db-v17:5432/veltrex?schema=public
-#       # 1. ADD THIS LINE: This tells pnpm to trust scripts globally in this container
-#       - PNPM_CONF_ONLY_ALLOW_TRUSTED_DEPENDENCIES=true
-#     volumes:
-#       - .:/app
-#       - /app/node_modules
-#     # 2. REMOVE the flag from the command string
-#     command: >
-#       sh -c "pnpm install && pnpm exec prisma generate && pnpm run start:dev"
-#     restart: unless-stopped
-
-# volumes:
-#   veltrex_v17_data:
-
-# services:
-#   veltrex-db-v17:
-#     # This is the Service Name
-#     image: postgres:17-alpine
-#     container_name: veltrex-db-v17
-#     restart: always
-#     environment:
-#       POSTGRES_USER: abhin
-#       POSTGRES_PASSWORD: "valtrex151%"
-#       POSTGRES_DB: veltrex
-#     ports:
-#       - "5433:5432"
-#     volumes:
-#       - veltrex_v17_data:/var/lib/postgresql/data
-
-#   backend:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     container_name: veltrex-backend-app
-#     depends_on:
-#       - veltrex-db-v17 # Matches the Service Name above
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       - NODE_ENV=development
-#       # Use the Service Name in the connection string
-#       - DATABASE_URL=postgresql://abhin:valtrex151%25@veltrex-db-v17:5432/veltrex?schema=public
-#       - PNPM_CONF_ONLY_ALLOW_TRUSTED_DEPENDENCIES=true
-#       - CI=true
-#     volumes:
-#       - .:/app
-#       - /app/node_modules
-#     command: >
-#       sh -c "pnpm install && pnpm exec prisma generate && pnpm run start:dev"
-#     restart: unless-stopped
-
-# volumes:
-#   veltrex_v17_data:
-
-# services:
-#   veltrex-db-v17:
-#     image: postgres:17-alpine
-#     container_name: veltrex-db-v17
-#     restart: always
-#     environment:
-#       POSTGRES_USER: abhin
-#       POSTGRES_PASSWORD: "valtrex151%"
-#       POSTGRES_DB: veltrex
-#     ports:
-#       - "5433:5432"
-#     volumes:
-#       - veltrex_v17_data:/var/lib/postgresql/data
-
-#   backend:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     container_name: veltrex-backend-app
-#     depends_on:
-#       - veltrex-db-v17
-#     ports:
-#       - "3000:3000"
-#     environment:
-#       - NODE_ENV=development
-#       # Internal Docker DNS uses the service name 'veltrex-db-v17'
-#       - DATABASE_URL=postgresql://abhin:valtrex151%25@veltrex-db-v17:5432/veltrex?schema=public
-#       - PNPM_CONF_ONLY_ALLOW_TRUSTED_DEPENDENCIES=true
-#       # CI=true stops pnpm from asking interactive questions (fixes the TTY error)
-#       - CI=true
-#     volumes:
-#       - .:/app
-#       # This anonymous volume protects the container's node_modules from being 
-#       # overwritten by your Ubuntu host folder
-#       - /app/node_modules
-#     command: >
-#       sh -c "pnpm install && pnpm exec prisma generate && pnpm run start:dev"
-#     restart: unless-stopped
-
-# volumes:
-#   veltrex_v17_data:
-
 services:
-  veltrex-db-v17:
+  postgres:
     image: postgres:17-alpine
     container_name: veltrex-db-v17
     restart: always
     environment:
-      POSTGRES_USER: abhin
-      POSTGRES_PASSWORD: "valtrex151%"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: veltrex
     ports:
       - "5433:5432"
     volumes:
       - veltrex_v17_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d veltrex" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  redis:
+    image: redis:alpine
+    container_name: veltrex-redis
+    restart: always
+    volumes:
+      - veltrex_redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
 
   backend:
+    image: veltrex-backend-backend-dev:latest
     build:
       context: .
       dockerfile: Dockerfile
+      target: dependencies # Build up to dependencies stage to run as root for volume operations
     container_name: veltrex-backend-app
     depends_on:
-      - veltrex-db-v17
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://abhin:valtrex151%25@veltrex-db-v17:5432/veltrex?schema=public
-      - PNPM_CONF_ONLY_ALLOW_TRUSTED_DEPENDENCIES=true
-      - CI=true
+    env_file:
+      - .env
     volumes:
       - .:/app
       - /app/node_modules
     command: >
-      sh -c "pnpm install && pnpm exec prisma generate && pnpm run start:dev"
+      sh -c "pnpm install &&
+             pnpm exec prisma generate &&
+             pnpm run start:dev"
     restart: unless-stopped
+    networks:
+      - backend
 
 volumes:
   veltrex_v17_data:
+  veltrex_redis_data:
+
+networks:
+  backend:
+    driver: bridge
