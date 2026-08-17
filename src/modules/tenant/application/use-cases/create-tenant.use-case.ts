@@ -16,6 +16,7 @@ import {
   ConflictError,
   NotFoundError,
 } from '../../../../shared/common/errors/domain-errors';
+import { RESERVED_SUBDOMAINS } from '@/shared/enums/reserved-subdomains.constants';
 
 @Injectable()
 export class CreateTenantUseCase implements ICreateTenantUseCase {
@@ -58,6 +59,12 @@ export class CreateTenantUseCase implements ICreateTenantUseCase {
 
     if (!reqDto.subdomain) {
       throw new BadRequestError('Subdomain is required');
+    }
+
+    if (RESERVED_SUBDOMAINS.includes(reqDto.subdomain.toLowerCase())) {
+      throw new BadRequestError(
+        `The subdomain "${reqDto.subdomain}" is reserved and cannot be used`,
+      );
     }
 
     const subdomainTaken = await this._tenantRepository.findBySubdomain(
