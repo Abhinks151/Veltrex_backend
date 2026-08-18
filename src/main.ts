@@ -50,6 +50,7 @@ async function bootstrap() {
     },
 
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-tenant'],
   });
 
   app.use(cookieParser());

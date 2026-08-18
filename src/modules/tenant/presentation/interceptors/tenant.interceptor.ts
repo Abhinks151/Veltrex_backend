@@ -41,10 +41,23 @@ export class TenantInterceptor implements NestInterceptor {
       hostname !== apiDomain &&
       hostname.endsWith(`.${baseDomain}`);
 
-    if (isTenantSubdomain) {
-      const subdomain = hostname.slice(0, -`.${baseDomain}`.length);
+    let subdomainToResolve: string | null = null;
 
-      const tenant = await this._getTenantBySubdomainUseCase.execute(subdomain);
+    if (isTenantSubdomain) {
+      // Local dev: tenant derived from subdomain in the Host header (e.g. trial.lvh.me)
+      subdomainToResolve = hostname.slice(0, -`.${baseDomain}`.length);
+    } else if (hostname === apiDomain) {
+      // Production: all requests hit api.abhinks.site, so the frontend sends
+      // the tenant subdomain via the x-tenant header instead.
+      const xTenant = request.headers['x-tenant'];
+      if (xTenant && typeof xTenant === 'string') {
+        subdomainToResolve = xTenant;
+      }
+    }
+
+    if (subdomainToResolve) {
+      const tenant =
+        await this._getTenantBySubdomainUseCase.execute(subdomainToResolve);
 
       if (!tenant) {
         throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
