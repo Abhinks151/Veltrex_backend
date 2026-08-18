@@ -27,15 +27,22 @@ export class TenantInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<IRequest>();
 
     const host = request.headers.host || '';
+
     const baseDomain =
       this._configService.get<string>('BASE_DOMAIN') || 'localhost';
 
-    // find the host(http://localhost:3000 -> localhost)
     const hostname = host.split(':')[0];
 
-    // check if it's a subdomain
-    if (hostname !== baseDomain && hostname.endsWith(`.${baseDomain}`)) {
-      const subdomain = hostname.split(`.${baseDomain}`)[0];
+    const apiDomain = `api.${baseDomain}`;
+
+    // Ignore root domain and API domain.
+    const isTenantSubdomain =
+      hostname !== baseDomain &&
+      hostname !== apiDomain &&
+      hostname.endsWith(`.${baseDomain}`);
+
+    if (isTenantSubdomain) {
+      const subdomain = hostname.slice(0, -`.${baseDomain}`.length);
 
       const tenant = await this._getTenantBySubdomainUseCase.execute(subdomain);
 
@@ -43,7 +50,6 @@ export class TenantInterceptor implements NestInterceptor {
         throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
       }
 
-      // update the request with tenant
       request.tenantId = tenant.id;
       request.tenant = tenant;
     }
