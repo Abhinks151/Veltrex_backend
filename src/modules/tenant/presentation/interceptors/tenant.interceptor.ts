@@ -12,6 +12,8 @@ import { IGetTenantBySubdomainUseCase } from '../../application/ports/use-cases/
 import { IRequest } from '@/shared/types/express-request.interface';
 import { MESSAGE_CONSTANTS } from '@/shared/enums/messageConstants';
 
+import { RESERVED_SUBDOMAINS } from '@/shared/enums/reserved-subdomains.constants';
+
 @Injectable()
 export class TenantInterceptor implements NestInterceptor {
   constructor(
@@ -56,15 +58,23 @@ export class TenantInterceptor implements NestInterceptor {
     }
 
     if (subdomainToResolve) {
-      const tenant =
-        await this._getTenantBySubdomainUseCase.execute(subdomainToResolve);
+      const lowerSubdomain = subdomainToResolve.toLowerCase();
+      const isReserved =
+        RESERVED_SUBDOMAINS.includes(lowerSubdomain) ||
+        lowerSubdomain === 'superadmin' ||
+        lowerSubdomain === 'super-admin';
 
-      if (!tenant) {
-        throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+      if (!isReserved) {
+        const tenant =
+          await this._getTenantBySubdomainUseCase.execute(subdomainToResolve);
+
+        if (!tenant) {
+          throw new NotFoundException(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
+        }
+
+        request.tenantId = tenant.id;
+        request.tenant = tenant;
       }
-
-      request.tenantId = tenant.id;
-      request.tenant = tenant;
     }
 
     return next.handle();
