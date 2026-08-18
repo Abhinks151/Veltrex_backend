@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
+const bcrypt = require('bcrypt');
 
 dotenv.config();
 
@@ -118,6 +119,57 @@ const lookups = [
   },
 ];
 
+async function seedSuperAdmin() {
+  const email = process.env.SUPER_ADMIN_EMAIL;
+  const password = process.env.SUPER_ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error(
+      'SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must be provided',
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const existing = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (existing) {
+    await prisma.user.update({
+      where: {
+        id: existing.id,
+      },
+      data: {
+        password: hashedPassword,
+        role: 'SUPER_ADMIN',
+        isVerified: true,
+        isBlocked: false,
+        isDeleted: false,
+      },
+    });
+
+    console.log(`🔄 Super admin updated: ${email}`);
+    return;
+  }
+
+  await prisma.user.create({
+    data: {
+      name: 'Super Admin',
+      email,
+      password: hashedPassword,
+      role: 'SUPER_ADMIN',
+      isVerified: true,
+      isBlocked: false,
+      isDeleted: false,
+    },
+  });
+
+  console.log(`✅ Super admin created: ${email}`);
+}
+
 async function main() {
   console.log('🌱 Seeding lookups...\n');
 
@@ -165,6 +217,8 @@ async function main() {
   }
 
   console.log(`\n✨ Done! ${lookups.length} lookup values upserted.`);
+
+  await seedSuperAdmin();
 }
 
 main()
