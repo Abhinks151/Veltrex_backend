@@ -76,10 +76,8 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
           }
         }
       }
-
-      if (!tenant && (payload.role as Role) !== Role.ADMIN) {
-        throw new UnauthorizedError(MESSAGE_CONSTANTS.ERROR.TENANT_NOT_FOUND);
-      }
+      // Note: !tenant is valid for newly registered users who haven't created
+      // a tenant yet. We allow them to refresh so the onboarding flow works.
     }
 
     this._logger.log('Refresh token verified, issuing new tokens', {
